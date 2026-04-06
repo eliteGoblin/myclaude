@@ -37,7 +37,46 @@ header()  { printf "\n${BOLD}${CYAN}%s${RESET}\n" "$1"; }
 subhead() { printf "  ${BOLD}%s${RESET}\n" "$1"; }
 item()    { printf "  ${GREEN}%-28s${RESET} %s\n" "$1" "$2"; }
 dimitem() { printf "  ${DIM}%-28s %s${RESET}\n" "$1" "$2"; }
+detail()  { printf "    ${DIM}%s${RESET}\n" "$1"; }
 warn()    { printf "  ${YELLOW}%s${RESET}\n" "$1"; }
+
+# Extract first meaningful sentence from a markdown file (skip frontmatter, headings, code)
+extract_summary() {
+  local file="$1" max="${2:-120}"
+  awk '
+    BEGIN { in_front=0; in_code=0; found=0 }
+    /^---$/ && !in_front && !found { in_front=1; next }
+    /^---$/ && in_front  { in_front=0; next }
+    in_front { next }
+    /^```/ { in_code=!in_code; next }
+    in_code { next }
+    /^$/ { next }
+    /^#/ { next }
+    /^>/ { sub(/^> */, ""); if (!found && length > 10 && !/extends/) { print; found=1; next } }
+    /^\|/ { next }
+    /^- \*\*/ { next }
+    /^[A-Z][a-z]/ {
+      if (!found) { print; found=1 }
+    }
+  ' "$file" 2>/dev/null | head -1 | cut -c1-"$max"
+}
+
+# Hardcoded brief descriptions for common rules (better than auto-extract)
+rule_brief() {
+  case "$1" in
+    agents)              echo "How agents are orchestrated and delegated to" ;;
+    code-review)         echo "Quality, security, and maintainability review standards" ;;
+    coding-style)        echo "Immutability, naming, error handling, input validation" ;;
+    development-workflow) echo "Feature pipeline: research, plan, TDD, review, commit" ;;
+    git-workflow)        echo "Conventional commits, branching, PR workflow" ;;
+    hooks)               echo "PreToolUse, PostToolUse, Stop hook types and patterns" ;;
+    patterns)            echo "Skeleton projects, repository pattern, common structures" ;;
+    performance)         echo "Model selection, token budgets, caching strategies" ;;
+    security)            echo "No secrets in code, input validation, SQL/XSS prevention" ;;
+    testing)             echo "80% coverage minimum, unit/integration/E2E required" ;;
+    *)                   extract_summary "$2" 90 ;;
+  esac
+}
 
 # ─── cheatsheet (default) ───────────────────────────────────────────
 cmd_cheatsheet() {
@@ -132,19 +171,146 @@ ART
   printf "    ${GREEN}/build-fix${RESET}             ${DIM}→ auto-fix build errors${RESET}\n"
   printf "    ${GREEN}/code-review${RESET} [PR#]     ${DIM}→ review changes or PR${RESET}\n"
   printf "    ${GREEN}/verify${RESET}                ${DIM}→ pre-ship checks${RESET}\n"
-  printf "\n  ${BOLD}Management:${RESET}\n"
-  printf "    ${GREEN}myclaude${RESET}               ${DIM}→ this cheatsheet${RESET}\n"
-  printf "    ${GREEN}myclaude status${RESET}        ${DIM}→ verify install${RESET}\n"
+  printf "\n  ${BOLD}Inspect (add --verbose / -v for details):${RESET}\n"
+  printf "    ${GREEN}myclaude rules${RESET}         ${DIM}→ list rules (--verbose: what each covers)${RESET}\n"
+  printf "    ${GREEN}myclaude skills${RESET}        ${DIM}→ list skills (--verbose: sections & value)${RESET}\n"
+  printf "    ${GREEN}myclaude commands${RESET}      ${DIM}→ list commands (--verbose: full descriptions)${RESET}\n"
+  printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agents & models${RESET}\n"
+  printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
+  printf "\n  ${BOLD}Manage:${RESET}\n"
   printf "    ${GREEN}myclaude pick${RESET} <path>   ${DIM}→ add upstream file/dir${RESET}\n"
   printf "    ${GREEN}myclaude unpick${RESET} <path> ${DIM}→ remove file/dir${RESET}\n"
   printf "    ${GREEN}myclaude sync${RESET}          ${DIM}→ apply to ~/.claude/${RESET}\n"
   printf "    ${GREEN}myclaude diff${RESET}          ${DIM}→ upstream changes${RESET}\n"
   printf "    ${GREEN}myclaude browse${RESET}        ${DIM}→ all upstream files${RESET}\n"
-  printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agent models${RESET}\n"
-  printf "    ${GREEN}myclaude agents --opus${RESET} ${DIM}→ upgrade all to opus${RESET}\n"
   printf "    ${GREEN}myclaude own${RESET} <path>    ${DIM}→ create custom file${RESET}\n"
-  printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
+  printf "    ${GREEN}myclaude agents --opus${RESET} ${DIM}→ upgrade all to opus${RESET}\n"
+  printf "    ${GREEN}myclaude status${RESET}        ${DIM}→ verify install${RESET}\n"
   printf "    ${GREEN}myclaude install-link${RESET}  ${DIM}→ add to PATH${RESET}\n"
+  echo ""
+}
+
+# ─── rules subcommand ────────────────────────────────────────────────
+cmd_rules() {
+  local verbose=0
+  [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && verbose=1
+
+  header "RULES  (always loaded into context)"
+  if [[ ! -d "$CLAUDE_HOME/rules" ]]; then
+    warn "No rules installed"; return
+  fi
+
+  for d in "$CLAUDE_HOME/rules"/*/; do
+    [[ -d "$d" ]] || continue
+    local group
+    group=$(basename "$d")
+    local count
+    count=$(find "$d" -name "*.md" -type f | wc -l | tr -d ' ')
+    printf "  ${BOLD}${GREEN}%s/${RESET}  ${DIM}(%s files)${RESET}\n" "$group" "$count"
+
+    if [[ $verbose -eq 1 ]]; then
+      for f in "$d"/*.md; do
+        [[ -f "$f" ]] || continue
+        local fname summary
+        fname=$(basename "$f" .md)
+        summary=$(rule_brief "$fname" "$f")
+        if [[ -z "$summary" || "$summary" == *"extends"* ]]; then
+          # Use group + common description as fallback
+          summary=$(rule_brief "$fname" "")
+          [[ -z "$summary" ]] && summary="Extends common/$fname for $group"
+        fi
+        printf "    ${GREEN}%-22s${RESET} %s\n" "$fname" "$summary"
+      done
+      echo ""
+    fi
+  done
+
+  if [[ $verbose -eq 0 ]]; then
+    printf "\n  ${DIM}Use ${RESET}${GREEN}myclaude rules --verbose${RESET}${DIM} to see what each rule covers${RESET}\n"
+  fi
+  echo ""
+}
+
+# ─── skills subcommand ──────────────────────────────────────────────
+cmd_skills() {
+  local verbose=0
+  [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && verbose=1
+
+  header "SKILLS  (loaded when relevant)"
+  local skill_dir="$CLAUDE_HOME/skills"
+  if [[ ! -d "$skill_dir" ]]; then
+    warn "No skills installed"; return
+  fi
+
+  for d in "$skill_dir"/*/; do
+    [[ -d "$d" ]] || continue
+    local name
+    name=$(basename "$d")
+    local skill_file="$d/SKILL.md"
+    [[ -f "$skill_file" ]] || continue
+
+    # Get description from frontmatter
+    local desc
+    desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$skill_file" 2>/dev/null)
+
+    if [[ $verbose -eq 1 ]]; then
+      printf "  ${BOLD}${GREEN}%s${RESET}\n" "$name"
+      if [[ -n "$desc" ]]; then
+        printf "    %s\n" "$desc"
+      fi
+      # Show ## sections as bullet points
+      awk '/^## /{sub(/^## */, ""); printf "    - %s\n", $0}' "$skill_file" 2>/dev/null
+      echo ""
+    else
+      item "$name" "${desc:0:60}"
+    fi
+  done
+
+  if [[ $verbose -eq 0 ]]; then
+    printf "\n  ${DIM}Use ${RESET}${GREEN}myclaude skills --verbose${RESET}${DIM} to see what each skill provides${RESET}\n"
+  fi
+  echo ""
+}
+
+# ─── commands subcommand ─────────────────────────────────────────────
+cmd_commands() {
+  local verbose=0
+  [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && verbose=1
+
+  header "COMMANDS  (type in Claude Code)"
+  local cmd_dir="$CLAUDE_HOME/commands"
+  if [[ ! -d "$cmd_dir" ]]; then
+    warn "No commands installed"; return
+  fi
+
+  for f in "$cmd_dir"/*.md; do
+    [[ -f "$f" ]] || continue
+    local name desc
+    name=$(basename "$f" .md)
+    desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f" 2>/dev/null)
+    [[ -z "$desc" ]] && desc=$(awk '/^#/{sub(/^#+ */, ""); print; exit}' "$f" 2>/dev/null)
+
+    if [[ $verbose -eq 1 ]]; then
+      printf "  ${BOLD}${GREEN}/%s${RESET}  %s\n" "$name" "${desc:0:70}"
+      local summary
+      summary=$(extract_summary "$f" 100)
+      [[ -n "$summary" ]] && detail "$summary"
+      echo ""
+    else
+      case "$name" in
+        plan|tdd|build-fix|code-review|e2e|verify)
+          item "/$name" "${desc:0:60}" ;;
+        save-session|resume-session|sessions)
+          item "/$name" "${desc:0:60}" ;;
+        *)
+          dimitem "/$name" "${desc:0:55}" ;;
+      esac
+    fi
+  done
+
+  if [[ $verbose -eq 0 ]]; then
+    printf "\n  ${DIM}Use ${RESET}${GREEN}myclaude commands --verbose${RESET}${DIM} for details${RESET}\n"
+  fi
   echo ""
 }
 
@@ -214,6 +380,15 @@ shift 2>/dev/null || true
 case "$cmd" in
   ""|-h|--help|help|cheatsheet)
     cmd_cheatsheet
+    ;;
+  rules)
+    cmd_rules "$@"
+    ;;
+  skills)
+    cmd_skills "$@"
+    ;;
+  commands)
+    cmd_commands "$@"
     ;;
   counts)
     cmd_counts

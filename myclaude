@@ -1,0 +1,235 @@
+#!/usr/bin/env bash
+# myclaude — personal Claude Code companion CLI
+# Works on macOS + Ubuntu (zsh/bash)
+set -euo pipefail
+
+# ─── resolve paths ───────────────────────────────────────────────────
+SCRIPT_PATH="${BASH_SOURCE[0]}"
+while [[ -L "$SCRIPT_PATH" ]]; do
+  SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+  SCRIPT_PATH="$(readlink "$SCRIPT_PATH")"
+  [[ "$SCRIPT_PATH" != /* ]] && SCRIPT_PATH="$SCRIPT_DIR/$SCRIPT_PATH"
+done
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+
+ECC_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ECC_JS="$SCRIPT_DIR/ecc.js"
+CLAUDE_HOME="${HOME}/.claude"
+MANIFEST="$SCRIPT_DIR/manifest.json"
+
+# ─── colors ──────────────────────────────────────────────────────────
+if [[ -t 1 ]]; then
+  BOLD="\033[1m"
+  DIM="\033[2m"
+  CYAN="\033[36m"
+  GREEN="\033[32m"
+  YELLOW="\033[33m"
+  MAGENTA="\033[35m"
+  BLUE="\033[34m"
+  RED="\033[31m"
+  RESET="\033[0m"
+else
+  BOLD="" DIM="" CYAN="" GREEN="" YELLOW="" MAGENTA="" BLUE="" RED="" RESET=""
+fi
+
+# ─── helpers ─────────────────────────────────────────────────────────
+header()  { printf "\n${BOLD}${CYAN}%s${RESET}\n" "$1"; }
+subhead() { printf "  ${BOLD}%s${RESET}\n" "$1"; }
+item()    { printf "  ${GREEN}%-28s${RESET} %s\n" "$1" "$2"; }
+dimitem() { printf "  ${DIM}%-28s %s${RESET}\n" "$1" "$2"; }
+warn()    { printf "  ${YELLOW}%s${RESET}\n" "$1"; }
+
+# ─── cheatsheet (default) ───────────────────────────────────────────
+cmd_cheatsheet() {
+  printf "${BOLD}${CYAN}"
+  cat <<'ART'
+  ┌─────────────────────────────────────┐
+  │  myclaude — Claude Code companion   │
+  └─────────────────────────────────────┘
+ART
+  printf "${RESET}"
+
+  # ── Slash commands ──
+  header "COMMANDS  (type in Claude Code)"
+  local cmd_dir="$CLAUDE_HOME/commands"
+  if [[ -d "$cmd_dir" ]]; then
+    # Read description from frontmatter
+    for f in "$cmd_dir"/*.md; do
+      [[ -f "$f" ]] || continue
+      local name
+      name=$(basename "$f" .md)
+      local desc
+      desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f" 2>/dev/null)
+      [[ -z "$desc" ]] && desc=$(awk '/^#/{sub(/^#+ */, ""); print; exit}' "$f" 2>/dev/null)
+      case "$name" in
+        plan|tdd|build-fix|code-review|e2e|verify)
+          item "/$name" "${desc:0:60}" ;;
+        save-session|resume-session|sessions)
+          item "/$name" "${desc:0:60}" ;;
+        *)
+          dimitem "/$name" "${desc:0:55}" ;;
+      esac
+    done
+  else
+    warn "No commands installed"
+  fi
+
+  # ── Agents ──
+  header "AGENTS  (auto-delegated by Claude)"
+  local agent_dir="$CLAUDE_HOME/agents"
+  if [[ -d "$agent_dir" ]]; then
+    for f in "$agent_dir"/*.md; do
+      [[ -f "$f" ]] || continue
+      local name model desc_a
+      name=$(basename "$f" .md)
+      model=$(awk '/^model:/{print $2; exit}' "$f" 2>/dev/null)
+      desc_a=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f" 2>/dev/null)
+      local model_color="$YELLOW"
+      [[ "$model" == "opus" ]] && model_color="$MAGENTA"
+      printf "  ${GREEN}%-28s${RESET} ${model_color}%-6s${RESET} %s\n" "$name" "$model" "${desc_a:0:45}"
+    done
+  else
+    warn "No agents installed"
+  fi
+
+  # ── Skills ──
+  header "SKILLS  (loaded when relevant)"
+  local skill_dir="$CLAUDE_HOME/skills"
+  if [[ -d "$skill_dir" ]]; then
+    for d in "$skill_dir"/*/; do
+      [[ -d "$d" ]] || continue
+      local name
+      name=$(basename "$d")
+      local desc_s=""
+      if [[ -f "$d/SKILL.md" ]]; then
+        desc_s=$(awk '/^#/{sub(/^#+ */, ""); print; exit}' "$d/SKILL.md" 2>/dev/null)
+      fi
+      item "$name" "${desc_s:0:55}"
+    done
+  else
+    warn "No skills installed"
+  fi
+
+  # ── Rules ──
+  header "RULES  (always loaded into context)"
+  if [[ -d "$CLAUDE_HOME/rules" ]]; then
+    for d in "$CLAUDE_HOME/rules"/*/; do
+      [[ -d "$d" ]] || continue
+      local name count
+      name=$(basename "$d")
+      count=$(find "$d" -name "*.md" -type f | wc -l | tr -d ' ')
+      item "$name/" "${count} rules"
+    done
+  else
+    warn "No rules installed"
+  fi
+
+  # ── Quick reference ──
+  header "QUICK REFERENCE"
+  printf "  ${BOLD}Daily workflow:${RESET}\n"
+  printf "    ${GREEN}/plan${RESET} <requirements>   ${DIM}→ plan before coding${RESET}\n"
+  printf "    ${GREEN}/tdd${RESET}  <feature>        ${DIM}→ test-driven development${RESET}\n"
+  printf "    ${GREEN}/build-fix${RESET}             ${DIM}→ auto-fix build errors${RESET}\n"
+  printf "    ${GREEN}/code-review${RESET} [PR#]     ${DIM}→ review changes or PR${RESET}\n"
+  printf "    ${GREEN}/verify${RESET}                ${DIM}→ pre-ship checks${RESET}\n"
+  printf "\n  ${BOLD}Management:${RESET}\n"
+  printf "    ${GREEN}myclaude${RESET}               ${DIM}→ this cheatsheet${RESET}\n"
+  printf "    ${GREEN}myclaude status${RESET}        ${DIM}→ verify install${RESET}\n"
+  printf "    ${GREEN}myclaude pick${RESET} <path>   ${DIM}→ add upstream file/dir${RESET}\n"
+  printf "    ${GREEN}myclaude unpick${RESET} <path> ${DIM}→ remove file/dir${RESET}\n"
+  printf "    ${GREEN}myclaude sync${RESET}          ${DIM}→ apply to ~/.claude/${RESET}\n"
+  printf "    ${GREEN}myclaude diff${RESET}          ${DIM}→ upstream changes${RESET}\n"
+  printf "    ${GREEN}myclaude browse${RESET}        ${DIM}→ all upstream files${RESET}\n"
+  printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agent models${RESET}\n"
+  printf "    ${GREEN}myclaude agents --opus${RESET} ${DIM}→ upgrade all to opus${RESET}\n"
+  printf "    ${GREEN}myclaude own${RESET} <path>    ${DIM}→ create custom file${RESET}\n"
+  printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
+  printf "    ${GREEN}myclaude install-link${RESET}  ${DIM}→ add to PATH${RESET}\n"
+  echo ""
+}
+
+# ─── counts ──────────────────────────────────────────────────────────
+cmd_counts() {
+  header "INSTALLED FILE COUNTS"
+  local total=0
+  for kind in rules agents commands skills; do
+    local dir="$CLAUDE_HOME/$kind"
+    if [[ -d "$dir" ]]; then
+      local count
+      count=$(find "$dir" -type f | wc -l | tr -d ' ')
+      item "$kind/" "$count files"
+      total=$((total + count))
+    fi
+  done
+  printf "\n  ${BOLD}Total: %d files${RESET}\n\n" "$total"
+}
+
+# ─── install-link ────────────────────────────────────────────────────
+cmd_install_link() {
+  local bin_dir="${HOME}/.local/bin"
+  local link_path="$bin_dir/myclaude"
+  local target="$SCRIPT_DIR/myclaude"
+
+  mkdir -p "$bin_dir"
+
+  if [[ -L "$link_path" ]]; then
+    local existing
+    existing=$(readlink "$link_path")
+    if [[ "$existing" == "$target" ]]; then
+      printf "${GREEN}Already linked:${RESET} %s -> %s\n" "$link_path" "$target"
+      return 0
+    fi
+    rm "$link_path"
+  elif [[ -e "$link_path" ]]; then
+    printf "${RED}Error:${RESET} %s exists and is not a symlink. Remove it first.\n" "$link_path"
+    return 1
+  fi
+
+  ln -s "$target" "$link_path"
+  printf "${GREEN}Linked:${RESET} %s -> %s\n" "$link_path" "$target"
+
+  # Check if ~/.local/bin is in PATH
+  if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
+    printf "\n${YELLOW}~/.local/bin is not in your PATH.${RESET} Add to your shell rc:\n"
+    printf "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc\n"
+    printf "  source ~/.zshrc\n"
+  else
+    printf "\nYou can now run ${GREEN}myclaude${RESET} from anywhere.\n"
+  fi
+}
+
+# ─── delegates to ecc.js ────────────────────────────────────────────
+delegate() {
+  if [[ ! -f "$ECC_JS" ]]; then
+    printf "${RED}Error:${RESET} %s not found\n" "$ECC_JS"
+    exit 1
+  fi
+  node "$ECC_JS" "$@"
+}
+
+# ─── main ────────────────────────────────────────────────────────────
+cmd="${1:-}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+  ""|-h|--help|help|cheatsheet)
+    cmd_cheatsheet
+    ;;
+  counts)
+    cmd_counts
+    ;;
+  install-link)
+    cmd_install_link
+    ;;
+  pick|unpick|sync|diff|agents|own|status|ls)
+    delegate "$cmd" "$@"
+    ;;
+  browse)
+    delegate ls upstream "$@"
+    ;;
+  *)
+    printf "${RED}Unknown command:${RESET} %s\n" "$cmd"
+    printf "Run ${GREEN}myclaude${RESET} for help.\n"
+    exit 1
+    ;;
+esac

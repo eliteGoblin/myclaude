@@ -12,6 +12,9 @@
 - Subcommands: `myclaude rules`, `myclaude skills`, `myclaude commands` with `--verbose` flag
 - Verbose shows what each rule covers, skill sections & value, command details
 - Don't need to memorize — just `myclaude` to see everything
+- Default `myclaude` shows status dashboard: counts, hooks wired, sessions
+- `myclaude help` shows full command reference (separate from status)
+- Session hooks auto-save/load context across projects
 
 ## Current State
 - Installed: JS/TS focused (69 upstream files, pruned from 421)

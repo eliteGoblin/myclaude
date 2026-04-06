@@ -78,8 +78,8 @@ rule_brief() {
   esac
 }
 
-# ─── cheatsheet (default) ───────────────────────────────────────────
-cmd_cheatsheet() {
+# ─── status (default) ────────────────────────────────────────────────
+cmd_status_dashboard() {
   printf "${BOLD}${CYAN}"
   cat <<'ART'
   ┌─────────────────────────────────────┐
@@ -88,92 +88,119 @@ cmd_cheatsheet() {
 ART
   printf "${RESET}"
 
-  # ── Slash commands ──
-  header "COMMANDS  (type in Claude Code)"
-  local cmd_dir="$CLAUDE_HOME/commands"
-  if [[ -d "$cmd_dir" ]]; then
-    # Read description from frontmatter
-    for f in "$cmd_dir"/*.md; do
-      [[ -f "$f" ]] || continue
-      local name
-      name=$(basename "$f" .md)
-      local desc
-      desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f" 2>/dev/null)
-      [[ -z "$desc" ]] && desc=$(awk '/^#/{sub(/^#+ */, ""); print; exit}' "$f" 2>/dev/null)
-      case "$name" in
-        plan|tdd|build-fix|code-review|e2e|verify)
-          item "/$name" "${desc:0:60}" ;;
-        save-session|resume-session|sessions)
-          item "/$name" "${desc:0:60}" ;;
-        *)
-          dimitem "/$name" "${desc:0:55}" ;;
-      esac
-    done
-  else
-    warn "No commands installed"
-  fi
+  # ── Counts ──
+  header "INSTALLED"
+  local total=0
+  for kind in rules agents commands skills; do
+    local dir="$CLAUDE_HOME/$kind"
+    if [[ -d "$dir" ]]; then
+      local count
+      count=$(find "$dir" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+      printf "  ${GREEN}%-12s${RESET} %s\n" "$kind" "$count"
+      total=$((total + count))
+    fi
+  done
+  printf "  ${BOLD}%-12s %s${RESET}\n" "total" "$total"
 
-  # ── Agents ──
-  header "AGENTS  (auto-delegated by Claude)"
-  local agent_dir="$CLAUDE_HOME/agents"
-  if [[ -d "$agent_dir" ]]; then
-    for f in "$agent_dir"/*.md; do
-      [[ -f "$f" ]] || continue
-      local name model desc_a
-      name=$(basename "$f" .md)
-      model=$(awk '/^model:/{print $2; exit}' "$f" 2>/dev/null)
-      desc_a=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f" 2>/dev/null)
-      local model_color="$YELLOW"
-      [[ "$model" == "opus" ]] && model_color="$MAGENTA"
-      printf "  ${GREEN}%-28s${RESET} ${model_color}%-6s${RESET} %s\n" "$name" "$model" "${desc_a:0:45}"
+  # ── Hooks ──
+  header "HOOKS WIRED  (~/.claude/settings.json)"
+  local settings="$CLAUDE_HOME/settings.json"
+  if [[ -f "$settings" ]]; then
+    local phase_counts
+    # Count hooks per phase and extract key ones
+    for phase in SessionStart PreToolUse PostToolUse Stop SessionEnd PreCompact PostToolUseFailure; do
+      local count
+      count=$(node -e "
+        const s = require('$settings');
+        const h = (s.hooks && s.hooks['$phase']) || [];
+        console.log(h.length);
+      " 2>/dev/null || echo "0")
+      [[ "$count" == "0" ]] && continue
+      printf "  ${GREEN}%-20s${RESET} %s hooks\n" "$phase" "$count"
     done
-  else
-    warn "No agents installed"
-  fi
 
-  # ── Skills ──
-  header "SKILLS  (loaded when relevant)"
-  local skill_dir="$CLAUDE_HOME/skills"
-  if [[ -d "$skill_dir" ]]; then
-    for d in "$skill_dir"/*/; do
-      [[ -d "$d" ]] || continue
-      local name
-      name=$(basename "$d")
-      local desc_s=""
-      if [[ -f "$d/SKILL.md" ]]; then
-        desc_s=$(awk '/^#/{sub(/^#+ */, ""); print; exit}' "$d/SKILL.md" 2>/dev/null)
+    # Highlight key session hooks
+    printf "\n"
+    subhead "Session lifecycle:"
+    local session_hooks=("session:start|SessionStart|auto-loads previous context" "stop:session-end|Stop|auto-saves session after each response" "session:end:marker|SessionEnd|session end lifecycle marker")
+    for entry in "${session_hooks[@]}"; do
+      local id phase desc
+      IFS='|' read -r id phase desc <<< "$entry"
+      local found
+      found=$(node -e "
+        const s = require('$settings');
+        const hooks = (s.hooks && s.hooks['$phase']) || [];
+        const match = hooks.find(h => h.id === '$id');
+        console.log(match ? 'active' : 'missing');
+      " 2>/dev/null || echo "unknown")
+      if [[ "$found" == "active" ]]; then
+        printf "    ${GREEN}%-26s${RESET} %s\n" "$id" "$desc"
+      else
+        printf "    ${RED}%-26s${RESET} ${DIM}NOT WIRED — %s${RESET}\n" "$id" "$desc"
       fi
-      item "$name" "${desc_s:0:55}"
     done
   else
-    warn "No skills installed"
+    warn "No settings.json found"
   fi
 
-  # ── Rules ──
-  header "RULES  (always loaded into context)"
-  if [[ -d "$CLAUDE_HOME/rules" ]]; then
-    for d in "$CLAUDE_HOME/rules"/*/; do
-      [[ -d "$d" ]] || continue
-      local name count
-      name=$(basename "$d")
-      count=$(find "$d" -name "*.md" -type f | wc -l | tr -d ' ')
-      item "$name/" "${count} rules"
-    done
+  # ── Sessions ──
+  header "SESSIONS"
+  local session_dir="$CLAUDE_HOME/session-data"
+  if [[ -d "$session_dir" ]]; then
+    local scount
+    scount=$(find "$session_dir" -name "*-session.tmp" -type f 2>/dev/null | wc -l | tr -d ' ')
+    printf "  ${GREEN}%-20s${RESET} %s saved sessions\n" "session-data/" "$scount"
+    # Show most recent 3
+    if [[ "$scount" -gt 0 ]]; then
+      printf "\n"
+      subhead "Recent:"
+      find "$session_dir" -name "*-session.tmp" -type f -print0 2>/dev/null \
+        | xargs -0 ls -t 2>/dev/null | head -3 | while read -r sf; do
+          local sname proj worktree
+          sname=$(basename "$sf" .tmp)
+          proj=$(awk '/^\*\*Project:\*\*/{sub(/.*\*\* */, ""); print; exit}' "$sf" 2>/dev/null)
+          worktree=$(awk '/^\*\*Worktree:\*\*/{sub(/.*\*\* */, ""); print; exit}' "$sf" 2>/dev/null)
+          worktree="${worktree/$HOME/\~}"
+          if [[ -n "$proj" ]]; then
+            printf "    ${DIM}%s${RESET}  ${GREEN}%s${RESET}  %s\n" "$sname" "$proj" "$worktree"
+          else
+            printf "    ${DIM}%s${RESET}\n" "$sname"
+          fi
+        done
+    fi
   else
-    warn "No rules installed"
+    printf "  ${DIM}No sessions yet (will auto-save after first Claude session)${RESET}\n"
   fi
 
-  # ── Quick reference ──
+  # ── Quick ref ──
+  printf "\n${DIM}  Type ${RESET}${GREEN}myclaude help${RESET}${DIM} for all commands${RESET}\n\n"
+}
+
+# ─── help ────────────────────────────────────────────────────────────
+cmd_help() {
+  printf "${BOLD}${CYAN}"
+  cat <<'ART'
+  ┌─────────────────────────────────────┐
+  │  myclaude — command reference       │
+  └─────────────────────────────────────┘
+ART
+  printf "${RESET}"
+
   header "SLASH COMMANDS  (type in Claude Code)"
   printf "    ${GREEN}/plan${RESET} <requirements>   ${DIM}→ plan before coding${RESET}\n"
   printf "    ${GREEN}/tdd${RESET}  <feature>        ${DIM}→ test-driven development${RESET}\n"
   printf "    ${GREEN}/build-fix${RESET}             ${DIM}→ auto-fix build errors${RESET}\n"
   printf "    ${GREEN}/code-review${RESET} [PR#]     ${DIM}→ review changes or PR${RESET}\n"
   printf "    ${GREEN}/verify${RESET}                ${DIM}→ pre-ship checks${RESET}\n"
+  printf "    ${GREEN}/e2e${RESET} <user flow>       ${DIM}→ generate Playwright tests${RESET}\n"
+  printf "    ${GREEN}/save-session${RESET}          ${DIM}→ manually save session${RESET}\n"
+  printf "    ${GREEN}/resume-session${RESET} [alias] ${DIM}→ load previous session${RESET}\n"
+  printf "    ${GREEN}/sessions${RESET} list         ${DIM}→ list all sessions (cross-project)${RESET}\n"
 
   header "MYCLAUDE COMMANDS"
-  subhead "Inspect what's installed:"
-  printf "    ${GREEN}myclaude${RESET}               ${DIM}→ this cheatsheet${RESET}\n"
+  subhead "Status & inspect:"
+  printf "    ${GREEN}myclaude${RESET}               ${DIM}→ status dashboard (default)${RESET}\n"
+  printf "    ${GREEN}myclaude help${RESET}           ${DIM}→ this reference${RESET}\n"
   printf "    ${GREEN}myclaude rules${RESET}   ${DIM}[-v]${RESET} ${DIM}→ list rules${RESET}    ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: what each covers)${RESET}\n"
   printf "    ${GREEN}myclaude skills${RESET}  ${DIM}[-v]${RESET} ${DIM}→ list skills${RESET}   ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: sections & value)${RESET}\n"
   printf "    ${GREEN}myclaude commands${RESET} ${DIM}[-v]${RESET} ${DIM}→ list commands${RESET} ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: full descriptions)${RESET}\n"
@@ -381,8 +408,11 @@ cmd="${1:-}"
 shift 2>/dev/null || true
 
 case "$cmd" in
-  ""|-h|--help|help|cheatsheet)
-    cmd_cheatsheet
+  "")
+    cmd_status_dashboard
+    ;;
+  -h|--help|help)
+    cmd_help
     ;;
   rules)
     cmd_rules "$@"

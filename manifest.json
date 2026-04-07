@@ -45,6 +45,11 @@
     "rules/common/performance.md",
     "rules/common/security.md",
     "rules/common/testing.md",
+    "rules/python/coding-style.md",
+    "rules/python/hooks.md",
+    "rules/python/patterns.md",
+    "rules/python/security.md",
+    "rules/python/testing.md",
     "rules/typescript/coding-style.md",
     "rules/typescript/hooks.md",
     "rules/typescript/patterns.md",
@@ -140,7 +145,12 @@
     "skills/mcp-server-patterns/SKILL.md": "8da7edb0647f",
     "skills/nestjs-patterns/SKILL.md": "08303876620e",
     "skills/tdd-workflow/SKILL.md": "934c453594ce",
-    "skills/verification-loop/SKILL.md": "01a9ae310ad4"
+    "skills/verification-loop/SKILL.md": "01a9ae310ad4",
+    "rules/python/coding-style.md": "f9d6d7a39c5f",
+    "rules/python/hooks.md": "7ebd12233f69",
+    "rules/python/patterns.md": "d9cab9b53632",
+    "rules/python/security.md": "6bbbb6c800cd",
+    "rules/python/testing.md": "92655aa5047e"
   },
-  "lastSync": "2026-04-05T23:34:49.031Z"
+  "lastSync": "2026-04-07T02:28:16.671Z"
 }

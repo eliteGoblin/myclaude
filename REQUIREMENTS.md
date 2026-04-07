@@ -15,9 +15,13 @@
 - Default `myclaude` shows status dashboard: counts, hooks wired, sessions
 - `myclaude help` shows full command reference (separate from status)
 - Session hooks auto-save/load context across projects
+- `myclaude install` bootstraps a new machine: prereqs, sync, link, optional --opus
+- Multi-language rules support: common + typescript + web + python (add more as needed)
+- Cross-platform: macOS (zsh) + Ubuntu/Linux (zsh/bash)
 
 ## Current State
-- Installed: JS/TS focused (69 upstream files, pruned from 421)
+- Installed: 74 upstream files (common + TS + web + python rules, agents, commands, skills)
 - All agents upgraded to opus (Max sub)
 - Fork: eliteGoblin/everything-claude-code
 - Upstream: affaan-m/everything-claude-code
+- Languages: JavaScript/TypeScript, Web/Frontend, Python

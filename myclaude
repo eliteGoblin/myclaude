@@ -207,6 +207,10 @@ ART
   printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agents & models${RESET}\n"
   printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
   printf "\n"
+  subhead "Bootstrap (new machine):"
+  printf "    ${GREEN}myclaude install${RESET}        ${DIM}→ full bootstrap: prereqs, sync, link${RESET}\n"
+  printf "    ${GREEN}myclaude install --opus${RESET} ${DIM}→ same + upgrade all agents to opus${RESET}\n"
+  printf "\n"
   subhead "Manage install:"
   printf "    ${GREEN}myclaude pick${RESET} <path>   ${DIM}→ add upstream file or dir${RESET}\n"
   printf "    ${GREEN}myclaude unpick${RESET} <path> ${DIM}→ remove from install${RESET}\n"
@@ -394,6 +398,81 @@ cmd_install_link() {
   fi
 }
 
+# ─── install: bootstrap a fresh machine ─────────────────────────────
+cmd_install() {
+  local opus=0
+  for arg in "$@"; do
+    [[ "$arg" == "--opus" ]] && opus=1
+  done
+
+  printf "${BOLD}${CYAN}"
+  cat <<'ART'
+  ┌─────────────────────────────────────┐
+  │  myclaude install — bootstrap       │
+  └─────────────────────────────────────┘
+ART
+  printf "${RESET}\n"
+
+  # ── 1. Check prerequisites ──
+  header "1/5  Prerequisites"
+  local ok=1
+  for tool in node git; do
+    if command -v "$tool" &>/dev/null; then
+      local ver
+      ver=$("$tool" --version 2>/dev/null | head -1)
+      printf "  ${GREEN}%-10s${RESET} %s\n" "$tool" "$ver"
+    else
+      printf "  ${RED}%-10s${RESET} NOT FOUND\n" "$tool"
+      ok=0
+    fi
+  done
+  # Claude CLI is optional but nice to check
+  if command -v claude &>/dev/null; then
+    printf "  ${GREEN}%-10s${RESET} installed\n" "claude"
+  else
+    printf "  ${YELLOW}%-10s${RESET} not found (install: npm i -g @anthropic-ai/claude-code)\n" "claude"
+  fi
+  if [[ $ok -eq 0 ]]; then
+    printf "\n${RED}Missing prerequisites. Install them first.${RESET}\n"
+    return 1
+  fi
+
+  # ── 2. Ensure ~/.claude/ directories ──
+  header "2/5  Directory structure"
+  for d in rules agents commands skills session-data; do
+    local target="$CLAUDE_HOME/$d"
+    if [[ ! -d "$target" ]]; then
+      mkdir -p "$target"
+      printf "  ${GREEN}created${RESET}  %s\n" "$target"
+    else
+      printf "  ${DIM}exists${RESET}   %s\n" "$target"
+    fi
+  done
+
+  # ── 3. Sync tracked files ──
+  header "3/5  Sync files to ~/.claude/"
+  delegate sync
+
+  # ── 4. Optionally upgrade agents to opus ──
+  if [[ $opus -eq 1 ]]; then
+    header "4/5  Upgrade agents to opus"
+    delegate agents --opus
+  else
+    header "4/5  Agent models (use --opus to upgrade)"
+    delegate agents
+  fi
+
+  # ── 5. Symlink myclaude to PATH ──
+  header "5/5  Install myclaude to PATH"
+  cmd_install_link
+
+  # ── Summary ──
+  printf "\n"
+  header "DONE"
+  delegate status
+  printf "\n  ${GREEN}Run ${BOLD}myclaude${RESET}${GREEN} to see your dashboard.${RESET}\n\n"
+}
+
 # ─── delegates to ecc.js ────────────────────────────────────────────
 delegate() {
   if [[ ! -f "$ECC_JS" ]]; then
@@ -425,6 +504,9 @@ case "$cmd" in
     ;;
   counts)
     cmd_counts
+    ;;
+  install)
+    cmd_install "$@"
     ;;
   install-link)
     cmd_install_link

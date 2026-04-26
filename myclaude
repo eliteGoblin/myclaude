@@ -206,6 +206,7 @@ ART
   printf "    ${GREEN}myclaude commands${RESET} ${DIM}[-v]${RESET} ${DIM}→ list commands${RESET} ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: full descriptions)${RESET}\n"
   printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agents & models${RESET}\n"
   printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
+  printf "    ${GREEN}myclaude mcp${RESET}    ${DIM}[name]${RESET} ${DIM}→ MCP setup recipes (context for Claude)${RESET}\n"
   printf "\n"
   subhead "Bootstrap (new machine):"
   printf "    ${GREEN}myclaude install${RESET}        ${DIM}→ full bootstrap: prereqs, sync, link${RESET}\n"
@@ -473,6 +474,62 @@ ART
   printf "\n  ${GREEN}Run ${BOLD}myclaude${RESET}${GREEN} to see your dashboard.${RESET}\n\n"
 }
 
+# ─── mcp recipes subcommand ─────────────────────────────────────────
+# `myclaude mcp` exposes curated CONTEXT (markdown) for setting up MCP servers
+# across different environments. It is NOT an installer — code blocks inside
+# recipes are examples that may go stale; Claude reads the recipe and adapts.
+cmd_mcp() {
+  local recipes_dir="$SCRIPT_DIR/mcp_recipes"
+  local recipe="${1:-}"
+  local flag="${2:-}"
+
+  if [[ ! -d "$recipes_dir" ]]; then
+    warn "No mcp_recipes/ directory at $recipes_dir"
+    return 1
+  fi
+
+  if [[ -z "$recipe" ]]; then
+    header "MCP RECIPES  (context for Claude — not installers)"
+    local found=0
+    for f in "$recipes_dir"/*.md; do
+      [[ -f "$f" ]] || continue
+      local base; base=$(basename "$f" .md)
+      [[ "$base" == "README" ]] && continue
+      local desc
+      desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$f")
+      [[ -z "$desc" ]] && desc=$(extract_summary "$f" 80)
+      item "$base" "${desc:0:70}"
+      found=1
+    done
+    if [[ $found -eq 0 ]]; then
+      detail "No recipes yet. Add markdown files under $recipes_dir/."
+    fi
+    printf "\n  ${DIM}Print a recipe:   ${RESET}${GREEN}myclaude mcp <name>${RESET}\n"
+    printf "  ${DIM}Recipe path:      ${RESET}${GREEN}myclaude mcp <name> --path${RESET}\n"
+    printf "  ${DIM}In Claude:        ${RESET}read \$(myclaude mcp <name> --path) and set it up\n\n"
+    return 0
+  fi
+
+  local path="$recipes_dir/$recipe.md"
+  if [[ ! -f "$path" ]]; then
+    printf "${RED}No recipe:${RESET} %s\n" "$recipe" >&2
+    printf "Available: " >&2
+    for f in "$recipes_dir"/*.md; do
+      [[ -f "$f" ]] || continue
+      local b; b=$(basename "$f" .md)
+      [[ "$b" == "README" ]] || printf "%s " "$b" >&2
+    done
+    echo >&2
+    return 1
+  fi
+
+  if [[ "$flag" == "--path" || "$flag" == "-p" ]]; then
+    echo "$path"
+  else
+    cat "$path"
+  fi
+}
+
 # ─── delegates to ecc.js ────────────────────────────────────────────
 delegate() {
   if [[ ! -f "$ECC_JS" ]]; then
@@ -510,6 +567,9 @@ case "$cmd" in
     ;;
   install-link)
     cmd_install_link
+    ;;
+  mcp)
+    cmd_mcp "$@"
     ;;
   pick|unpick|sync|diff|agents|own|status|ls)
     delegate "$cmd" "$@"

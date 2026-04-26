@@ -123,12 +123,10 @@ node fsun_config/ecc.js sync               # re-install
 
 - Token estimate is rough (4 chars/token). For large transcripts this can be off by ±20%. Pad budget if it matters.
 - LLM filter spawns one `claude -p` per candidate transcript. With dozens of candidates, latency adds up. Use `--no-llm` for fast keyword-only.
-- Subdirectory walking under `~/.claude/session-data/` is not yet implemented (upstream `getAllSessions` is flat-only). Required for the `usage/<topic>/` folder convention. **TODO**: extend upstream walker or shim it in `session-manager-fsun.js`.
 - Merge appends under `# Merged History` — re-running merge appends again. Consider `--idempotent` flag if needed.
 
 ## Future / TODO
 
-- Subdir walker for `~/.claude/session-data/` (enables `usage/`, `licensing/`, etc. folders)
 - Cache LLM relevance scores per JSONL hash to skip re-scoring on subsequent loads
 - `sessions search <query>` — grep across all .tmp + native transcripts
 - Optional auto-merge hook on session-end

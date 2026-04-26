@@ -84,8 +84,10 @@
   ],
   "custom": [
     "commands/done.md",
+    "commands/sessions.md",
     "rules/common/behavioral-guidelines.md",
-    "rules/common/session-log.md"
+    "rules/common/session-log.md",
+    "scripts/lib/session-manager-fsun.js"
   ],
   "hashes": {
     "agents/architect.md": "e4c02d466d90",
@@ -170,5 +172,5 @@
     "skills/python-patterns/SKILL.md": "df0c0abbbd0e",
     "skills/python-testing/SKILL.md": "b304a8c503af"
   },
-  "lastSync": "2026-04-16T02:22:48.119Z"
+  "lastSync": "2026-04-26T03:52:46.295Z"
 }

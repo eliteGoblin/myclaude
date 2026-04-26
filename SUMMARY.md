@@ -90,7 +90,9 @@ These are the most impactful files. Claude reads all of them as system context.
 **Session management:**
 - `/save-session` — Save current session state
 - `/resume-session` — Restore previous session
-- `/sessions` — List saved sessions
+- `/sessions` — List saved sessions; **`/sessions load <id>` is context-rich by default** (overlay; see `docs/sessions-extended.md`)
+- `/sessions merge <id>` — Consolidate sibling .tmp files (overlay)
+- `/done` — Append session summary to project CLAUDE.md (custom)
 
 **Maintenance:**
 - `/learn` — Extract patterns from session into skills

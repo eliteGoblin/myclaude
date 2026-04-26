@@ -19,8 +19,27 @@
 - Multi-language rules support: common + typescript + web + python (add more as needed)
 - Cross-platform: macOS (zsh) + Ubuntu/Linux (zsh/bash)
 
+## Custom overlays (`fsun_config/custom/`)
+- `commands/done.md` — append-to-CLAUDE.md session log
+- `commands/sessions.md` — context-rich `/sessions load` (overrides upstream)
+- `scripts/lib/session-manager-fsun.js` — extension lib backing the overlay
+- `rules/common/behavioral-guidelines.md` — Frank's behavioral rules
+- `rules/common/session-log.md` — session-log convention rule
+
+## Sessions overlay
+See `fsun_config/docs/sessions-extended.md` for full design.
+
+- Default `sessions load <id>` is **context-rich**: combines `.tmp` summary with Claude-native JSONL transcripts under `~/.claude/projects/<encoded-cwd>/` up to a token budget
+- Token budget accepts shorthand: `500K`, `1M`, raw int. Default 500K (sized for 1M context window)
+- `--topic "<kw>"` runs LLM topic filter via `claude -p`; falls back to keyword grep if `claude` unavailable
+- `--no-history` returns to upstream-style metadata-only load
+- `--since 7d|24h|2w` time-bounded filter
+- `sessions merge <id> [--topic <kw>] [--dry-run]` consolidates sibling .tmp files into target
+- `sessions help` prints full flag reference
+
 ## Current State
-- Installed: 74 upstream files (common + TS + web + python rules, agents, commands, skills)
+- Installed: 81 upstream files (common + TS + web + python rules, agents, commands, skills)
+- 5 custom overlays (incl. sessions.md + session-manager-fsun.js)
 - All agents upgraded to opus (Max sub)
 - Fork: eliteGoblin/everything-claude-code
 - Upstream: affaan-m/everything-claude-code

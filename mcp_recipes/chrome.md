@@ -35,29 +35,44 @@ from Claude Code in any project folder.
 
 ## Per-environment status
 
-| Environment                         | Status      | Where the helpers live |
-|-------------------------------------|-------------|------------------------|
-| Windows + WSL                       | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp_wsl` + `run_chrome_mcp.ps1` |
-| Mac + Parallels Ubuntu VM           | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp` + `dev_sync` |
-| Mac native                          | 🟡 TODO     | Reuse `util/run_chrome_mcp` without socat hop |
-| Mac + Ubuntu VM (UTM/VBox/libvirt)  | 🟡 TODO     | Generalize `dev_sync`'s `prlctl` calls |
-| Linux native                        | 🟡 TODO     | Equivalent to Mac native |
+| Environment                         | Status      | Helpers (canonical)                                                | Reference copies |
+|-------------------------------------|-------------|--------------------------------------------------------------------|------------------|
+| Windows + WSL                       | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp_wsl` + `run_chrome_mcp.ps1`  | `mcp_recipes/chrome/` |
+| Mac + Parallels Ubuntu VM           | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp` + `dev_sync`                | — |
+| Mac native                          | 🟡 TODO     | Reuse `util/run_chrome_mcp` without the socat hop                  | — |
+| Mac + Ubuntu VM (UTM/VBox/libvirt)  | 🟡 TODO     | Generalize `dev_sync`'s `prlctl` calls                             | — |
+| Linux native                        | 🟡 TODO     | Equivalent to Mac native                                           | — |
+
+> **Reference copies** under `mcp_recipes/chrome/` are example snapshots so a
+> fresh machine that has only the ECC fork (not dotfiles) still has something
+> to read/adapt. The dotfiles copy is the one I keep in sync; if these drift,
+> trust dotfiles.
 
 ### Windows + WSL (DONE — example)
 
 ```bash
-# One-time on a fresh WSL machine
+# One-time on a fresh WSL machine (assumes dotfiles is cloned at ~/devel/dotfiles)
 ln -sfn ~/devel/dotfiles/util/run_chrome_mcp_wsl ~/.local/bin/run_chrome_mcp_wsl
 claude mcp add -s user chrome-devtools -- ~/.local/bin/run_chrome_mcp_wsl mcp
+
+# Or if only this ECC fork is cloned (no dotfiles), copy from the reference dir
+cp ~/.../mcp_recipes/chrome/run_chrome_mcp_wsl  ~/.local/bin/run_chrome_mcp_wsl
+chmod +x ~/.local/bin/run_chrome_mcp_wsl
+# (the WSL helper finds run_chrome_mcp.ps1 next to itself; copy that too if needed)
 
 # Daily — nothing. Just run claude.
 claude
 ```
 
 The helper auto-detects which IP from WSL reaches Windows host's loopback:
-`127.0.0.1` (mirrored networking), `192.168.127.254` (wsl-vpnkit), or the
-default-route gateway. First candidate that returns HTTP 200 from
-`/json/version` wins.
+`127.0.0.1` (mirrored networking / localhostForwarding=true), `192.168.127.254`
+(wsl-vpnkit / gvisor-tap-vsock), or the default-route gateway. First
+candidate that returns HTTP 200 from `/json/version` wins.
+
+**wsl-vpnkit is NOT a hard dependency.** It's only needed on networks that
+break vanilla WSL localhost forwarding (e.g. Cisco AnyConnect corp setups).
+On a normal home/office network, the `127.0.0.1` candidate works directly
+and the helper picks it without any extra software.
 
 ### Mac native (TODO — example)
 

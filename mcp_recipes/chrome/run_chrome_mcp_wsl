@@ -1,0 +1,288 @@
+#!/usr/bin/env bash
+# run_chrome_mcp_wsl - Manage Windows Chrome MCP from inside WSL.
+#
+# Goal: a single, persistent Chrome instance on Windows that Claude Code MCP
+# can drive from any WSL folder — no per-project re-login.
+#
+# How it works:
+#   - Auto-detects which IP from WSL actually reaches Windows host's loopback,
+#     trying these candidates in order:
+#       127.0.0.1            (WSL2 mirrored networking / localhostForwarding)
+#       192.168.127.254      (wsl-vpnkit / gvisor-tap-vsock host-services)
+#       <default-gw>         (last-resort)
+#     The first one that returns HTTP 200 from /json/version wins.
+#   - If none reachable: cross-checks Windows via powershell.exe and starts
+#     Chrome with run_chrome_mcp.ps1 (dedicated profile under
+#     %USERPROFILE%\chrome-mcp-profile).
+#   - In `mcp` mode it execs `npx chrome-devtools-mcp@latest --browserUrl=...`
+#     so it can be wired in directly as Claude's user-scope MCP server command.
+#
+# Usage:
+#   run_chrome_mcp_wsl mcp        # default; for use as Claude MCP server entry
+#   run_chrome_mcp_wsl start      # ensure Chrome is up; print URL
+#   run_chrome_mcp_wsl stop       # stop the Chrome MCP instance on Windows
+#   run_chrome_mcp_wsl status     # health check
+#   run_chrome_mcp_wsl url        # print resolved browser URL
+#   run_chrome_mcp_wsl restart    # stop then start
+#   run_chrome_mcp_wsl doctor     # diagnose WSL <-> Windows connectivity
+#
+# Env overrides:
+#   CHROME_MCP_PORT (default 9222)
+#   CHROME_MCP_HOST — pin a single host IP; skip auto-detection.
+#                     Useful for wsl-vpnkit users (e.g. 192.168.127.254).
+
+set -euo pipefail
+
+PORT="${CHROME_MCP_PORT:-9222}"
+
+# Build candidate host list. If user pinned CHROME_MCP_HOST, that wins.
+if [[ -n "${CHROME_MCP_HOST:-}" ]]; then
+    CANDIDATES=("$CHROME_MCP_HOST")
+else
+    CANDIDATES=("127.0.0.1" "192.168.127.254")
+    _gw=$(ip route show default 2>/dev/null | awk '/default/ {print $3; exit}')
+    if [[ -n "$_gw" && "$_gw" != "127.0.0.1" && "$_gw" != "192.168.127.254" ]]; then
+        CANDIDATES+=("$_gw")
+    fi
+fi
+
+# Resolved host gets cached here after a successful probe.
+DETECTED_HOST=""
+
+# Locate the PowerShell helper. Prefer the dotfiles checkout but allow override.
+if [[ -n "${RUN_CHROME_MCP_PS1:-}" ]]; then
+    PS_SCRIPT="$RUN_CHROME_MCP_PS1"
+elif [[ -f "${DOTFILES:-}/util/run_chrome_mcp.ps1" ]]; then
+    PS_SCRIPT="$DOTFILES/util/run_chrome_mcp.ps1"
+elif [[ -f "$HOME/devel/dotfiles/util/run_chrome_mcp.ps1" ]]; then
+    PS_SCRIPT="$HOME/devel/dotfiles/util/run_chrome_mcp.ps1"
+else
+    # Resolve relative to this script in case it was symlinked into ~/.local/bin
+    SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+    PS_SCRIPT="$(dirname "$SELF")/run_chrome_mcp.ps1"
+fi
+
+# Resolve npx robustly. When Claude spawns the MCP server, our shell init
+# (nvm.sh, etc.) may not have run, so $PATH might not include nvm's bin dir.
+resolve_npx() {
+    if [[ -n "${NPX_BIN:-}" && -x "$NPX_BIN" ]]; then
+        echo "$NPX_BIN"; return 0
+    fi
+    local p
+    p=$(command -v npx 2>/dev/null || true)
+    if [[ -n "$p" ]]; then echo "$p"; return 0; fi
+    # Fall back to most-recent nvm install.
+    if [[ -d "$HOME/.nvm/versions/node" ]]; then
+        local latest
+        latest=$(ls -1 "$HOME/.nvm/versions/node" 2>/dev/null | sort -V | tail -1)
+        if [[ -n "$latest" && -x "$HOME/.nvm/versions/node/$latest/bin/npx" ]]; then
+            echo "$HOME/.nvm/versions/node/$latest/bin/npx"; return 0
+        fi
+    fi
+    for p in /usr/local/bin/npx /usr/bin/npx; do
+        [[ -x "$p" ]] && { echo "$p"; return 0; }
+    done
+    return 1
+}
+NPX_BIN="$(resolve_npx || true)"
+
+err()  { echo "[chrome-mcp] $*" >&2; }
+info() { echo "[chrome-mcp] $*" >&2; }
+
+probe_one() {
+    local h="$1"
+    curl -fsS --max-time 2 -o /dev/null "http://${h}:${PORT}/json/version" 2>/dev/null
+}
+
+# Sets DETECTED_HOST on success; returns 0 if any candidate responds with 200.
+detect_host() {
+    local h
+    for h in "${CANDIDATES[@]}"; do
+        if probe_one "$h"; then
+            DETECTED_HOST="$h"
+            return 0
+        fi
+    done
+    return 1
+}
+
+windows_listening() {
+    # Side-channel check via powershell.exe: is anything bound to 127.0.0.1:$PORT
+    # on the Windows side? Doesn't depend on WSL <-> Windows networking.
+    if ! command -v powershell.exe >/dev/null 2>&1; then
+        return 2
+    fi
+    local out
+    out=$(powershell.exe -NoProfile -Command \
+        "if (Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort $PORT -State Listen -ErrorAction SilentlyContinue) { 'yes' } else { 'no' }" \
+        2>/dev/null | tr -d '\r\n' | tr -d ' ')
+    [[ "$out" == "yes" ]]
+}
+
+run_ps_command() {
+    local subcmd="$1"
+    if ! command -v powershell.exe >/dev/null 2>&1; then
+        err "powershell.exe not found — are we running in WSL2?"
+        return 1
+    fi
+    if [[ ! -f "$PS_SCRIPT" ]]; then
+        err "PowerShell helper missing: $PS_SCRIPT"
+        err "Set DOTFILES or RUN_CHROME_MCP_PS1 to point at run_chrome_mcp.ps1"
+        return 1
+    fi
+    local win_path
+    win_path="$(wslpath -w "$PS_SCRIPT")"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$win_path" "$subcmd" \
+        -Port "$PORT" 2>&1 | tr -d '\r' >&2
+}
+
+ensure_running() {
+    if detect_host; then
+        return 0
+    fi
+
+    # Nothing reachable. Cross-check whether Chrome is up on Windows side.
+    if windows_listening; then
+        err "Chrome MCP IS listening on Windows 127.0.0.1:$PORT but no WSL candidate reaches it."
+        err "Tried: ${CANDIDATES[*]}"
+        err "Common causes:"
+        err "  - wsl-vpnkit not running (corp/Cisco AnyConnect setup):"
+        err "      wsl.exe -d wsl-vpnkit --cd /app wsl-vpnkit"
+        err "  - WSL networking changed; pin a host with CHROME_MCP_HOST=<ip>"
+        return 1
+    fi
+
+    info "Chrome MCP not running on Windows; starting via powershell.exe..."
+    if ! run_ps_command start; then
+        err "Failed to start Chrome on Windows."
+        return 1
+    fi
+
+    # PowerShell already waited up to 15s for Windows-side readiness; from WSL
+    # the wsl-vpnkit path may need another moment.
+    local i
+    for i in $(seq 1 30); do
+        if detect_host; then return 0; fi
+        sleep 0.5
+    done
+
+    err "Chrome MCP did not respond from WSL after start."
+    err "Tried: ${CANDIDATES[*]}"
+    err "Run: $0 doctor"
+    return 1
+}
+
+cmd_start() {
+    ensure_running
+    echo "READY: http://${DETECTED_HOST}:${PORT}"
+}
+
+cmd_stop() {
+    run_ps_command stop
+}
+
+cmd_status() {
+    if detect_host; then
+        echo "HEALTHY: http://${DETECTED_HOST}:${PORT}"
+        exit 0
+    fi
+    echo "DOWN: nothing reachable on port ${PORT} (tried: ${CANDIDATES[*]})"
+    exit 1
+}
+
+cmd_url() {
+    ensure_running >/dev/null
+    echo "http://${DETECTED_HOST}:${PORT}"
+}
+
+cmd_restart() {
+    cmd_stop || true
+    sleep 1
+    cmd_start
+}
+
+cmd_doctor() {
+    echo "== Chrome MCP Doctor =="
+    echo "Port:     $PORT"
+    echo "Helper:   $PS_SCRIPT"
+    echo "Candidates: ${CANDIDATES[*]}"
+    echo
+    echo "1. WSL -> Windows TCP probe per candidate:"
+    local h ok=""
+    for h in "${CANDIDATES[@]}"; do
+        if probe_one "$h"; then
+            echo "   $h -> 200 OK"
+            [[ -z "$ok" ]] && ok="$h"
+        else
+            echo "   $h -> no response"
+        fi
+    done
+    if [[ -n "$ok" ]]; then
+        echo "   => Will use: $ok"
+    fi
+    echo
+    echo "2. Windows-side listener check (powershell.exe):"
+    if command -v powershell.exe >/dev/null 2>&1; then
+        if windows_listening; then
+            echo "   YES — something is listening on Windows 127.0.0.1:${PORT}."
+        else
+            echo "   NO — nothing bound to Windows 127.0.0.1:${PORT}."
+        fi
+    else
+        echo "   SKIPPED — powershell.exe not on PATH."
+    fi
+    echo
+    echo "3. wsl-vpnkit hint (Cisco AnyConnect setups):"
+    echo "   If Windows IS listening but no WSL candidate gets 200, restart wsl-vpnkit:"
+    echo "     wsl.exe -d wsl-vpnkit --cd /app wsl-vpnkit"
+    echo
+    echo "4. node/npx in WSL:"
+    if command -v node >/dev/null 2>&1; then
+        echo "   node: $(node --version)"
+    else
+        echo "   node: MISSING"
+    fi
+    if [[ -n "$NPX_BIN" ]]; then
+        echo "   npx:  $NPX_BIN"
+    else
+        echo "   npx:  MISSING"
+    fi
+}
+
+cmd_mcp() {
+    # Used as Claude's user-scope MCP server command.
+    # Ensure Chrome is up, then exec the actual MCP server (chrome-devtools-mcp).
+    if [[ -z "$NPX_BIN" ]]; then
+        err "npx not found in PATH for the MCP server runtime."
+        err "Install Node.js (e.g. via nvm) and re-run \`claude mcp\` setup."
+        exit 1
+    fi
+    if ! ensure_running; then
+        exit 1
+    fi
+    exec "$NPX_BIN" --yes chrome-devtools-mcp@latest \
+        --browserUrl="http://${DETECTED_HOST}:${PORT}"
+}
+
+main() {
+    local cmd="${1:-mcp}"
+    case "$cmd" in
+        start)         cmd_start ;;
+        stop)          cmd_stop ;;
+        status)        cmd_status ;;
+        url)           cmd_url ;;
+        restart)       cmd_restart ;;
+        doctor)        cmd_doctor ;;
+        mcp)           cmd_mcp ;;
+        -h|--help|help)
+            sed -n '2,30p' "$0"
+            ;;
+        *)
+            err "Unknown command: $cmd"
+            err "Usage: $(basename "$0") {mcp|start|stop|status|url|restart|doctor}"
+            exit 2
+            ;;
+    esac
+}
+
+main "$@"

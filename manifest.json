@@ -9,6 +9,7 @@
     "agents/e2e-runner.md",
     "agents/performance-optimizer.md",
     "agents/planner.md",
+    "agents/python-reviewer.md",
     "agents/refactor-cleaner.md",
     "agents/security-reviewer.md",
     "agents/tdd-guide.md",
@@ -62,6 +63,10 @@
     "rules/web/performance.md",
     "rules/web/security.md",
     "rules/web/testing.md",
+    "scripts/hooks/session-end.js",
+    "scripts/lib/session-aliases.js",
+    "scripts/lib/session-manager.js",
+    "scripts/lib/utils.js",
     "skills/api-design/SKILL.md",
     "skills/backend-patterns/SKILL.md",
     "skills/coding-standards/SKILL.md",
@@ -72,11 +77,14 @@
     "skills/frontend-patterns/SKILL.md",
     "skills/mcp-server-patterns/SKILL.md",
     "skills/nestjs-patterns/SKILL.md",
+    "skills/python-patterns/SKILL.md",
+    "skills/python-testing/SKILL.md",
     "skills/tdd-workflow/SKILL.md",
     "skills/verification-loop/SKILL.md"
   ],
   "custom": [
     "commands/done.md",
+    "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md"
   ],
   "hashes": {
@@ -153,7 +161,14 @@
     "rules/python/hooks.md": "7ebd12233f69",
     "rules/python/patterns.md": "d9cab9b53632",
     "rules/python/security.md": "6bbbb6c800cd",
-    "rules/python/testing.md": "92655aa5047e"
+    "rules/python/testing.md": "92655aa5047e",
+    "scripts/lib/session-aliases.js": "391b2cf0a139",
+    "scripts/lib/session-manager.js": "5e4a660bd11d",
+    "scripts/lib/utils.js": "6d173176649e",
+    "agents/python-reviewer.md": "e2cf12989299",
+    "scripts/hooks/session-end.js": "e4bab73d27fc",
+    "skills/python-patterns/SKILL.md": "df0c0abbbd0e",
+    "skills/python-testing/SKILL.md": "b304a8c503af"
   },
-  "lastSync": "2026-04-09T03:27:24.188Z"
+  "lastSync": "2026-04-16T02:22:48.119Z"
 }

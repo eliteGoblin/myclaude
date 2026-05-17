@@ -7,6 +7,13 @@
  * Cherry-pick files from upstream ECC repo, create your own,
  * track everything, detect upstream changes.
  *
+ * Three sources, one install target (~/.claude/):
+ *   - upstream : files cherry-picked from the ECC fork repo
+ *   - bible    : skills cherry-picked from the claude-bible repo
+ *                (forrestchang/andrej-karpathy-skills, default ~/claude-bible,
+ *                 override with CLAUDE_BIBLE_DIR)
+ *   - custom   : your own rules/skills/commands/agents under fsun_config/custom/
+ *
  * Commands:
  *   node fsun_config/ecc.js pick <path> [path...]   Add upstream file(s) to install
  *   node fsun_config/ecc.js unpick <path> [path...]  Remove file(s) from install
@@ -14,6 +21,10 @@
  *   node fsun_config/ecc.js diff                     Show upstream changes since last sync
  *   node fsun_config/ecc.js ls                       List installed files
  *   node fsun_config/ecc.js ls upstream              List all available upstream files
+ *   node fsun_config/ecc.js bible ls                 List skills available in claude-bible
+ *   node fsun_config/ecc.js bible pick <path>        Track a claude-bible path
+ *   node fsun_config/ecc.js bible unpick <path>      Stop tracking a claude-bible path
+ *   node fsun_config/ecc.js bible update             git pull the claude-bible repo
  *   node fsun_config/ecc.js agents [--opus]          List/upgrade agent models
  *   node fsun_config/ecc.js own <path>               Create a new custom file
  *   node fsun_config/ecc.js status                   Verify installed vs tracked
@@ -22,6 +33,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 
 const SCRIPT_DIR = __dirname;
 const MANIFEST_PATH = path.join(SCRIPT_DIR, 'manifest.json');
@@ -29,6 +41,7 @@ const HOME = process.env.HOME || require('os').homedir();
 const ECC_ROOT = path.dirname(SCRIPT_DIR);
 const CLAUDE_HOME = path.join(HOME, '.claude');
 const CUSTOM_DIR = path.join(SCRIPT_DIR, 'custom');
+const BIBLE_DIR = process.env.CLAUDE_BIBLE_DIR || path.join(HOME, 'claude-bible');
 
 // ─── helpers ────────────────────────────────────────────────────────
 
@@ -44,9 +57,13 @@ function ensureDir(p) {
 
 function loadManifest() {
   if (!fs.existsSync(MANIFEST_PATH)) {
-    return { upstream: [], custom: [], hashes: {}, lastSync: null };
+    return { upstream: [], bible: [], custom: [], hashes: {}, lastSync: null };
   }
-  return JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  const m = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  // Backfill keys added after the manifest was first written.
+  if (!Array.isArray(m.bible)) m.bible = [];
+  if (!Array.isArray(m.custom)) m.custom = [];
+  return m;
 }
 
 function saveManifest(m) {
@@ -155,7 +172,7 @@ function sync(dryRun) {
   let unchanged = 0;
   let missing = 0;
 
-  console.log(`${dryRun ? '[DRY RUN] ' : ''}Syncing ${m.upstream.length} upstream + ${m.custom.length} custom files\n`);
+  console.log(`${dryRun ? '[DRY RUN] ' : ''}Syncing ${m.upstream.length} upstream + ${m.bible.length} bible + ${m.custom.length} custom files\n`);
 
   // Upstream files
   for (const relPath of m.upstream) {
@@ -178,6 +195,35 @@ function sync(dryRun) {
     }
 
     console.log(`  ${destH ? 'UPDATE' : 'COPY'}: ${relPath}`);
+    if (!dryRun) {
+      ensureDir(dest);
+      fs.copyFileSync(src, dest);
+    }
+    m.hashes[relPath] = srcH;
+    copied++;
+  }
+
+  // Bible files (cherry-picked from the claude-bible repo)
+  for (const relPath of m.bible) {
+    const src = path.join(BIBLE_DIR, relPath);
+    const dest = path.join(CLAUDE_HOME, relPath);
+
+    if (!fs.existsSync(src)) {
+      console.log(`  MISSING BIBLE: ${relPath} (run 'bible update'?)`);
+      missing++;
+      continue;
+    }
+
+    const srcH = hash(src);
+    const destH = hash(dest);
+
+    if (srcH === destH) {
+      unchanged++;
+      m.hashes[relPath] = srcH;
+      continue;
+    }
+
+    console.log(`  ${destH ? 'UPDATE' : 'COPY'} (bible): ${relPath}`);
     if (!dryRun) {
       ensureDir(dest);
       fs.copyFileSync(src, dest);
@@ -369,6 +415,105 @@ function own(relPath) {
   console.log(`Edit it, then run 'sync' to install to ~/.claude/${relPath}`);
 }
 
+// ─── bible: manage the claude-bible skills repo ─────────────────────
+
+function bibleWalk(dir, prefix, out) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === '.git') continue;
+    const rel = path.join(prefix, e.name);
+    if (e.isDirectory()) bibleWalk(path.join(dir, e.name), rel, out);
+    else out.push(rel);
+  }
+}
+
+function bible(args) {
+  const [sub, ...rest] = args;
+
+  if (!fs.existsSync(BIBLE_DIR)) {
+    console.log(`claude-bible not found at ${BIBLE_DIR}`);
+    console.log('Clone it first:');
+    console.log('  git clone https://github.com/forrestchang/andrej-karpathy-skills.git ' + BIBLE_DIR);
+    console.log('Or set CLAUDE_BIBLE_DIR to its location.');
+    return;
+  }
+
+  if (sub === 'update') {
+    console.log(`Updating claude-bible (${BIBLE_DIR})...`);
+    const outBuf = execFileSync('git', ['-C', BIBLE_DIR, 'pull', '--ff-only'], { encoding: 'utf8' });
+    console.log(outBuf.trim());
+    return;
+  }
+
+  if (sub === 'ls' || !sub) {
+    const skillsRoot = path.join(BIBLE_DIR, 'skills');
+    if (!fs.existsSync(skillsRoot)) {
+      console.log(`No skills/ directory in ${BIBLE_DIR}`);
+      return;
+    }
+    const m = loadManifest();
+    const tracked = new Set(m.bible);
+    const files = [];
+    bibleWalk(skillsRoot, 'skills', files);
+    console.log(`\n--- claude-bible skills (${BIBLE_DIR}) ---`);
+    for (const f of files.sort()) {
+      console.log(`  ${tracked.has(f) ? '*' : ' '} ${f}`);
+    }
+    console.log(`\n  * = tracked. Add with: bible pick <path>`);
+    return;
+  }
+
+  if (sub === 'pick') {
+    if (rest.length === 0) { console.log('Usage: bible pick <path> [path...]'); return; }
+    const m = loadManifest();
+    let added = 0;
+    for (const p of rest) {
+      const full = path.join(BIBLE_DIR, p);
+      const filesToAdd = [];
+      if (!fs.existsSync(full)) { console.log(`  NOT FOUND: ${p}`); continue; }
+      if (fs.statSync(full).isDirectory()) bibleWalk(full, p.replace(/\/$/, ''), filesToAdd);
+      else filesToAdd.push(p);
+      for (const f of filesToAdd) {
+        if (m.bible.includes(f)) { console.log(`  ALREADY TRACKED: ${f}`); continue; }
+        m.bible.push(f);
+        console.log(`  + ${f}`);
+        added++;
+      }
+    }
+    m.bible.sort();
+    saveManifest(m);
+    console.log(`\nAdded ${added} bible file(s). Run 'sync' to copy to ~/.claude/`);
+    return;
+  }
+
+  if (sub === 'unpick') {
+    if (rest.length === 0) { console.log('Usage: bible unpick <path> [path...]'); return; }
+    const m = loadManifest();
+    let removed = 0;
+    for (const p of rest) {
+      const before = m.bible.length;
+      m.bible = m.bible.filter(f => f !== p && !f.startsWith(p.replace(/\/?$/, '/')));
+      const n = before - m.bible.length;
+      if (n > 0) {
+        const dest = path.join(CLAUDE_HOME, p);
+        if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true, force: true });
+        for (const key of Object.keys(m.hashes)) {
+          if (key === p || key.startsWith(p.replace(/\/?$/, '/'))) delete m.hashes[key];
+        }
+        console.log(`  - ${p} (${n} file${n > 1 ? 's' : ''})`);
+        removed += n;
+      } else {
+        console.log(`  NOT TRACKED: ${p}`);
+      }
+    }
+    saveManifest(m);
+    console.log(`\nRemoved ${removed} bible file(s).`);
+    return;
+  }
+
+  console.log(`Unknown bible subcommand: ${sub}`);
+  console.log('Use: bible ls | bible pick <path> | bible unpick <path> | bible update');
+}
+
 // ─── status: verify installed ───────────────────────────────────────
 
 function status() {
@@ -377,7 +522,7 @@ function status() {
   let missing = 0;
   let extra = 0;
 
-  const allTracked = new Set([...m.upstream, ...m.custom]);
+  const allTracked = new Set([...m.upstream, ...m.bible, ...m.custom]);
 
   for (const relPath of allTracked) {
     const dest = path.join(CLAUDE_HOME, relPath);
@@ -390,7 +535,7 @@ function status() {
   }
 
   console.log(`\n${installed} installed, ${missing} missing`);
-  console.log(`${m.upstream.length} upstream tracked, ${m.custom.length} custom tracked`);
+  console.log(`${m.upstream.length} upstream, ${m.bible.length} bible, ${m.custom.length} custom tracked`);
 }
 
 // ─── CLI ────────────────────────────────────────────────────────────
@@ -424,6 +569,10 @@ switch (cmd) {
     agents(rest.includes('--opus') ? 'opus' : null);
     break;
 
+  case 'bible':
+    bible(rest);
+    break;
+
   case 'own':
     if (rest.length === 0) { console.log('Usage: own <relative-path>'); break; }
     own(rest[0]);
@@ -444,15 +593,22 @@ Commands:
   diff                     Show upstream changes since last sync
   ls                       List tracked files
   ls upstream              List ALL available upstream files
+  bible ls                 List skills available in claude-bible
+  bible pick <path>        Track a claude-bible path
+  bible unpick <path>      Stop tracking a claude-bible path
+  bible update             git pull the claude-bible repo
   agents                   List agent models
   agents --opus            Upgrade all agents to opus
   own <path>               Create a custom file (rules/commands/skills/agents)
   status                   Verify installed vs tracked
 
+Sources: upstream (ECC fork) + bible (~/claude-bible) + custom (fsun_config/custom/)
+
 Examples:
   node fsun_config/ecc.js pick rules/golang/          # add all Go rules
   node fsun_config/ecc.js pick agents/go-reviewer.md  # add one agent
   node fsun_config/ecc.js unpick rules/web/            # remove web rules
+  node fsun_config/ecc.js bible pick skills/karpathy-guidelines/  # add a bible skill
   node fsun_config/ecc.js own rules/frank/node-prefs.md  # create custom rule
   node fsun_config/ecc.js agents --opus                # upgrade all to opus
   node fsun_config/ecc.js sync                         # install to ~/.claude/

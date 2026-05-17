@@ -29,13 +29,16 @@ node fsun_config/ecc.js agents --opus   # upgrade agents
 ### Sync upstream changes
 ```bash
 git fetch upstream
-git merge upstream/main                 # merge upstream into your fork
-# Resolve any conflicts in .gitignore (your only changed file)
+git rebase upstream/main                # replay your fsun_config commits onto fresh upstream
+# Your commits only touch fsun_config/ so this is conflict-free by design
 node fsun_config/ecc.js diff            # see what changed in your tracked files
 node fsun_config/ecc.js sync            # apply to ~/.claude/
 node fsun_config/ecc.js agents --opus   # re-upgrade agents after sync
-git push origin main                    # push updated fork
+git push --force-with-lease origin main # rebase rewrites history -> force-with-lease
 ```
+
+> Rebase (not merge): keeps a linear history and zero merge commits. Safe
+> because every personal commit is isolated in `fsun_config/`.
 
 ### Push your changes
 ```bash
@@ -176,14 +179,41 @@ find ~/.claude/skills -type f | wc -l     # expect: 12
 ```bash
 node fsun_config/ecc.js pick <path>      # cherry-pick upstream files/dirs
 node fsun_config/ecc.js unpick <path>    # remove tracked files
-node fsun_config/ecc.js sync             # copy tracked files to ~/.claude/
+node fsun_config/ecc.js sync             # copy ALL tracked files to ~/.claude/
 node fsun_config/ecc.js diff             # show upstream changes after git pull
 node fsun_config/ecc.js ls               # list what you're tracking
 node fsun_config/ecc.js ls upstream      # browse all available upstream files
+node fsun_config/ecc.js bible ls         # list claude-bible skills (* = tracked)
+node fsun_config/ecc.js bible pick <p>   # cherry-pick a claude-bible skill
+node fsun_config/ecc.js bible unpick <p> # stop tracking a claude-bible skill
+node fsun_config/ecc.js bible update     # git pull the claude-bible repo
 node fsun_config/ecc.js agents           # list agent models
 node fsun_config/ecc.js agents --opus    # upgrade all agents to opus
 node fsun_config/ecc.js own <path>       # create your own custom file
 node fsun_config/ecc.js status           # verify installed matches tracked
+```
+
+## Three Sources, One Install Target
+
+`ecc.js sync` copies from three independent sources into `~/.claude/`:
+
+| Source | Origin | Tracked in manifest as | How to add |
+|--------|--------|------------------------|------------|
+| **upstream** | the ECC fork repo (`affaan-m` via your fork) | `upstream[]` | `ecc.js pick <path>` |
+| **bible** | `forrestchang/andrej-karpathy-skills` cloned at `~/claude-bible` (override via `CLAUDE_BIBLE_DIR`) | `bible[]` | `ecc.js bible pick <path>` |
+| **custom** | `fsun_config/custom/` — your own rules/skills/commands/agents | `custom[]` | `ecc.js own <path>` |
+
+- **upstream** updates via `git fetch upstream && git rebase upstream/main`.
+- **bible** updates via `ecc.js bible update` (git pull in `~/claude-bible`).
+- **custom** is yours — edit files under `fsun_config/custom/` directly.
+- All three are committed to your fork (except generated `.sync-state.json`),
+  so a fresh machine just needs the two clones + `ecc.js sync`.
+
+```text
+SOURCES                         TRACKED            INSTALLED
+ECC fork repo  ──pick──┐
+~/claude-bible ──bible─┼── manifest.json ──sync──> ~/.claude/
+fsun_config/custom ────┘
 ```
 
 ---

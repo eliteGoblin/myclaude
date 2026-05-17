@@ -87,6 +87,7 @@
     "commands/sessions.md",
     "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md",
+    "rules/frank/preferences.md",
     "scripts/lib/session-manager-fsun.js"
   ],
   "hashes": {
@@ -118,7 +119,7 @@
     "commands/refactor-clean.md": "ee746ef64104",
     "commands/resume-session.md": "73983070d7e4",
     "commands/save-session.md": "a9488a8819d6",
-    "commands/sessions.md": "17e6712c3707",
+    "commands/sessions.md": "6da0b3f6ecd4",
     "commands/setup-pm.md": "163b3cd10602",
     "commands/tdd.md": "4ab0a0bd30ab",
     "commands/test-coverage.md": "7444f5566bcf",
@@ -168,9 +169,13 @@
     "scripts/lib/session-manager.js": "5e4a660bd11d",
     "scripts/lib/utils.js": "6d173176649e",
     "agents/python-reviewer.md": "e2cf12989299",
-    "scripts/hooks/session-end.js": "e4bab73d27fc",
+    "scripts/hooks/session-end.js": "c4a771e4abcc",
     "skills/python-patterns/SKILL.md": "df0c0abbbd0e",
-    "skills/python-testing/SKILL.md": "b304a8c503af"
+    "skills/python-testing/SKILL.md": "b304a8c503af",
+    "skills/karpathy-guidelines/SKILL.md": "6e22cc54cb02"
   },
-  "lastSync": "2026-04-26T03:52:46.295Z"
+  "lastSync": "2026-05-17T08:52:44.924Z",
+  "bible": [
+    "skills/karpathy-guidelines/SKILL.md"
+  ]
 }

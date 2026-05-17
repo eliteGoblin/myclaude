@@ -230,12 +230,44 @@ ART
 
 # ─── rules subcommand ────────────────────────────────────────────────
 cmd_rules() {
-  local verbose=0
-  [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && verbose=1
+  local verbose=0 area=""
+  for a in "$@"; do
+    case "$a" in
+      -v|--verbose) verbose=1 ;;
+      -*) ;;
+      *) area="$a" ;;
+    esac
+  done
 
   header "RULES  (always loaded into context)"
   if [[ ! -d "$CLAUDE_HOME/rules" ]]; then
     warn "No rules installed"; return
+  fi
+
+  # Scoped: `myclaude rules common` → just that group, files listed
+  if [[ -n "$area" ]]; then
+    local dir="$CLAUDE_HOME/rules/$area"
+    if [[ ! -d "$dir" ]]; then
+      warn "No rule group '$area'. Available:"
+      for d in "$CLAUDE_HOME/rules"/*/; do [[ -d "$d" ]] && printf "    ${GREEN}%s${RESET}\n" "$(basename "$d")"; done
+      echo ""; return
+    fi
+    local count
+    count=$(find "$dir" -name "*.md" -type f | wc -l | tr -d ' ')
+    printf "  ${BOLD}${GREEN}%s/${RESET}  ${DIM}(%s files)${RESET}\n" "$area" "$count"
+    for f in "$dir"/*.md; do
+      [[ -f "$f" ]] || continue
+      local fname summary
+      fname=$(basename "$f" .md)
+      summary=$(rule_brief "$fname" "$f")
+      if [[ -z "$summary" || "$summary" == *"extends"* ]]; then
+        summary=$(rule_brief "$fname" "")
+        [[ -z "$summary" ]] && summary="Extends common/$fname for $area"
+      fi
+      printf "    ${GREEN}%-22s${RESET} %s\n" "$fname" "$summary"
+    done
+    printf "\n  ${DIM}Claude-written summary:${RESET} ${GREEN}myclaude explain %s${RESET}\n\n" "$area"
+    return
   fi
 
   for d in "$CLAUDE_HOME/rules"/*/; do
@@ -264,7 +296,7 @@ cmd_rules() {
   done
 
   if [[ $verbose -eq 0 ]]; then
-    printf "\n  ${DIM}Use ${RESET}${GREEN}myclaude rules --verbose${RESET}${DIM} to see what each rule covers${RESET}\n"
+    printf "\n  ${DIM}Detail:${RESET} ${GREEN}myclaude rules <area>${RESET}${DIM} ·${RESET} ${GREEN}myclaude rules -v${RESET}${DIM} ·${RESET} ${GREEN}myclaude explain <area>${RESET}${DIM} (Claude summary)${RESET}\n"
   fi
   echo ""
 }

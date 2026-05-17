@@ -98,7 +98,8 @@
     "rules/common/session-log.md",
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
-    "scripts/lib/session-manager-fsun.js"
+    "scripts/lib/session-manager-fsun.js",
+    "skills/karpathy-guidelines/SKILL.md"
   ],
   "hashes": {
     "agents/architect.md": "36e782e21364",
@@ -177,7 +178,6 @@
     "scripts/hooks/session-end.js": "c4a771e4abcc",
     "skills/python-patterns/SKILL.md": "df0c0abbbd0e",
     "skills/python-testing/SKILL.md": "b304a8c503af",
-    "skills/karpathy-guidelines/SKILL.md": "6e22cc54cb02",
     "agents/go-build-resolver.md": "6b8ee2a78f17",
     "agents/go-reviewer.md": "a2472d08781f",
     "rules/golang/coding-style.md": "c32f6a271529",
@@ -193,8 +193,6 @@
     "skills/security-review/SKILL.md": "2488fb9de701",
     "skills/security-review/cloud-infrastructure-security.md": "7d9a83852475"
   },
-  "lastSync": "2026-05-17T09:36:30.622Z",
-  "bible": [
-    "skills/karpathy-guidelines/SKILL.md"
-  ]
+  "lastSync": "2026-05-17T09:43:06.510Z",
+  "bible": []
 }

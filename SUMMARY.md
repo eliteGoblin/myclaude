@@ -208,11 +208,15 @@ node fsun_config/ecc.js status           # verify installed matches tracked
 | **bible** | `forrestchang/andrej-karpathy-skills` cloned at `~/claude-bible` (override via `CLAUDE_BIBLE_DIR`) | `bible[]` | `ecc.js bible pick <path>` |
 | **custom** | `fsun_config/custom/` — your own rules/skills/commands/agents | `custom[]` | `ecc.js own <path>` |
 
-- **upstream** updates via `git fetch upstream && git rebase upstream/main`.
-- **bible** updates via `ecc.js bible update` (git pull in `~/claude-bible`).
+- **upstream** updates via `git fetch upstream && git merge --no-ff upstream/main`.
+- **bible** is an *available mechanism* (`ecc.js bible …`) for browsing/pulling
+  `~/claude-bible`, but nothing is tracked from it now — the karpathy research
+  guidelines have been **vendored into `custom/`** (committed, self-contained,
+  frozen snapshot). To refresh them later: `cp ~/claude-bible/skills/.../SKILL.md
+  fsun_config/custom/skills/karpathy-guidelines/ && ecc.js sync`.
 - **custom** is yours — edit files under `fsun_config/custom/` directly.
-- All three are committed to your fork (except generated `.sync-state.json`),
-  so a fresh machine just needs the two clones + `ecc.js sync`.
+- Everything is committed to your fork, so a fresh machine needs **only this
+  one clone** + `ecc.js sync` (no separate ~/claude-bible clone required).
 
 ```text
 SOURCES                         TRACKED            INSTALLED

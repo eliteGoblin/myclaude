@@ -204,9 +204,12 @@ ART
   subhead "Status & inspect:"
   printf "    ${GREEN}myclaude${RESET}               ${DIM}→ status dashboard (default)${RESET}\n"
   printf "    ${GREEN}myclaude help${RESET}           ${DIM}→ this reference${RESET}\n"
-  printf "    ${GREEN}myclaude rules${RESET}   ${DIM}[-v]${RESET} ${DIM}→ list rules${RESET}    ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: what each covers)${RESET}\n"
-  printf "    ${GREEN}myclaude skills${RESET}  ${DIM}[-v]${RESET} ${DIM}→ list skills${RESET}   ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: sections & value)${RESET}\n"
-  printf "    ${GREEN}myclaude commands${RESET} ${DIM}[-v]${RESET} ${DIM}→ list commands${RESET} ${DIM}(${RESET}${YELLOW}-v${RESET}${DIM}: full descriptions)${RESET}\n"
+  printf "    ${GREEN}myclaude rules${RESET} ${DIM}[names…] [--explain]${RESET}\n"
+  printf "        ${DIM}no names → overview · names → list those · ${RESET}${YELLOW}--explain${RESET}${DIM} → Claude plain-English${RESET}\n"
+  printf "        ${DIM}e.g. ${RESET}${GREEN}myclaude rules common frank --explain${RESET}\n"
+  printf "    ${GREEN}myclaude skills${RESET} ${DIM}[names…] [--explain]${RESET}  ${DIM}(same pattern as rules)${RESET}\n"
+  printf "    ${GREEN}myclaude explain${RESET} ${DIM}<names…>${RESET}    ${DIM}→ alias: auto-detects rule vs skill${RESET}\n"
+  printf "    ${GREEN}myclaude commands${RESET} ${DIM}[-v]${RESET}        ${DIM}→ list commands${RESET}\n"
   printf "    ${GREEN}myclaude agents${RESET}        ${DIM}→ list agents & models${RESET}\n"
   printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
   printf "    ${GREEN}myclaude mcp${RESET}    ${DIM}[name]${RESET} ${DIM}→ MCP setup recipes (context for Claude)${RESET}\n"
@@ -229,63 +232,92 @@ ART
 }
 
 # ─── rules subcommand ────────────────────────────────────────────────
+# ─── shared: resolve names + explain via claude CLI ─────────────────
+# _kind_files <kind> <name> → list matching .md files (dir | file | name.md)
+_kind_files() {
+  local root="$CLAUDE_HOME/$1" name="$2"
+  if   [[ -d "$root/$name"    ]]; then find "$root/$name" -name '*.md' -type f | sort
+  elif [[ -f "$root/$name"    ]]; then echo "$root/$name"
+  elif [[ -f "$root/$name.md" ]]; then echo "$root/$name.md"
+  else return 1; fi
+}
+
+# _explain_files <label> <file...> → pipe contents to `claude -p`
+_explain_files() {
+  local label="$1"; shift
+  if ! command -v claude >/dev/null 2>&1; then
+    printf "${RED}claude CLI not found on PATH.${RESET} Install Claude Code first.\n"; return 1
+  fi
+  [[ $# -eq 0 ]] && { printf "${YELLOW}Nothing to explain.${RESET}\n"; return 1; }
+  printf "${DIM}Asking Claude to explain %s (%d file(s))…${RESET}\n\n" "$label" "$#"
+  local prompt="Explain in plain, friendly English what these Claude Code config files mainly mean for me — the practical gist in short grouped bullets, not a file-by-file walkthrough. Be brief and concrete."
+  { for f in "$@"; do printf '\n===== %s =====\n' "${f#"$CLAUDE_HOME"/}"; cat "$f"; done; } | claude -p "$prompt"
+}
+
+# _collect_explain <kind> <name...> (no names = every group/skill)
+_collect_explain() {
+  local kind="$1"; shift
+  local -a names=("$@") files=()
+  if [[ ${#names[@]} -eq 0 ]]; then
+    local d; for d in "$CLAUDE_HOME/$kind"/*/; do [[ -d "$d" ]] && names+=("$(basename "$d")"); done
+  fi
+  local nm got f
+  for nm in "${names[@]}"; do
+    if got=$(_kind_files "$kind" "$nm"); then
+      while IFS= read -r f; do [[ -n "$f" ]] && files+=("$f"); done <<< "$got"
+    else
+      warn "No $kind '$nm' — skipped"
+    fi
+  done
+  _explain_files "$kind ${names[*]}" "${files[@]}"
+}
+
+# myclaude rules [names...] [--explain] [-v]
 cmd_rules() {
-  local verbose=0 area=""
+  local verbose=0 explain=0; local -a names=()
   for a in "$@"; do
     case "$a" in
-      -v|--verbose) verbose=1 ;;
+      -v|--verbose)    verbose=1 ;;
+      -e|--explain|-x) explain=1 ;;
       -*) ;;
-      *) area="$a" ;;
+      *)  names+=("$a") ;;
     esac
   done
 
-  header "RULES  (always loaded into context)"
   if [[ ! -d "$CLAUDE_HOME/rules" ]]; then
-    warn "No rules installed"; return
+    header "RULES"; warn "No rules installed"; return
   fi
 
-  # Scoped: `myclaude rules common` → just that group, files listed
-  if [[ -n "$area" ]]; then
-    local dir="$CLAUDE_HOME/rules/$area"
-    if [[ ! -d "$dir" ]]; then
-      warn "No rule group '$area'. Available:"
-      for d in "$CLAUDE_HOME/rules"/*/; do [[ -d "$d" ]] && printf "    ${GREEN}%s${RESET}\n" "$(basename "$d")"; done
-      echo ""; return
-    fi
-    local count
-    count=$(find "$dir" -name "*.md" -type f | wc -l | tr -d ' ')
-    printf "  ${BOLD}${GREEN}%s/${RESET}  ${DIM}(%s files)${RESET}\n" "$area" "$count"
-    for f in "$dir"/*.md; do
-      [[ -f "$f" ]] || continue
-      local fname summary
-      fname=$(basename "$f" .md)
-      summary=$(rule_brief "$fname" "$f")
-      if [[ -z "$summary" || "$summary" == *"extends"* ]]; then
-        summary=$(rule_brief "$fname" "")
-        [[ -z "$summary" ]] && summary="Extends common/$fname for $area"
-      fi
-      printf "    ${GREEN}%-22s${RESET} %s\n" "$fname" "$summary"
-    done
-    printf "\n  ${DIM}Claude-written summary:${RESET} ${GREEN}myclaude explain %s${RESET}\n\n" "$area"
+  # --explain → plain-English summary instead of a listing
+  if [[ $explain -eq 1 ]]; then
+    _collect_explain rules "${names[@]}"
     return
   fi
 
-  for d in "$CLAUDE_HOME/rules"/*/; do
-    [[ -d "$d" ]] || continue
-    local group
-    group=$(basename "$d")
-    local count
-    count=$(find "$d" -name "*.md" -type f | wc -l | tr -d ' ')
-    printf "  ${BOLD}${GREEN}%s/${RESET}  ${DIM}(%s files)${RESET}\n" "$group" "$count"
+  header "RULES  (always loaded into context)"
 
+  local -a groups=()
+  if [[ ${#names[@]} -gt 0 ]]; then
+    groups=("${names[@]}"); verbose=1          # naming a group = show its files
+  else
+    local d; for d in "$CLAUDE_HOME/rules"/*/; do [[ -d "$d" ]] && groups+=("$(basename "$d")"); done
+  fi
+
+  local group dir count f fname summary
+  for group in "${groups[@]}"; do
+    dir="$CLAUDE_HOME/rules/$group"
+    if [[ ! -d "$dir" ]]; then
+      warn "No rule group '$group'. Available: $(for x in "$CLAUDE_HOME/rules"/*/; do basename "$x"; done | tr '\n' ' ')"
+      continue
+    fi
+    count=$(find "$dir" -name "*.md" -type f | wc -l | tr -d ' ')
+    printf "  ${BOLD}${GREEN}%s/${RESET}  ${DIM}(%s files)${RESET}\n" "$group" "$count"
     if [[ $verbose -eq 1 ]]; then
-      for f in "$d"/*.md; do
+      for f in "$dir"/*.md; do
         [[ -f "$f" ]] || continue
-        local fname summary
         fname=$(basename "$f" .md)
         summary=$(rule_brief "$fname" "$f")
         if [[ -z "$summary" || "$summary" == *"extends"* ]]; then
-          # Use group + common description as fallback
           summary=$(rule_brief "$fname" "")
           [[ -z "$summary" ]] && summary="Extends common/$fname for $group"
         fi
@@ -295,27 +327,39 @@ cmd_rules() {
     fi
   done
 
-  if [[ $verbose -eq 0 ]]; then
-    printf "\n  ${DIM}Detail:${RESET} ${GREEN}myclaude rules <area>${RESET}${DIM} ·${RESET} ${GREEN}myclaude rules -v${RESET}${DIM} ·${RESET} ${GREEN}myclaude explain <area>${RESET}${DIM} (Claude summary)${RESET}\n"
-  fi
-  echo ""
+  printf "\n  ${DIM}Narrow:${RESET} ${GREEN}myclaude rules common frank${RESET}${DIM}   Plain English:${RESET} ${GREEN}myclaude rules common --explain${RESET}\n\n"
 }
 
 # ─── skills subcommand ──────────────────────────────────────────────
 cmd_skills() {
-  local verbose=0
-  [[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && verbose=1
+  local verbose=0 explain=0; local -a names=()
+  for a in "$@"; do
+    case "$a" in
+      -v|--verbose)    verbose=1 ;;
+      -e|--explain|-x) explain=1 ;;
+      -*) ;;
+      *)  names+=("$a") ;;
+    esac
+  done
 
-  header "SKILLS  (loaded when relevant)"
   local skill_dir="$CLAUDE_HOME/skills"
   if [[ ! -d "$skill_dir" ]]; then
-    warn "No skills installed"; return
+    header "SKILLS"; warn "No skills installed"; return
   fi
 
+  if [[ $explain -eq 1 ]]; then
+    _collect_explain skills "${names[@]}"
+    return
+  fi
+
+  [[ ${#names[@]} -gt 0 ]] && verbose=1
+  header "SKILLS  (loaded when relevant)"
+  local want=" ${names[*]} "
   for d in "$skill_dir"/*/; do
     [[ -d "$d" ]] || continue
     local name
     name=$(basename "$d")
+    [[ ${#names[@]} -gt 0 && "$want" != *" $name "* ]] && continue
     local skill_file="$d/SKILL.md"
     [[ -f "$skill_file" ]] || continue
 
@@ -337,7 +381,7 @@ cmd_skills() {
   done
 
   if [[ $verbose -eq 0 ]]; then
-    printf "\n  ${DIM}Use ${RESET}${GREEN}myclaude skills --verbose${RESET}${DIM} to see what each skill provides${RESET}\n"
+    printf "\n  ${DIM}Narrow:${RESET} ${GREEN}myclaude skills tdd-workflow${RESET}${DIM}   Plain English:${RESET} ${GREEN}myclaude skills tdd-workflow --explain${RESET}\n"
   fi
   echo ""
 }
@@ -565,38 +609,24 @@ cmd_mcp() {
   fi
 }
 
-# ─── explain: ask the claude CLI to summarize a rule area / skill ───
+# ─── explain: friendly alias for `rules/skills <name…> --explain` ───
+# Auto-detects whether each name is a rule group or a skill.
 cmd_explain() {
-  local target="${1:-}"
-  if [[ -z "$target" ]]; then
-    printf "${YELLOW}Usage:${RESET} myclaude explain <area|skill>\n"
-    printf "  ${DIM}myclaude explain common        # what the common rules enforce${RESET}\n"
-    printf "  ${DIM}myclaude explain golang        # the golang rules${RESET}\n"
-    printf "  ${DIM}myclaude explain tdd-workflow  # a skill${RESET}\n"
+  if [[ $# -eq 0 ]]; then
+    printf "${YELLOW}Usage:${RESET} myclaude explain <name…>   ${DIM}(alias of: myclaude rules <name…> --explain)${RESET}\n"
+    printf "  ${DIM}myclaude explain common          # the common rules${RESET}\n"
+    printf "  ${DIM}myclaude explain golang python   # several at once${RESET}\n"
+    printf "  ${DIM}myclaude explain tdd-workflow    # a skill${RESET}\n"
     return 1
   fi
-  if ! command -v claude >/dev/null 2>&1; then
-    printf "${RED}claude CLI not found on PATH.${RESET} Install Claude Code first.\n"
-    return 1
-  fi
-
-  local base="" files=()
-  if [[ -d "$CLAUDE_HOME/rules/$target" ]]; then base="$CLAUDE_HOME/rules/$target"
-  elif [[ -d "$CLAUDE_HOME/skills/$target" ]]; then base="$CLAUDE_HOME/skills/$target"
-  elif [[ -f "$CLAUDE_HOME/rules/$target" ]]; then base="$CLAUDE_HOME/rules/$target"
-  else
-    printf "${RED}Not found:${RESET} no rules/%s or skills/%s under ~/.claude/\n" "$target" "$target"
-    printf "Try ${GREEN}myclaude rules${RESET} or ${GREEN}myclaude skills${RESET} to see names.\n"
-    return 1
-  fi
-  while IFS= read -r f; do files+=("$f"); done < <(find "$base" -name '*.md' -type f | sort)
-  if [[ ${#files[@]} -eq 0 ]]; then
-    printf "${YELLOW}No markdown under '%s'.${RESET}\n" "$target"; return 1
-  fi
-
-  printf "${DIM}Summarizing %d file(s) under '%s' via claude CLI…${RESET}\n\n" "${#files[@]}" "$target"
-  local prompt="Summarize what these Claude Code rule/skill files MAINLY enforce or provide for me — the practical gist in concise grouped bullets, not a file-by-file walkthrough. Be brief."
-  { for f in "${files[@]}"; do printf '\n===== %s =====\n' "${f#"$CLAUDE_HOME"/}"; cat "$f"; done; } | claude -p "$prompt"
+  local -a files=(); local nm got f
+  for nm in "$@"; do
+    if got=$(_kind_files rules "$nm" 2>/dev/null); then :
+    elif got=$(_kind_files skills "$nm" 2>/dev/null); then :
+    else warn "Unknown '$nm' (not a rule group or skill) — skipped"; continue; fi
+    while IFS= read -r f; do [[ -n "$f" ]] && files+=("$f"); done <<< "$got"
+  done
+  _explain_files "$*" "${files[@]}"
 }
 
 # ─── delegates to ecc.js ────────────────────────────────────────────

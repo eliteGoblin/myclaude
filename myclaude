@@ -218,16 +218,20 @@ ART
   printf "    ${GREEN}myclaude install${RESET}        ${DIM}→ full bootstrap: prereqs, sync, link${RESET}\n"
   printf "    ${GREEN}myclaude install --opus${RESET} ${DIM}→ same + upgrade all agents to opus${RESET}\n"
   printf "\n"
-  subhead "Manage install:"
+  subhead "Manage install:  ${RESET}${DIM}sources: upstream (ECC) · bible (~/claude-bible) · custom (fsun_config/custom)${RESET}"
   printf "    ${GREEN}myclaude pick${RESET} <path>   ${DIM}→ add upstream file or dir${RESET}\n"
   printf "    ${GREEN}myclaude unpick${RESET} <path> ${DIM}→ remove from install${RESET}\n"
+  printf "    ${GREEN}myclaude own${RESET} <path>    ${DIM}→ create your own custom file${RESET}\n"
+  printf "    ${GREEN}myclaude bible${RESET} ${DIM}ls|pick|unpick|update${RESET} ${DIM}→ manage ~/claude-bible skills${RESET}\n"
   printf "    ${GREEN}myclaude sync${RESET}          ${DIM}→ apply tracked files to ~/.claude/${RESET}\n"
   printf "    ${GREEN}myclaude diff${RESET}          ${DIM}→ show upstream changes since last sync${RESET}\n"
   printf "    ${GREEN}myclaude browse${RESET}        ${DIM}→ list all available upstream files${RESET}\n"
-  printf "    ${GREEN}myclaude own${RESET} <path>    ${DIM}→ create your own custom file${RESET}\n"
   printf "    ${GREEN}myclaude agents --opus${RESET} ${DIM}→ upgrade all agents to opus${RESET}\n"
-  printf "    ${GREEN}myclaude status${RESET}        ${DIM}→ verify installed matches tracked${RESET}\n"
+  printf "    ${GREEN}myclaude status${RESET}        ${DIM}→ health check: installed / linked / synced${RESET}\n"
   printf "    ${GREEN}myclaude install-link${RESET}  ${DIM}→ symlink to ~/.local/bin/${RESET}\n"
+  echo ""
+  printf "  ${DIM}Mental model: ${RESET}${GREEN}rules${RESET}${DIM} are always-on; ${RESET}${GREEN}skills/agents/commands${RESET}${DIM} load on demand.${RESET}\n"
+  printf "  ${DIM}Docs: ${RESET}fsun_config/SUMMARY.md${DIM} · ${RESET}fsun_config/REQUIREMENTS.md\n"
   echo ""
 }
 
@@ -638,6 +642,72 @@ delegate() {
   node "$ECC_JS" "$@"
 }
 
+# ─── status: health check (installed / linked / synced) ─────────────
+cmd_status() {
+  header "HEALTH CHECK"
+  local issues=0 warns=0
+
+  if command -v claude >/dev/null 2>&1; then
+    printf "  ${GREEN}✓${RESET} claude CLI       ${DIM}%s${RESET}\n" "$(command -v claude)"
+  else
+    printf "  ${RED}✗${RESET} claude CLI       not found on PATH\n"; issues=$((issues+1))
+  fi
+
+  if command -v myclaude >/dev/null 2>&1; then
+    printf "  ${GREEN}✓${RESET} myclaude linked  ${DIM}%s${RESET}\n" "$(command -v myclaude)"
+  else
+    printf "  ${YELLOW}⚠${RESET} myclaude linked  not on PATH ${DIM}(myclaude install-link)${RESET}\n"; warns=$((warns+1))
+  fi
+
+  if [[ -d "$CLAUDE_HOME" ]]; then
+    printf "  ${GREEN}✓${RESET} ~/.claude/       exists\n"
+  else
+    printf "  ${RED}✗${RESET} ~/.claude/       missing ${DIM}(myclaude sync)${RESET}\n"; issues=$((issues+1))
+  fi
+
+  # Capture exit code explicitly: a failed/empty ecc.js run must surface as
+  # an issue, never silently default to a healthy "0 missing".
+  local st rc=0 missing instln
+  st=$(node "$ECC_JS" status 2>&1) || rc=$?
+  instln=$(printf '%s\n' "$st" | grep -oE '[0-9]+ installed, [0-9]+ missing' | head -1)
+  missing=$(printf '%s\n' "$st" | sed -nE 's/.*[0-9]+ installed, ([0-9]+) missing.*/\1/p' | head -1)
+  if [[ $rc -ne 0 || -z "$missing" ]]; then
+    printf "  ${RED}✗${RESET} install          could not read ecc.js status (exit %s)\n" "$rc"
+    issues=$((issues+1))
+  elif [[ "$missing" == "0" ]]; then
+    printf "  ${GREEN}✓${RESET} install          ${DIM}%s${RESET}\n" "$instln"
+  else
+    printf "  ${RED}✗${RESET} install          %s\n" "$instln"
+    printf '%s\n' "$st" | grep "MISSING:" | sed 's/^/        /'
+    issues=$((issues+1))
+  fi
+
+  local df dfrc=0
+  df=$(node "$ECC_JS" diff 2>&1) || dfrc=$?
+  if [[ $dfrc -ne 0 ]]; then
+    printf "  ${YELLOW}⚠${RESET} sync             could not read ecc.js diff (exit %s)\n" "$dfrc"
+    warns=$((warns+1))
+  elif printf '%s\n' "$df" | grep -q "No upstream changes"; then
+    printf "  ${GREEN}✓${RESET} sync             tracked files up to date\n"
+  elif printf '%s\n' "$df" | grep -qE '[0-9]+ file\(s\) changed'; then
+    printf "  ${YELLOW}⚠${RESET} sync             %s ${DIM}(myclaude sync)${RESET}\n" \
+      "$(printf '%s\n' "$df" | grep -oE '[0-9]+ file\(s\) changed')"
+    warns=$((warns+1))
+  else
+    printf "  ${DIM}·${RESET} sync             %s\n" "$(printf '%s\n' "$df" | tail -1 | sed 's/^[[:space:]]*//')"
+  fi
+
+  echo ""
+  if [[ $issues -eq 0 && $warns -eq 0 ]]; then
+    printf "  ${BOLD}${GREEN}✓ HEALTHY${RESET} — installed, linked, and synced\n\n"
+  elif [[ $issues -eq 0 ]]; then
+    printf "  ${BOLD}${YELLOW}✓ OK with %d warning(s)${RESET} — see ⚠ above\n\n" "$warns"
+  else
+    printf "  ${BOLD}${RED}✗ %d issue(s)${RESET}, %d warning(s) — see above\n\n" "$issues" "$warns"
+    return 1
+  fi
+}
+
 # ─── main ────────────────────────────────────────────────────────────
 cmd="${1:-}"
 shift 2>/dev/null || true
@@ -673,7 +743,10 @@ case "$cmd" in
   explain|summarize)
     cmd_explain "$@"
     ;;
-  pick|unpick|sync|diff|agents|own|status|ls|bible)
+  status)
+    cmd_status
+    ;;
+  pick|unpick|sync|diff|agents|own|ls|bible)
     delegate "$cmd" "$@"
     ;;
   browse)

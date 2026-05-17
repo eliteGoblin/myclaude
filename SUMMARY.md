@@ -29,16 +29,21 @@ node fsun_config/ecc.js agents --opus   # upgrade agents
 ### Sync upstream changes
 ```bash
 git fetch upstream
-git rebase upstream/main                # replay your fsun_config commits onto fresh upstream
-# Your commits only touch fsun_config/ so this is conflict-free by design
-node fsun_config/ecc.js diff            # see what changed in your tracked files
-node fsun_config/ecc.js sync            # apply to ~/.claude/
+git merge --no-ff upstream/main         # merge latest upstream into your fork
+# Only conflict is usually yarn.lock (generated):
+git checkout upstream/main -- yarn.lock && git add yarn.lock
+git commit --no-edit                    # finish the merge
+node fsun_config/ecc.js ls 2>&1 | tail -1   # see tracked counts
+node fsun_config/ecc.js sync            # apply latest picked files to ~/.claude/
 node fsun_config/ecc.js agents --opus   # re-upgrade agents after sync
-git push --force-with-lease origin main # rebase rewrites history -> force-with-lease
+git push origin main                    # fast-forward, NO force needed
 ```
 
-> Rebase (not merge): keeps a linear history and zero merge commits. Safe
-> because every personal commit is isolated in `fsun_config/`.
+> Merge (not rebase): this fork's history already contains merge commits, and
+> upstream has no `fsun_config/`, so a merge is conflict-free except the
+> generated `yarn.lock`. No history rewrite, no force-push, fully reversible.
+> If a sync ever needs `--force`, stop and investigate — it means the local
+> checkout was stale (see the reconciliation note below).
 
 ### Push your changes
 ```bash

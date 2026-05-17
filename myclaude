@@ -533,6 +533,40 @@ cmd_mcp() {
   fi
 }
 
+# ─── explain: ask the claude CLI to summarize a rule area / skill ───
+cmd_explain() {
+  local target="${1:-}"
+  if [[ -z "$target" ]]; then
+    printf "${YELLOW}Usage:${RESET} myclaude explain <area|skill>\n"
+    printf "  ${DIM}myclaude explain common        # what the common rules enforce${RESET}\n"
+    printf "  ${DIM}myclaude explain golang        # the golang rules${RESET}\n"
+    printf "  ${DIM}myclaude explain tdd-workflow  # a skill${RESET}\n"
+    return 1
+  fi
+  if ! command -v claude >/dev/null 2>&1; then
+    printf "${RED}claude CLI not found on PATH.${RESET} Install Claude Code first.\n"
+    return 1
+  fi
+
+  local base="" files=()
+  if [[ -d "$CLAUDE_HOME/rules/$target" ]]; then base="$CLAUDE_HOME/rules/$target"
+  elif [[ -d "$CLAUDE_HOME/skills/$target" ]]; then base="$CLAUDE_HOME/skills/$target"
+  elif [[ -f "$CLAUDE_HOME/rules/$target" ]]; then base="$CLAUDE_HOME/rules/$target"
+  else
+    printf "${RED}Not found:${RESET} no rules/%s or skills/%s under ~/.claude/\n" "$target" "$target"
+    printf "Try ${GREEN}myclaude rules${RESET} or ${GREEN}myclaude skills${RESET} to see names.\n"
+    return 1
+  fi
+  while IFS= read -r f; do files+=("$f"); done < <(find "$base" -name '*.md' -type f | sort)
+  if [[ ${#files[@]} -eq 0 ]]; then
+    printf "${YELLOW}No markdown under '%s'.${RESET}\n" "$target"; return 1
+  fi
+
+  printf "${DIM}Summarizing %d file(s) under '%s' via claude CLI…${RESET}\n\n" "${#files[@]}" "$target"
+  local prompt="Summarize what these Claude Code rule/skill files MAINLY enforce or provide for me — the practical gist in concise grouped bullets, not a file-by-file walkthrough. Be brief."
+  { for f in "${files[@]}"; do printf '\n===== %s =====\n' "${f#"$CLAUDE_HOME"/}"; cat "$f"; done; } | claude -p "$prompt"
+}
+
 # ─── delegates to ecc.js ────────────────────────────────────────────
 delegate() {
   if [[ ! -f "$ECC_JS" ]]; then
@@ -574,7 +608,10 @@ case "$cmd" in
   mcp)
     cmd_mcp "$@"
     ;;
-  pick|unpick|sync|diff|agents|own|status|ls)
+  explain|summarize)
+    cmd_explain "$@"
+    ;;
+  pick|unpick|sync|diff|agents|own|status|ls|bible)
     delegate "$cmd" "$@"
     ;;
   browse)

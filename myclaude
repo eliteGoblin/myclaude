@@ -88,19 +88,22 @@ cmd_status_dashboard() {
 ART
   printf "${RESET}"
 
-  # ── Counts ──
-  header "INSTALLED"
-  local total=0
-  for kind in rules agents commands skills; do
-    local dir="$CLAUDE_HOME/$kind"
-    if [[ -d "$dir" ]]; then
-      local count
-      count=$(find "$dir" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-      printf "  ${GREEN}%-12s${RESET} %s\n" "$kind" "$count"
-      total=$((total + count))
-    fi
-  done
-  printf "  ${BOLD}%-12s %s${RESET}\n" "total" "$total"
+  # ── Counts (split by context cost) ──
+  header "CONFIGURED  (managed by myclaude → ~/.claude/)"
+  _count() { find "$CLAUDE_HOME/$1" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' '; }
+  local r a c s
+  r=$(_count rules); a=$(_count agents); c=$(_count commands); s=$(_count skills)
+
+  printf "\n  ${BOLD}ALWAYS-ON${RESET} ${DIM}— loaded into every conversation${RESET}\n"
+  printf "  ${GREEN}%-12s${RESET} %-3s ${DIM}the only \"follow this\" set${RESET}\n" "rules" "$r"
+
+  printf "\n  ${BOLD}ON-DEMAND${RESET} ${DIM}— zero context cost until invoked${RESET}\n"
+  printf "  ${GREEN}%-12s${RESET} %-3s ${DIM}loads only when a task matches${RESET}\n" "skills" "$s"
+  printf "  ${GREEN}%-12s${RESET} %-3s ${DIM}loads only when Claude delegates${RESET}\n" "agents" "$a"
+  printf "  ${GREEN}%-12s${RESET} %-3s ${DIM}loads only when you type /cmd${RESET}\n" "commands" "$c"
+
+  printf "\n  ${BOLD}%-12s %s${RESET} ${DIM}(rules always-on; rest is a lazy library)${RESET}\n" \
+    "total" "$((r + a + c + s))"
 
   # ── Hooks ──
   header "HOOKS WIRED  (~/.claude/settings.json)"

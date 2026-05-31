@@ -92,14 +92,16 @@
     "skills/verification-loop/SKILL.md"
   ],
   "custom": [
+    "agents/ba-curator.md",
     "commands/done.md",
+    "commands/product-cycle.md",
     "commands/sessions.md",
     "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md",
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
     "scripts/lib/session-manager-fsun.js",
-    "skills/karpathy-guidelines/SKILL.md"
+    "skills/focusd-protection/SKILL.md"
   ],
   "hashes": {
     "agents/architect.md": "36e782e21364",
@@ -193,6 +195,6 @@
     "skills/security-review/SKILL.md": "2488fb9de701",
     "skills/security-review/cloud-infrastructure-security.md": "7d9a83852475"
   },
-  "lastSync": "2026-05-17T09:43:06.510Z",
+  "lastSync": "2026-05-26T06:02:05.333Z",
   "bible": []
 }

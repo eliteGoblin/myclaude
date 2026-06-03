@@ -724,7 +724,7 @@ COMMANDS (~/.claude/commands/): $commands_inv"
     sys="You are the user's Claude Code CONFIG CONCIERGE. Help them understand and manage their setup. Answer ANY question about it (not one topic). You are running inside the ECC repo at $ECC_ROOT with file access — read any file to answer specifics (rules: $CLAUDE_HOME/rules/<g>/ or repo rules/<g>/ ; custom: fsun_config/custom/ ; skills: $CLAUDE_HOME/skills/). For changes, give exact edits and note custom files need 'myclaude sync'. Key facts:
 
 - ECC fork repo: $ECC_ROOT  → installs to $CLAUDE_HOME via fsun_config/ecc.js (managed by the 'myclaude' CLI).
-- THREE sources: upstream (repo catalog rules/ skills/ agents/ commands/), custom (fsun_config/custom/, the user's own), bible (claude-bible / karpathy — vendored into fsun_config/custom/skills/). manifest.json is the source of truth.
+- THREE sources: upstream (repo catalog rules/ skills/ agents/ commands/), custom (fsun_config/custom/, the user's own), bible (claude-bible / karpathy — browse/pull only, nothing tracked; karpathy guidance lives in the always-on rule custom/rules/common/behavioral-guidelines.md). manifest.json is the source of truth.
 
 ===== fsun_config/SUMMARY.md =====
 $(cat "$ECC_ROOT/fsun_config/SUMMARY.md" 2>/dev/null)

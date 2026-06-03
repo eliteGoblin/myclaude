@@ -210,10 +210,10 @@ node fsun_config/ecc.js status           # verify installed matches tracked
 
 - **upstream** updates via `git fetch upstream && git merge --no-ff upstream/main`.
 - **bible** is an *available mechanism* (`ecc.js bible …`) for browsing/pulling
-  `~/claude-bible`, but nothing is tracked from it now — the karpathy research
-  guidelines have been **vendored into `custom/`** (committed, self-contained,
-  frozen snapshot). To refresh them later: `cp ~/claude-bible/skills/.../SKILL.md
-  fsun_config/custom/skills/karpathy-guidelines/ && ecc.js sync`.
+  `~/claude-bible`, but nothing is tracked from it now. The karpathy guidance is
+  carried by the always-on rule `custom/rules/common/behavioral-guidelines.md`
+  (not as a skill). To pull the upstream karpathy skill again if ever wanted:
+  `ecc.js bible pick skills/karpathy-guidelines/ && ecc.js sync`.
 - **custom** is yours — edit files under `fsun_config/custom/` directly.
 - Everything is committed to your fork, so a fresh machine needs **only this
   one clone** + `ecc.js sync` (no separate ~/claude-bible clone required).

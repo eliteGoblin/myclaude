@@ -32,8 +32,10 @@ Hand the approved spec to `architect` for the technical approach + risks. The ar
 ### Stage 3 - BUILD  (agents: dev via general-purpose or tdd-guide)
 Implement against the spec + design. Write unit + integration tests, and an e2e plan derived from the spec's acceptance criteria. Prefer an isolated worktree if the build is large. TDD where it fits.
 
-### Stage 4 - REVIEW  (agents: code-reviewer + language reviewer + security-reviewer, in parallel)
+### Stage 4 - REVIEW  (agents: code-reviewer + language reviewer + security-reviewer, in parallel — AND GitHub Copilot on the PR)
 Run the relevant reviewers concurrently on the diff. Collect findings, dispatch fixes back to the build agent. This stage has NO human gate - review-and-fix is routine. Loop until reviewers are satisfied (CRITICAL/HIGH cleared).
+
+**Copilot review on the PR is MANDATORY before merge** (mirrors the always-on PR workflow). Once the PR is open and the local reviewers are clear: **request a GitHub Copilot review, WAIT for it to post, address EVERY comment** — fix it (push + reply `Fixed`) or rebut it (reasoned why-not) — **and mark each thread RESOLVED** (a reply alone does NOT resolve a line-level thread on GitHub). "Code review" for this cycle = the local specialist agents **and** Copilot; both must be satisfied. Do NOT merge with any unresolved Copilot thread or red CI. The exact commands are in **[Copilot review — exact commands](#copilot-review--exact-commands)** below.
 
 ### Stage 5 - VERIFY  (agent: e2e-runner)
 Run the spec's acceptance criteria as real tests against actual behavior. The e2e agent reads `requirements/features/<this-feature>.md` as its contract.
@@ -64,7 +66,36 @@ Note: with an AI dev loop most code is quickly reversible via git, so "hard to r
 The cycle is NOT fire-and-forget. Run a stage, report the result, STOP at each HUMAN GATE, and wait for the user to say continue. The gates are: (1) direction approval at DEFINE, (2) any architecture / key-feature / threat-model decision (per "Decision altitude" above), (3) major behavior/product conflict at VERIFY, plus any ADR reversal. Everything else (code-review fixes, test additions, implementation details, minor doc tweaks) proceeds without interrupting the user.
 
 ## Everything via PR
-Code changes go through the project's PR workflow (branch -> PR -> reviewers -> CI green -> merge). Config/agent changes go through the config repo's PR workflow. Never push directly to a shared branch.
+Code changes go through the project's PR workflow: branch -> PR -> local reviewers -> **request GitHub Copilot review -> address + RESOLVE every Copilot thread (fix + reply `Fixed` + mark resolved, or a reasoned rebuttal reply + resolve)** -> CI green -> merge. **Never merge a PR with an unresolved Copilot thread or red/pending CI.** Config/agent changes go through the config repo's PR workflow (same Copilot + CI gate). Never push directly to a shared branch.
+
+## Copilot review — exact commands
+Set `O`/`R`/`N` to owner / repo / PR-number. Run these as the literal mechanical steps:
+
+1. **Request Copilot** (after the PR is open):
+   ```bash
+   gh api --method POST repos/$O/$R/pulls/$N/requested_reviewers -f "reviewers[]=copilot-pull-request-reviewer[bot]"
+   ```
+2. **Wait** ~1–3 min, then **pull its review + inline comments**:
+   ```bash
+   gh api repos/$O/$R/pulls/$N/reviews  -q '.[]|select(.user.login|startswith("copilot"))|.body'
+   gh api repos/$O/$R/pulls/$N/comments -q '.[]|{id,path,line,body:.body[0:300]}'
+   ```
+3. **Address each comment** — fix in code (push the fix) or decide won't-fix — then **reply on that comment thread**:
+   ```bash
+   gh api --method POST repos/$O/$R/pulls/$N/comments/<COMMENT_ID>/replies -f body="Fixed: <what changed>"
+   # or a reasoned rebuttal: -f body="Won't fix: <specific reason>"
+   ```
+4. **Mark the thread RESOLVED** (a reply does NOT resolve it). Get thread node-ids, then resolve each:
+   ```bash
+   gh api graphql -f query='{repository(owner:"'$O'",name:"'$R'"){pullRequest(number:'$N'){reviewThreads(first:50){nodes{id isResolved comments(first:1){nodes{databaseId}}}}}}}'
+   gh api graphql -f query='mutation{resolveReviewThread(input:{threadId:"<THREAD_ID>"}){thread{isResolved}}}'
+   ```
+5. **Verify** before merge: every thread `isResolved:true` and CI green:
+   ```bash
+   gh pr checks $N --repo $O/$R          # all pass
+   gh api repos/$O/$R/pulls/$N/comments -q '[.[]|.id]|length'   # cross-check none left unaddressed
+   ```
+Only then merge. No unresolved Copilot thread, no red CI.
 
 ## Output between stages
 After each stage, give the user a 3-5 line status: which stage finished, what the agent produced, whether the next step is a gate (needs them) or routine (proceeds automatically).

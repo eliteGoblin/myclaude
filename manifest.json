@@ -93,6 +93,7 @@
   ],
   "custom": [
     "agents/ba-curator.md",
+    "agents/e2e-verifier.md",
     "commands/done.md",
     "commands/product-cycle.md",
     "commands/sessions.md",

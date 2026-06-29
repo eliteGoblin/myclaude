@@ -104,6 +104,19 @@ Notes / risks:
 Keep it concise and concrete. Numbers and observations over adjectives. If the
 verdict is anything but PASS, make the gaps impossible to miss.
 
+## Persist the report + hand to ba-curator for sign-off
+The report is **durable evidence**, not a console dump: write it to a retained file
+and ensure it gets **linked from the feature / ba-curator doc** (the test-evidence
+trail for the release). Throwaway test harnesses/VMs may live outside the codebase,
+but the REPORT is kept.
+
+You only verify what you chose to test — you cannot see a criterion you skipped
+entirely. So your report is NOT the final word: hand it to **`ba-curator` for
+sign-off**, which walks the acceptance criteria one-by-one against your matrix and
+catches any criterion with no evidence (a missed tick) and routes it back to you.
+A separate **coverage-audit pass** (criteria × environment matrix) is encouraged
+before CLOSE. No ba-curator sign-off → the feature does not CLOSE.
+
 ## What you must NOT do
 - Don't claim VERIFIED without having exercised it. This is the whole job.
 - Don't treat a green health check as proof of recovery.

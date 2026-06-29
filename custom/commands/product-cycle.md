@@ -46,11 +46,15 @@ Non-negotiable rules the verifier enforces (mirror these when you read its repor
 - **Process accuracy — nothing more, nothing less.** Confirm the running set is exactly expected; rotations/updates leave **no orphaned old-version processes or binaries**; verify each is current + legitimately signed/checksummed. An orphan is a FAIL to investigate, not noise.
 - **White-box, not just black-box.** The verifier reads **logs, metrics, and automated tests** — not only externally-visible behavior. Every component must have **captured, persisted logs** (a component logging to `/dev/null` is a defect); scan the test window for unexpected `ERROR`/`WARN`; a failure that produces **no** error log is itself a FAIL; and confirm the build has automated **unit (+ integration) tests** that pass — the live e2e supplements them, it doesn't replace them.
 - **Honest report up front.** `NOT VERIFIED` items go at the TOP of the report and are handed to the human to run. Verdict is `PASS` only when the whole contract was exercised.
+- **The report is durable EVIDENCE kept in the BA layer.** Persist the verify report (the per-criterion matrix + the exact commands and observed output) and LINK it from the feature / `ba-curator` doc — it is the test-evidence trail for the release, not a transient console dump. A future reader must be able to see what was tested and how. Keep test scripts/artifacts with the evidence (throwaway harnesses live outside the codebase, but the REPORT is retained).
 
 Routing: if behavior does NOT match the documented contract, route to `ba-curator` — minor (doc was slightly off → update + note) vs major (the product doesn't do what was promised → **HUMAN GATE 2**). A `PASS-WITH-GAPS` / `FAIL` verdict, or any vital recovery/process-accuracy check left NOT VERIFIED, blocks CLOSE until the human signs off.
 
+### Stage 5b - VERIFY SIGN-OFF  (agent: ba-curator)
+Before CLOSE, `ba-curator` SIGNS OFF the verify report against the acceptance criteria: walk the feature doc's criteria **one-by-one** and confirm EACH has a matching `VERIFIED` tick in the report (or an explicitly accepted `NOT VERIFIED` with reason). The point is to catch a criterion the e2e pass **missed entirely** — a gap the verifier can't see because it only checks what it chose to test. If a criterion has no evidence, route back to `e2e-verifier` to test it (consider a separate coverage-audit pass). Record the sign-off (the coverage matrix + what's not-verified) in the feature doc. **No sign-off → no CLOSE.**
+
 ### Stage 6 - CLOSE  (agent: ba-curator, verb: release-review after ship)
-Once merged/released: `ba-curator` flips status to shipped, updates the version table + honest-limitations, and confirms the feature spec matches what actually shipped.
+Once merged/released AND signed off (5b): `ba-curator` flips status to shipped, updates the version table + honest-limitations, **links the retained verify report as evidence**, and confirms the feature spec matches what actually shipped.
 
 ## Decision altitude - what to gate vs what to decide (READ THIS)
 The single most important judgment in the cycle: which decisions are yours (act as a trusted tech lead) and which MUST go back to the human.

@@ -99,6 +99,8 @@
     "commands/sessions.md",
     "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md",
+    "rules/frank/critical-verification.md",
+    "rules/frank/learn-from-mistakes.md",
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
     "scripts/lib/session-manager-fsun.js",
@@ -117,7 +119,7 @@
     "agents/refactor-cleaner.md": "91925f7f34da",
     "agents/security-reviewer.md": "46d310c1ddc4",
     "agents/tdd-guide.md": "b1dc01a56d66",
-    "agents/typescript-reviewer.md": "1828b960e455",
+    "agents/typescript-reviewer.md": "fcb0a9fa95cb",
     "commands/aside.md": "828d2739fce0",
     "commands/build-fix.md": "2620e3b8733d",
     "commands/checkpoint.md": "92926e49d18f",
@@ -196,6 +198,6 @@
     "skills/security-review/SKILL.md": "2488fb9de701",
     "skills/security-review/cloud-infrastructure-security.md": "7d9a83852475"
   },
-  "lastSync": "2026-05-26T06:02:05.333Z",
+  "lastSync": "2026-06-29T08:05:49.394Z",
   "bible": []
 }

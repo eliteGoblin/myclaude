@@ -26,6 +26,11 @@ Turn the user's intent into a short, product-altitude feature spec under `requir
 
 ### Stage 2 - DESIGN  (agent: architect)
 Hand the approved spec to `architect` for the technical approach + risks. The architect reads the spec + `philosophy.md` + relevant ADRs.
+
+Two NON-NEGOTIABLE design checks the architect must perform (do NOT settle on the first thing that works):
+- **Vendor / managed-service best-practice FIRST.** For anything built on a managed service (Cloud Run, GCS, a SaaS, a framework), find and cite the vendor's **documented / recommended** solution before adopting a hand-rolled one. Compare the recommended option against any custom approach and justify the choice. (Real miss: shipped a hand-rolled "second audience env var" to reach Cloud Run via a load balancer; the user had to ask "is this the Google-recommended way?" before we found Cloud Run **custom audiences** — the documented, simpler answer. Don't make the user surface the best practice.)
+- **Interface / boundary KISS — optimise the CONSUMER's contract, not just "does it work".** The caller must be isolated from implementation detail; minimise what they have to know. When options tie on function, pick the one with the **smallest caller contract** and hide everything else. (Same case: custom audiences won because the caller needs **one URL** — nothing about Cloud Run's internal run.app URL leaks across the boundary.) State, for the chosen design, exactly what the consumer must know — and cut anything they don't.
+
 - If the design surfaces a PRODUCT conflict (forces a tradeoff the spec didn't anticipate, or tension with philosophy), route it back to `ba-curator`, which decides minor (note it) vs major.
 - **HUMAN GATE on major conflict only** - if the conflict is material or would reverse an ADR, stop and ask the user.
 

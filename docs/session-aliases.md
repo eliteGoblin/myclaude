@@ -23,7 +23,10 @@ organized around aliases, and session IDs are hidden from the user.
   waits for confirmation, never silently creates.
 - **`/sessions switch <alias>`** loads the WHOLE alias context: all member
   summaries (unbudgeted) plus transcripts from every attached folder
-  (token-budgeted).
+  (token-budgeted). When a folder is shared by two aliases, transcripts are
+  scoped to THIS alias's own sessions by default (added 2026-07-08);
+  `--all-transcripts` opts into loading the folder's full history for richer
+  context.
 - **Organizing verbs** (all human-initiated):
   - `attach` — let one alias span multiple folders
   - `assign` — move a session to an alias

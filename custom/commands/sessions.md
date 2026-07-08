@@ -42,6 +42,8 @@ Logic routes through `~/.claude/scripts/lib/session-registry-fsun.js` and
 - `--budget 500K | 1M`      token budget (default 500K)
 - `--since 7d | 24h | 2w`   only transcripts modified within window
 - `--no-llm`                keyword-only filter (skip LLM)
+- `--all-transcripts`       in a folder shared by 2+ aliases, include the OTHER
+                            aliases' transcripts too (default: scoped to this alias)
 
 ---
 
@@ -91,6 +93,7 @@ const opts = {};
 for (let i = 1; i < args.length; i++) {
   if (args[i] === '--no-history') opts.noHistory = true;
   else if (args[i] === '--no-llm') opts.useLLM = false;
+  else if (args[i] === '--all-transcripts') opts.allTranscripts = true;
   else if (args[i] === '--topic') opts.topic = args[++i];
   else if (args[i] === '--budget') opts.budget = args[++i];
   else if (args[i] === '--since') opts.since = args[++i];

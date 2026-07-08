@@ -196,9 +196,10 @@ ART
   printf "    ${GREEN}/code-review${RESET} [PR#]     ${DIM}→ review changes or PR${RESET}\n"
   printf "    ${GREEN}/verify${RESET}                ${DIM}→ pre-ship checks${RESET}\n"
   printf "    ${GREEN}/e2e${RESET} <user flow>       ${DIM}→ generate Playwright tests${RESET}\n"
-  printf "    ${GREEN}/save-session${RESET}          ${DIM}→ manually save session${RESET}\n"
-  printf "    ${GREEN}/resume-session${RESET} [alias] ${DIM}→ load previous session${RESET}\n"
-  printf "    ${GREEN}/sessions${RESET} list         ${DIM}→ list all sessions (cross-project)${RESET}\n"
+  printf "    ${GREEN}/sessions${RESET}              ${DIM}→ alias overview (current folder, unassigned)${RESET}\n"
+  printf "    ${GREEN}/sessions${RESET} switch <alias> ${DIM}→ load WHOLE project context by alias${RESET}\n"
+  printf "    ${GREEN}/sessions${RESET} help         ${DIM}→ full alias verbs (gather/absorb/consolidate...)${RESET}\n"
+  printf "    ${GREEN}/save-session${RESET}          ${DIM}→ manually save session (auto-saves anyway)${RESET}\n"
 
   header "MYCLAUDE COMMANDS"
   subhead "Status & inspect:"

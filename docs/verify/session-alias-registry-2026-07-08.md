@@ -1,18 +1,23 @@
 # VERIFY REPORT — alias-first session registry (feat/session-alias-registry, PR #19) — 2026-07-08
 
-verdict: **PASS-WITH-GAPS** — all 8 items VERIFIED PASS. Item 7 (no-persist
-scratch) **initially FAILED** (live Stop hook bypassed the gate), was **fixed the
-same day** (POSIX case-gate in `~/.claude/settings.json`) and **re-verified PASS**
-(see item-7 section, "RE-VERIFY 2026-07-08"). Remaining gaps: no automated tests
-for the new code; real interactive adhoc Stop event (Claude-side env injection)
-not exercised; verified code includes uncommitted working-tree changes.
+verdict: **PASS-WITH-GAPS** — all 12 items VERIFIED PASS (items 9–12 added after
+ba-curator objection; item 9 `switch`/loadAliasContext is the flagship and passed).
+Item 7 (no-persist scratch) **initially FAILED** (live Stop hook bypassed the
+gate), was **fixed the same day** (POSIX case-gate in `~/.claude/settings.json`)
+and **re-verified PASS** (see item-7 section, "RE-VERIFY 2026-07-08"). Remaining
+gaps: no automated tests for the new code; real interactive adhoc Stop event
+(Claude-side env injection) not exercised; LLM topic-scoring/summary paths not
+exercised.
 
 Verified against the LIVE install (`~/.claude/scripts/lib/session-registry-fsun.js`,
 `~/.claude/scripts/hooks/session-alias-hint-fsun.js`), byte-identical to the repo
-working tree (`diff` clean). Note: the working tree contains **uncommitted** changes
-to `fsun_config/custom/scripts/lib/session-registry-fsun.js` (+25/−6 vs HEAD) — what
-was verified here is the uncommitted version; commit before merge or the PR head
-differs from the verified binary.
+working tree (`diff` clean). Commit-state update: the previously-flagged
+uncommitted +25/−6 lib delta is now **committed** — `c709baaa fix(sessions):
+address code-review findings on registry` (+ `1569a85f` report commit).
+Re-verified after commit: `git diff HEAD -- fsun_config/custom/scripts/lib/session-registry-fsun.js`
+is empty and installed == working tree ⇒ **verified lib content == HEAD of
+`feat/session-alias-registry`**. (Working tree still has docs-only modifications:
+`fsun_config/REQUIREMENTS.md`, `fsun_config/docs/session-aliases.md` — no code.)
 
 Safety: `~/.claude/session-registry.json` was backed up before the run and is
 **byte-identical** to the backup after the run (`diff` clean, sha
@@ -30,9 +35,11 @@ zero changes to Frank's real entries before any sync was executed (0 gone files,
   project settings' `env.ECC_DISABLED_HOOKS` into the hook process (would write
   real session data). To confirm live: start a session in `~/claude_adhoc`, exit,
   then `ls -lt ~/.claude/session-data | head` — NO new file should appear.
-- **LLM summary path of session-end.js**: all session-end runs used
-  `ECC_SKIP_LLM_SUMMARY=1` (no real LLM call exercised). Out of scope for the
-  registry feature.
+- **LLM paths**: session-end runs used `ECC_SKIP_LLM_SUMMARY=1`, and item-9
+  loadAliasContext runs used `useLLM:false` (keyword scoring exercised, LLM
+  relevance scoring not). No real LLM call exercised anywhere. To verify:
+  `/sessions switch gcp-lz --topic "landing zone"` interactively and check
+  transcript scores are marked `(LLM)`.
 - **Automated test coverage**: `session-registry-fsun.js` and
   `session-alias-hint-fsun.js` have **no unit tests** on the branch (no
   `*.test.js` touches them; `git log main..HEAD -- tests/` is empty). Upstream
@@ -58,6 +65,12 @@ zero changes to Frank's real entries before any sync was executed (0 gone files,
 | 7a | run-with-flags gate semantics | PASS | repo root, `ECC_DRY_RUN=1` enabled → `[DryRun] Hook "stop:session-end" would execute…`; with `ECC_DISABLED_HOOKS=stop:session-end` → no preview; real run w/ fake HOME: disabled → **no file created**; enabled → `Created session file: /tmp/e2e-fakehome/.claude/session-data/2026-07-08-…session.tmp` |
 | 7b | adhoc no-persist actually disables persistence | **PASS** (initially FAILED, fixed + re-verified same day) | ORIGINAL: live Stop hook bypassed the gate; direct invocation with the exact adhoc env still created a session file. AFTER FIX (case-gate in `~/.claude/settings.json`): disabled runs (both `stop:session-end` alone and the exact adhoc value `stop:session-end,session:end:marker`) → exit 0, session-data listing unchanged; enabled control (env unset) → `[SessionEnd] Created session file: …/2026-07-08-e2e-item7-recheck-session.tmp` (artifact deleted). See RE-VERIFY section |
 | 8 | pagination: scan sees ALL sessions past the 500 page | PASS | 42 real + 480 fakes = 522 on disk; single `getAllSessions({limit:500})` → 500 returned, `hasMore: true` (naive call would lose 22); `syncRegistry` (uses `scanAllSessions`) accounted for all: 39 tracked + 480 unassigned + 3 ignored = 522; all 480 fakes visible across the page boundary; 0 tracked entries dropped |
+| 9 | switch/loadAliasContext: ALL member summaries + transcripts from EVERY worktree (FLAGSHIP) | PASS | Fixture: alias `e2e-test-sw` with worktrees `/tmp/e2e-wt1` + `/tmp/e2e-wt2` (attach), 2 auto-assigned member sessions, fake native transcripts in `~/.claude/projects/-tmp-e2e-wt1/` and `…/-tmp-e2e-wt2/` (dirs confirmed non-existent before creation). `loadAliasContext("e2e-test-sw",{useLLM:false})` asserted: `summaries.length==2` (both MARKER-SUMMARY contents), transcripts from **both** worktrees (TRANSCRIPT-WT1 + TRANSCRIPT-WT2 dialogs), `charsUsed(236) <= budgetChars` at default 500K tokens; tiny `budget:1` → included 0, **skipped 2** (budget enforced by skip, not truncation) |
+| 9b | renderAliasLoad output | PASS | Rendered text asserted to contain `# Alias: e2e-test-sw`, both member filenames + both summary markers, `## Native Transcript History`, and both transcript dialogs (1257 chars) |
+| 9c | read-only sanity on REAL alias gcp-lz | PASS | `loadAliasContext("gcp-lz",{useLLM:false})` → error: none, memberCount 1, worktrees 3, transcripts included 2 / skipped 0, tokensUsed 24,843; registry sha256 identical before/after (**read-only confirmed**) |
+| 10 | mutating gather (no dry-run) moves membership | PASS | Fixtures: aliases `e2e-test-ga`/`e2e-test-gb`, fake session under A containing unique marker `e2emarker-x7q9z` (unique ⇒ no real session matched). `gatherByTopic("e2e-test-gb","e2emarker-x7q9z")` → `gathered:[{from:"e2e-test-ga"}]`, `dryRun:false`; live registry FILE re-read: membership moved A→B. Exactly 1 session gathered |
+| 11 | explicit attach + assign round-trip | PASS | `attachWorktree("e2e-test-at","/tmp/e2e-at2")` → live file `worktrees:["/tmp/e2e-at1","/tmp/e2e-at2"]` (grew); fake session with `**Worktree:** /tmp/e2e-at2` → `syncRegistry` `autoAssigned:1` picks it up from the NEWLY-attached folder; `assignSession(file,"e2e-test-atb")` → live file shows membership moved to `e2e-test-atb` |
+| 12 | retention pruning off | PASS | FACT: `~/.claude/settings.json` `env` = `{"ECC_SESSION_RETENTION_DAYS":"off"}`. Resolver `getSessionRetentionDays()` (extracted verbatim from `scripts/hooks/session-start.js`): `off` → **null** (asserted; main() branch at line 591 logs "Pruning disabled" and skips `pruneExpiredSessions`); contrast `45` → 45, unset → 30 (default). Additionally: `session-start.js` is not wired in live settings at all (SessionStart runs only the alias-hint hook), so no pruning path is active |
 
 ## DEFECT — item 7 (no-persist scratch) — initially FAILED 2026-07-08, FIXED same day, RE-VERIFIED PASS
 
@@ -134,6 +147,12 @@ real interactive `~/claude_adhoc` session — was not exercised.
   `2026-07-08-e2e-item7-recheck-session.tmp` deleted; session-data listing and
   registry sha re-confirmed identical to pre-run state; `/tmp/e2e-item7-recheck`
   removed.
+- Items 9–12 pass: fixture aliases (`e2e-test-sw/-ga/-gb/-at/-atb`), fake sessions
+  (`2020-01-01-e2etest{1..4}`), and fake transcript dirs
+  (`~/.claude/projects/-tmp-e2e-wt{1,2}` — confirmed non-existent before creation)
+  all removed; per-item sha checkpoints matched; final
+  `diff ~/.claude/session-registry.json <original backup>` → **byte-identical**
+  (sha `acaad2e8…`).
 
 ## Notes / risks
 

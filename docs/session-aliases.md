@@ -1,6 +1,7 @@
 # Session Aliases — alias-first session management
 
 **Status:** built (branch `feat/session-alias-registry`, PR #19) — pending merge
+**Verification:** e2e-verified 2026-07-08 — [verify report](./verify/session-alias-registry-2026-07-08.md), 12/12 items VERIFIED PASS. **BA sign-off: ACCEPTED 2026-07-08** (items 9-12 closed the initial coverage objection; every spec promise now has verified evidence). Three honest gaps remain accepted — see limitations. Status flips to "shipped" only when PR #19 merges.
 **Owner intent (Frank):** "I want persistent sessions I can switch to by alias. Hide session IDs from me. One alias = one project/topic. Same-alias context should be together, otherwise it's confusing."
 
 ## Problem
@@ -57,6 +58,64 @@ organized around aliases, and session IDs are hidden from the user.
   it doesn't guarantee perfect recall.
 - With global retention pruning off, session data grows until the human
   consolidates or cleans up manually — that's by design, but it's on the human.
+- **No unit tests for the overlay code** (accepted 2026-07-08): matches the
+  existing precedent for `fsun_config/custom` overlays; the risky paths are
+  covered by e2e evidence in the verify report instead. Known residual risk: a
+  future change to scanning at scale could silently drop memberships — the
+  verify report recommends pinning that behavior with a test before it's touched.
+- **Real interactive scratch-folder session not yet exercised by a human**
+  (accepted 2026-07-08): the no-persist gate for `~/claude_adhoc` was verified
+  exactly as wired, but only a real interactive session proves Claude Code
+  injects the disabling setting end-to-end. Human check (from the
+  [verify report](./verify/session-alias-registry-2026-07-08.md), "NOT VERIFIED"):
+  start a session in `~/claude_adhoc`, exit, then confirm NO new file appears in
+  `~/.claude/session-data/`.
+- **LLM-assisted paths not exercised** (accepted 2026-07-08): all verification
+  ran with LLM scoring/summarizing switched off, so topic relevance was proven
+  only on the keyword fallback. The LLM path's quality is unproven until someone
+  runs a real topic-filtered switch interactively (human check documented in the
+  verify report, "NOT VERIFIED").
+
+## Verification & evidence
+
+Evidence for this feature lives in [`docs/verify/`](./verify/) — one dated report
+per verification run; the report is the durable record, this section is the BA's
+criterion-by-criterion acceptance against the spec.
+
+**Report:** [session-alias-registry-2026-07-08.md](./verify/session-alias-registry-2026-07-08.md)
+— verdict PASS-WITH-GAPS, all 12 checklist items VERIFIED PASS (items 9-12 added
+after the BA's first review objected to coverage gaps). Item 7 (scratch
+no-persist) initially FAILED — the disable setting was set but nothing honored
+it — fixed same day and re-verified PASS; the FAIL is preserved in the report as
+history.
+
+**BA review 2026-07-08 (final, after items 9-12) — spec promise vs verified evidence:**
+
+| Spec promise | Evidence | Coverage |
+|---|---|---|
+| Registry as source of truth; create/rename/unalias round-trip | item 1 | covered |
+| New sessions auto-join folder's alias; ambiguous (two-alias) folder is never silently assigned | items 2a, 2b | covered |
+| Suggest-and-confirm, never silent-create; suggested name = folder name | item 6c | covered |
+| `absorb` merges aliases and their folders | item 3 | covered |
+| `consolidate` archives, never deletes | item 4 | covered |
+| Session-start hint — all four branches, plus broken/unreachable-registry failure modes | items 6a-6f | covered |
+| `ignore`: scratch folders silent + not persisted | items 6b, 7a, 7b | covered (except human step above) |
+| No member lost when scanning at scale | item 8 | covered |
+| **`switch <alias>` loads the WHOLE alias context** (member summaries + transcripts from every attached folder) | items 9, 9b, 9c: all member summaries loaded, transcripts from BOTH attached folders, budget enforced (tiny budget skips whole transcripts rather than truncating), rendered output complete, read-only run on a real alias left the registry untouched | covered |
+| `gather --topic` actually moves sessions | items 5 (dry-run: no change) + 10 (real run: membership moved in the live registry) | covered |
+| `attach` / `assign` verbs | item 11: alias grew a second folder, new sessions auto-joined from it, explicit assign moved a session between aliases | covered |
+| Retention pruning disabled globally | item 12: setting confirmed "off", the pruning logic verified to stand down on it, and no pruning path is active at all | covered |
+
+**BA verdict: ACCEPTED (signed-off) 2026-07-08.** First review (same day) withheld
+sign-off because `switch` — the behavior the whole feature exists for — plus
+mutating `gather`, `attach`/`assign`, and retention-off had no verified evidence;
+items 9-12 closed all four gaps. Evidence quality is high throughout: registry
+integrity proven byte-identical before/after every mutation test, zero test
+residue, honest FAIL history kept. The earlier pre-merge caveat (verified code
+included uncommitted changes) is resolved: the verified code is now committed at
+the branch head, independently cross-checked by the BA; remaining working-tree
+changes are these docs only. Sign-off covers verification, not release — status
+stays "pending merge" until PR #19 lands.
 
 ## Relationship to prior work
 

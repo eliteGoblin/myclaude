@@ -79,6 +79,33 @@ organized around aliases, and session IDs are hidden from the user.
   runs a real topic-filtered switch interactively (human check documented in the
   verify report, "NOT VERIFIED").
 
+## Machine wiring (per-computer, manual)
+
+`ecc.js sync` installs the code, but each machine's `~/.claude/settings.json`
+needs two hook pointers and one env var (they are settings, not repo files):
+
+1. **Stop hook -> gated save** (also fixes the phantom-stub bug, found
+   2026-07-08: every ECC save spawns a `claude -p` summarizer helper whose own
+   Stop event wrote a ~27-line stub into session-data/):
+
+   ```json
+   "Stop": [{ "hooks": [{ "type": "command",
+     "command": "node \"$HOME/.claude/scripts/hooks/session-save-gate-fsun.js\"" }]}]
+   ```
+
+2. **SessionStart hook -> alias hint**:
+
+   ```json
+   "SessionStart": [{ "hooks": [{ "type": "command",
+     "command": "node \"$HOME/.claude/scripts/hooks/session-alias-hint-fsun.js\"", "timeout": 10 }]}]
+   ```
+
+3. **Retention off**: `"env": { "ECC_SESSION_RETENTION_DAYS": "off" }`
+
+4. **Scratch folder**: `mkdir -p ~/claude_adhoc/.claude` with a local
+   `settings.json` of `{"env": {"ECC_DISABLED_HOOKS": "stop:session-end,session:end:marker"}}`,
+   plus `/sessions ignore ~/claude_adhoc`.
+
 ## Verification & evidence
 
 Evidence for this feature lives in [`docs/verify/`](./verify/) — one dated report

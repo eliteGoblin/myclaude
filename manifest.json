@@ -107,6 +107,7 @@
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
     "scripts/hooks/session-alias-hint-fsun.js",
+    "scripts/hooks/session-save-gate-fsun.js",
     "scripts/lib/session-manager-fsun.js",
     "scripts/lib/session-registry-fsun.js",
     "skills/focusd-protection/SKILL.md"
@@ -206,6 +207,6 @@
     "scripts/lib/llm-summary.js": "ca0c3ac06191",
     "scripts/lib/transcript-context.js": "a79572299eda"
   },
-  "lastSync": "2026-07-08T08:29:39.299Z",
+  "lastSync": "2026-07-08T08:43:02.896Z",
   "bible": []
 }

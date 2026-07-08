@@ -1,6 +1,6 @@
 # Session Aliases — alias-first session management
 
-**Status:** built (branch `feat/session-alias-registry`, PR #19) — pending merge
+**Status:** shipped 2026-07-08 (PR #19)
 **Verification:** e2e-verified 2026-07-08 — [verify report](./verify/session-alias-registry-2026-07-08.md), 12/12 items VERIFIED PASS. **BA sign-off: ACCEPTED 2026-07-08** (items 9-12 closed the initial coverage objection; every spec promise now has verified evidence). Three honest gaps remain accepted — see limitations. Status flips to "shipped" only when PR #19 merges.
 **Owner intent (Frank):** "I want persistent sessions I can switch to by alias. Hide session IDs from me. One alias = one project/topic. Same-alias context should be together, otherwise it's confusing."
 
@@ -115,7 +115,7 @@ residue, honest FAIL history kept. The earlier pre-merge caveat (verified code
 included uncommitted changes) is resolved: the verified code is now committed at
 the branch head, independently cross-checked by the BA; remaining working-tree
 changes are these docs only. Sign-off covers verification, not release — status
-stays "pending merge" until PR #19 lands.
+flipped to shipped when PR #19 merged (2026-07-08).
 
 ## Relationship to prior work
 

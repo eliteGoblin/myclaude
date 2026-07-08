@@ -27,7 +27,7 @@
 - `rules/common/session-log.md` — session-log convention rule
 
 ## Session aliases (alias-first session management)
-See `fsun_config/docs/session-aliases.md` for the full spec. Built on branch `feat/session-alias-registry` (PR #19), pending merge.
+See `fsun_config/docs/session-aliases.md` for the full spec. Shipped 2026-07-08 via PR #19.
 Verified 2026-07-08 (`fsun_config/docs/verify/session-alias-registry-2026-07-08.md`, 12/12 PASS) — BA sign-off ACCEPTED 2026-07-08. Three accepted gaps recorded in the spec's limitations (no unit tests; real interactive `~/claude_adhoc` exit unexercised — human step documented; LLM paths unexercised). Ships when PR #19 merges.
 
 - Persistent sessions switchable by **alias**; session IDs hidden from the user

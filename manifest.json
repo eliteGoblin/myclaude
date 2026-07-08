@@ -107,6 +107,7 @@
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
     "scripts/lib/session-manager-fsun.js",
+    "scripts/lib/session-registry-fsun.js",
     "skills/focusd-protection/SKILL.md"
   ],
   "hashes": {
@@ -204,6 +205,6 @@
     "scripts/lib/llm-summary.js": "ca0c3ac06191",
     "scripts/lib/transcript-context.js": "a79572299eda"
   },
-  "lastSync": "2026-07-08T01:19:38.098Z",
+  "lastSync": "2026-07-08T04:09:57.792Z",
   "bible": []
 }

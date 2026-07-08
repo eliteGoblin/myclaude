@@ -81,8 +81,8 @@ organized around aliases, and session IDs are hidden from the user.
 
 ## Machine wiring (per-computer, manual)
 
-`ecc.js sync` installs the code, but each machine's `~/.claude/settings.json`
-needs two hook pointers and one env var (they are settings, not repo files):
+`ecc.js sync` installs the code, but each machine needs four manual setup
+steps (they are settings/folders, not repo files):
 
 1. **Stop hook -> gated save** (also fixes the phantom-stub bug, found
    2026-07-08: every ECC save spawns a `claude -p` summarizer helper whose own

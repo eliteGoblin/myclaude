@@ -32,8 +32,13 @@ const os = require('os');
 
 function isDisabled() {
   if (process.env.ECC_SKIP_LLM_SUMMARY) return true;
+  // Match upstream hook-flags.js semantics: lowercase, trimmed, empties ignored.
   const raw = String(process.env.ECC_DISABLED_HOOKS || '');
-  return raw.split(',').map(s => s.trim()).includes('stop:session-end');
+  return raw
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean)
+    .includes('stop:session-end');
 }
 
 try {

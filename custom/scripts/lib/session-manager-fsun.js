@@ -18,7 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync, spawnSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 // Resolve upstream lib via the same path-discovery shim used elsewhere
 function resolveUpstream(name) {
@@ -365,7 +365,7 @@ function renderLoadOutput(result) {
   out.push('## Native Transcript History');
   out.push(`Budget: ${result.budget.tokens.toLocaleString()} tokens (${result.budget.chars.toLocaleString()} chars)`);
   if (result.topic) out.push(`Topic filter: "${result.topic}"`);
-  if (h.warning) out.push(`⚠️  ${h.warning}`);
+  if (h.warning) out.push(`WARNING: ${h.warning}`);
   out.push(`Included: ${h.transcripts.length}, skipped (over budget): ${h.skipped}`);
   out.push(`Used: ${h.tokensUsed.toLocaleString()} tokens (${h.charsUsed.toLocaleString()} chars)`);
   out.push('');

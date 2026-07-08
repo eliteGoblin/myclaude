@@ -37,11 +37,11 @@ from Claude Code in any project folder.
 
 | Environment                         | Status      | Helpers (canonical)                                                | Reference copies |
 |-------------------------------------|-------------|--------------------------------------------------------------------|------------------|
-| Windows + WSL                       | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp_wsl` + `run_chrome_mcp.ps1`  | `mcp_recipes/chrome/` |
-| Mac + Parallels Ubuntu VM           | ✅ DONE      | `~/devel/dotfiles/util/run_chrome_mcp` + `dev_sync`                | — |
-| Mac native                          | 🟡 TODO     | Reuse `util/run_chrome_mcp` without the socat hop                  | — |
-| Mac + Ubuntu VM (UTM/VBox/libvirt)  | 🟡 TODO     | Generalize `dev_sync`'s `prlctl` calls                             | — |
-| Linux native                        | 🟡 TODO     | Equivalent to Mac native                                           | — |
+| Windows + WSL                       | DONE      | `~/devel/dotfiles/util/run_chrome_mcp_wsl` + `run_chrome_mcp.ps1`  | `mcp_recipes/chrome/` |
+| Mac + Parallels Ubuntu VM           | DONE      | `~/devel/dotfiles/util/run_chrome_mcp` + `dev_sync`                | — |
+| Mac native                          | TODO     | Reuse `util/run_chrome_mcp` without the socat hop                  | — |
+| Mac + Ubuntu VM (UTM/VBox/libvirt)  | TODO     | Generalize `dev_sync`'s `prlctl` calls                             | — |
+| Linux native                        | TODO     | Equivalent to Mac native                                           | — |
 
 > **Reference copies** under `mcp_recipes/chrome/` are example snapshots so a
 > fresh machine that has only the ECC fork (not dotfiles) still has something

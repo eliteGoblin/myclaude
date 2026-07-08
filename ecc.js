@@ -70,10 +70,6 @@ function saveManifest(m) {
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(m, null, 2) + '\n');
 }
 
-function isUpstreamFile(relPath) {
-  return fs.existsSync(path.join(ECC_ROOT, relPath));
-}
-
 function category(relPath) {
   const first = relPath.split('/')[0];
   if (['rules', 'agents', 'commands', 'skills', 'hooks', 'scripts'].includes(first)) return first;
@@ -520,7 +516,6 @@ function status() {
   const m = loadManifest();
   let installed = 0;
   let missing = 0;
-  let extra = 0;
 
   const allTracked = new Set([...m.upstream, ...m.bible, ...m.custom]);
 

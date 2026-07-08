@@ -31,10 +31,11 @@ const sm = fsun.upstream.sm;
 
 const REGISTRY_PATH = path.join(os.homedir(), '.claude', 'session-registry.json');
 const ALIAS_NAME_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
-const SCAN_PAGE = 500;
+const SCAN_PAGE = 100000;
 
-/** Page through upstream getAllSessions so no session is ever missed
- *  (treating a truncated page as "deleted" would corrupt the registry). */
+/** Fetch every session in one upstream scan (getAllSessions re-reads the
+ *  whole dir per call, so looping small pages would be O(N^2); one huge
+ *  page keeps it a single O(N) scan). hasMore loop is a safety net only. */
 function scanAllSessions() {
   const all = [];
   let offset = 0;
@@ -72,7 +73,15 @@ function loadRegistry() {
       sessions: raw.sessions && typeof raw.sessions === 'object' ? raw.sessions : {},
       ignored: Array.isArray(raw.ignored) ? raw.ignored : [],
     };
-  } catch {
+  } catch (err) {
+    // Never let a corrupt registry be silently replaced: preserve the bad
+    // file so the next saveRegistry() can't destroy the user's mappings.
+    const backup = `${REGISTRY_PATH}.corrupt`;
+    try { fs.copyFileSync(REGISTRY_PATH, backup); } catch { /* best effort */ }
+    process.stderr.write(
+      `[SessionRegistry] WARNING: ${REGISTRY_PATH} is unreadable (${err.message}). ` +
+      `Preserved a copy at ${backup}; starting from an empty registry.\n`
+    );
     return emptyRegistry();
   }
 }
@@ -164,7 +173,8 @@ function assignSession(filename, aliasName) {
  * to target, sources are deleted. This is how "combine all context into one
  * alias" works; session files themselves are never touched.
  */
-function absorbAliases(target, sources) {
+function absorbAliases(target, rawSources) {
+  const sources = [...new Set(rawSources)];
   const reg = loadRegistry();
   if (!reg.aliases[target]) return { error: `Target alias "${target}" not found.` };
   for (const s of sources) {
@@ -321,7 +331,10 @@ function consolidateAlias(aliasName, opts = {}) {
       return `\n## From ${s.filename}  (${s.date})\n${content.trim()}`;
     }).join('\n');
     const existing = sm.getSessionContent(target.sessionPath);
-    sm.writeSessionContent(target.sessionPath, existing.trimEnd() + banner + blocks + '\n');
+    const wrote = sm.writeSessionContent(target.sessionPath, existing.trimEnd() + banner + blocks + '\n');
+    if (wrote === false) {
+      return { error: `Failed to write merged content to ${target.filename} — nothing was archived.` };
+    }
 
     const archiveDir = path.join(path.dirname(target.sessionPath), 'archive');
     fs.mkdirSync(archiveDir, { recursive: true });

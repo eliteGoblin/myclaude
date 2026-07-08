@@ -26,6 +26,18 @@
 - `rules/common/behavioral-guidelines.md` — Frank's behavioral rules
 - `rules/common/session-log.md` — session-log convention rule
 
+## Session aliases (alias-first session management)
+See `fsun_config/docs/session-aliases.md` for the full spec. Built on branch `feat/session-alias-registry` (PR #19), pending merge.
+
+- Persistent sessions switchable by **alias**; session IDs hidden from the user
+- "One alias = one project/topic. Same-alias context should be together, otherwise it's confusing"
+- Explicit registry: many sessions → exactly one alias; an alias can span multiple folders; new sessions auto-join their folder's alias
+- `/sessions` = alias overview; unassigned folders get **suggested** names — suggest-and-confirm, never silent-create
+- `/sessions switch <alias>` loads the whole alias context (all member summaries + transcripts from every attached folder, token-budgeted)
+- Organizing verbs: attach, assign, gather --topic, absorb, consolidate (archives, never deletes), rename, unalias, ignore (scratch folders)
+- Session-start hint: offer switch / ask which alias / ask to create / silent for ignored folders
+- Retention pruning off globally — cleanup is manual and human-confirmed
+
 ## Sessions overlay
 See `fsun_config/docs/sessions-extended.md` for full design.
 
@@ -40,6 +52,7 @@ See `fsun_config/docs/sessions-extended.md` for full design.
 ## Current State
 - Installed: 81 upstream files (common + TS + web + python rules, agents, commands, skills)
 - 5 custom overlays (incl. sessions.md + session-manager-fsun.js)
+- Alias-first session management built (PR #19, `feat/session-alias-registry`) — not yet merged to main
 - All agents upgraded to opus (Max sub)
 - Fork: eliteGoblin/everything-claude-code
 - Upstream: affaan-m/everything-claude-code

@@ -124,3 +124,7 @@ before CLOSE. No ba-curator sign-off → the feature does not CLOSE.
   status is green.
 - Don't leak redacted/sensitive identifiers into the report.
 - Don't edit product code to make a test pass — report the failure instead.
+
+## Memory (self-learning)
+
+If the project you are working in has a `.claude/agents/memory/` directory (repo-relative), read `.claude/agents/memory/e2e-verify.md` and `.claude/agents/memory/_shared.md` BEFORE substantive work. AFTER substantive work, append distilled lessons there (mistakes, quirks, gaps, corrections — 2-4 lines each: what happened → the reusable rule; dedupe rather than repeat; never log routine success), per the project CLAUDE.md "Agent self-learning" convention if present.

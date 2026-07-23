@@ -114,5 +114,43 @@ Set `O`/`R`/`N` to owner / repo / PR-number. Run these as the literal mechanical
    ```
 Only then merge. No unresolved Copilot thread, no red CI.
 
+## Above the per-feature cycle — the RELEASE gate (agent: release-verifier)
+This cycle verifies ONE feature at merge (Stage 5). A release usually ships a
+TRAIN of features together (everything merged to nonprod/main since the last prod
+release). Before promoting that train nonprod→prod, run the **`release-verifier`**
+agent — the per-RELEASE, cross-feature gate that sits ABOVE this per-feature loop:
+
+- **When:** after the features in the train have each been through VERIFY + CLOSE
+  and merged to nonprod/main, and BEFORE opening the nonprod→prod promotion PR.
+- **What it does:** builds the release manifest from `git log origin/prod..origin/main`,
+  impact-classifies each feature (behavior / latency / load / config-infra / docs),
+  **reuses each feature's e2e-verifier VERIFY REPORT** (with a freshness gate — stale
+  or missing = NOT-VERIFIED, delegate back to e2e-verifier), runs impact-matched
+  release-level rehearsal (e.g. a **load test** vs baseline for latency/load features,
+  using the repo's k6 kit), checks cross-feature regressions, env/config parity
+  nonprod→prod, rollback paths, CI + monitoring, and reconciles the manifest.
+- **Output:** a go/no-go **RELEASE READINESS report** (per-feature VERIFIED/NOT-VERIFIED
+  with evidence + confidence, gaps at the top). It **composes** e2e-verifier (never
+  duplicates it) and hands the report to **`ba-curator` (release-review)** so the
+  release is recorded at product altitude.
+- **It NEVER auto-promotes.** It stops at the human's explicit go — a GO verdict is a
+  recommendation, not permission to promote.
+
+The chain end-to-end: `/product-cycle` per feature → `e2e-verifier` verifies each at
+merge → `release-verifier` verifies the whole train before promotion → `ba-curator`
+records the release.
+
+### Project-scoped SRE agent (a pattern ECC ships — not an agent)
+Each project SHOULD define its own **`.claude/agents/sre.md`** — a live-signals
+specialist that knows THAT project's dashboards, alerts, log events, runbooks, and
+baselines. It is **READ-ONLY on prod**, works alongside `release-verifier`'s
+pre-promotion evidence gathering (release-verifier is pre-promotion only; the SRE
+agent's post-promotion sweep evidence flows to `ba-curator`'s release record), runs
+standalone for incident triage and health sweeps, and maintains its role memory
+(`.claude/agents/memory/sre.md`).
+ECC deliberately does NOT ship a generic SRE agent: the agent's entire value is
+project-specific knowledge, so the definition lives in each repo — only the pattern
+is cross-project. Reference implementation: `call_summary_agent`'s `.claude/agents/sre.md`.
+
 ## Output between stages
 After each stage, give the user a 3-5 line status: which stage finished, what the agent produced, whether the next step is a gate (needs them) or routine (proceeds automatically).

@@ -97,11 +97,13 @@
   "custom": [
     "agents/ba-curator.md",
     "agents/e2e-verifier.md",
+    "agents/release-verifier.md",
     "commands/done.md",
     "commands/product-cycle.md",
     "commands/sessions.md",
     "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md",
+    "rules/frank/agent-self-learning.md",
     "rules/frank/critical-verification.md",
     "rules/frank/learn-from-mistakes.md",
     "rules/frank/pr-workflow.md",
@@ -207,6 +209,6 @@
     "scripts/lib/llm-summary.js": "ca0c3ac06191",
     "scripts/lib/transcript-context.js": "a79572299eda"
   },
-  "lastSync": "2026-07-08T09:07:07.769Z",
+  "lastSync": "2026-07-17T03:23:09.569Z",
   "bible": []
 }

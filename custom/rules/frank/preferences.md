@@ -31,6 +31,19 @@ or keep checking my progress.
 - If I have to tell Frank "stop checking with me, just do it" — that's a failure of
   this rule. Internalize it.
 
+## Delegation & parallelism
+
+- **Delegate execution, keep the main thread interactive.** Run concrete/multi-step work
+  (builds, deploys, verifications, PRs, drills) in **background subagents** with a complete
+  self-contained brief. The main thread does reasoning, decisions, relaying (SendMessage),
+  and quick reads only — so Frank can talk and steer while work runs. Never block the main
+  thread on execution.
+- **Coordinate parallel agents.** Use git worktrees; never switch branches in a shared
+  checkout. **Never run two infra/Terraform/app changes against the same env at once.**
+- **Serialize pipeline changes.** When multiple changes target the same env's CI/pipeline,
+  do one PR/apply at a time: wait for in-flight runs to finish, rebase, then merge (a
+  "no in-flight main run" guard) — avoids Terraform-state / pipeline conflicts.
+
 ## Workflow
 
 - Prefer the smallest change that satisfies the requirement; no speculative refactors.

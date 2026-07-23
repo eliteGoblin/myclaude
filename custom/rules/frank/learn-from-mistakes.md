@@ -26,6 +26,9 @@ Run this loop whenever ANY of these happen:
 2. **Generalize** — extract the one reusable lesson: *what rule would have prevented this?*
 3. **Encode at the right scope:**
    - Project-specific fact/decision → a **memory file** (file-based memory system).
+   - Per-role, per-repo operational lesson (system quirk, verified gotcha) → the repo's
+     **agent role memory** `.claude/agents/memory/<role>.md` (see
+     [agent-self-learning.md](./agent-self-learning.md)).
    - Cross-project behavior → **update an existing ECC rule** in
      `fsun_config/custom/rules/frank/` (prefer editing over adding new rules).
 4. **Sync** — rule changes install via `node fsun_config/ecc.js sync` (note it for Frank).

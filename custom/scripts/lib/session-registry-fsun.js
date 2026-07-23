@@ -469,6 +469,10 @@ function loadAliasContext(aliasName, opts = {}) {
     history.tokensUsed = Math.round(charsUsed / 4);
   }
 
+  // Native resume for the LATEST member (members are newest first).
+  // One-way dep: this lib already requires session-manager-fsun at the top.
+  const resumeLatest = fsun.resolveNativeSession(members[0].filename);
+
   return {
     alias: aliasName,
     worktrees: alias.worktrees,
@@ -477,6 +481,7 @@ function loadAliasContext(aliasName, opts = {}) {
     history,
     budget: { tokens: budgetTokens, chars: budgetChars },
     topic,
+    resumeLatest,
   };
 }
 
@@ -485,6 +490,11 @@ function renderAliasLoad(result) {
   const out = [];
   out.push(`# Alias: ${result.alias}  (${result.memberCount} sessions)`);
   out.push(`Folders: ${result.worktrees.join(', ')}`);
+  if (result.resumeLatest) {
+    out.push(result.resumeLatest.error
+      ? `Resume latest: not found (${result.resumeLatest.error})`
+      : `Resume latest: ${result.resumeLatest.resumeCommand}`);
+  }
   out.push('');
   out.push('## Session Summaries (newest first)');
   for (const p of result.summaries) {

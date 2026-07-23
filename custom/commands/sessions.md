@@ -205,7 +205,17 @@ if (verb === 'load') {
   console.log((r.dryRun ? '[DRY RUN] ' : '') + 'Merged ' + r.siblingCount + ' sibling(s) into ' + r.targetPath);
 } else if (verb === 'info') {
   const sm = fsun.upstream.sm;
-  const session = sm.getSessionById(id, true);
+  let session = sm.getSessionById(id, true);
+  if (!session) {
+    try {
+      const reg = require(require('os').homedir() + '/.claude/scripts/lib/session-registry-fsun');
+      const registry = reg.loadRegistry();
+      if (registry.aliases[id]) {
+        const members = reg.sessionsForAlias(id, registry);
+        if (members.length) session = sm.getSessionById(members[0].filename, true);
+      }
+    } catch {}
+  }
   if (!session) { console.log('Session not found: ' + id); process.exit(1); }
   const stats = sm.getSessionStats(session.sessionPath);
   console.log('Filename: ' + session.filename);
@@ -213,6 +223,14 @@ if (verb === 'load') {
   console.log('Date:     ' + session.date);
   console.log('Lines:    ' + stats.lineCount);
   console.log('Size:     ' + sm.getSessionSize(session.sessionPath));
+  const native = fsun.resolveNativeSession(session.filename);
+  if (native.error) {
+    console.log('Native:   not found (' + native.error + ')');
+  } else {
+    console.log('Native:   ' + native.uuid + (native.ambiguous ? ' (ambiguous: ' + native.ambiguous + ' matches, newest shown)' : ''));
+    console.log('Resume:   ' + native.resumeCommand);
+    console.log('Transcript: ' + native.transcriptPath);
+  }
 }
 " "$@"
 ```

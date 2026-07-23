@@ -76,6 +76,105 @@ function findNativeTranscripts(worktreePath) {
     .sort((a, b) => b.mtime - a.mtime);
 }
 
+// ─── native session resolution (.tmp summary → claude --resume uuid) ──
+
+const FRAGMENT_RE = /-([0-9a-f]{8})-session\.tmp$/;
+
+// Lazy require: session-registry-fsun requires THIS module at its top level,
+// so a top-level require here would create a load-time cycle. At call time
+// both modules are fully initialized, so the require is safe.
+function lazyRegistry() {
+  return require('./session-registry-fsun');
+}
+
+/**
+ * Map a summary session (.tmp) back to the native Claude transcript it
+ * summarizes, so the real conversation can be reopened with
+ * `claude --resume <uuid>`.
+ *
+ * Accepts a full/partial id or alias: upstream alias file first, then
+ * getSessionById (same path `load` uses), then registry alias → latest
+ * member session. The summary filename's 8-hex fragment (= LAST 8 chars of
+ * the native uuid) is matched against transcript filenames in the
+ * worktree's ~/.claude/projects/<encoded>/ directory.
+ *
+ * Read-only; never throws. Returns either
+ *   { uuid, transcriptPath, resumeCommand, mtime, size [, ambiguous] }
+ * or { error, [searched] }.
+ */
+function resolveNativeSession(sessionIdOrAlias) {
+  try {
+    // 1. Resolve the summary session (id / upstream alias / registry alias)
+    const resolved = aa.resolveAlias(sessionIdOrAlias);
+    let session = sm.getSessionById(resolved ? resolved.sessionPath : sessionIdOrAlias, true);
+    let registryAliasName = null;
+    if (!session) {
+      const reg = lazyRegistry();
+      const registry = reg.loadRegistry();
+      if (registry.aliases[sessionIdOrAlias]) {
+        registryAliasName = sessionIdOrAlias;
+        const members = reg.sessionsForAlias(sessionIdOrAlias, registry); // newest first
+        if (members.length) session = sm.getSessionById(members[0].filename, true);
+      }
+    }
+    if (!session) return { error: `Session not found: ${sessionIdOrAlias}` };
+
+    // 2. Extract the 8-hex uuid fragment from the filename
+    const fragMatch = session.filename.match(FRAGMENT_RE);
+    if (!fragMatch) return { error: 'no uuid fragment in filename' };
+    const fragment = fragMatch[1];
+
+    // 3. Worktree: summary header first, registry alias worktrees as fallback
+    const content = session.content || sm.getSessionContent(session.sessionPath);
+    const meta = sm.parseSessionMetadata(content || '');
+    let worktrees = [];
+    const headerWorktree = meta.worktree || meta.Worktree;
+    if (headerWorktree) {
+      worktrees = [headerWorktree];
+    } else {
+      const reg = lazyRegistry();
+      const registry = reg.loadRegistry();
+      const aliasName = registryAliasName || registry.sessions[session.filename];
+      const alias = aliasName ? registry.aliases[aliasName] : null;
+      if (alias && Array.isArray(alias.worktrees)) worktrees = alias.worktrees;
+    }
+    if (worktrees.length === 0) {
+      return {
+        error: 'native transcript not found',
+        searched: '(no worktree in summary header or registry)',
+      };
+    }
+
+    // 4. Match transcript basenames (minus .jsonl) ending with the fragment
+    const matches = worktrees
+      .flatMap(wt => findNativeTranscripts(wt))
+      .filter(t => t.name.replace(/\.jsonl$/, '').endsWith(fragment))
+      .filter((t, i, arr) => arr.findIndex(x => x.path === t.path) === i)
+      .sort((a, b) => b.mtime - a.mtime);
+
+    if (matches.length === 0) {
+      const searched = worktrees
+        .map(wt => path.join(os.homedir(), '.claude', 'projects', encodeWorktreePath(wt)))
+        .join(', ');
+      return { error: 'native transcript not found', searched };
+    }
+
+    const newest = matches[0];
+    const uuid = newest.name.replace(/\.jsonl$/, '');
+    const result = {
+      uuid,
+      transcriptPath: newest.path,
+      resumeCommand: `claude --resume ${uuid}`,
+      mtime: newest.mtime,
+      size: newest.size,
+    };
+    if (matches.length > 1) result.ambiguous = matches.length;
+    return result;
+  } catch (err) {
+    return { error: `native resolution failed: ${err.message}` };
+  }
+}
+
 // ─── extract dialog from JSONL (drop tool I/O bulk) ────────────────────
 
 function extractDialog(jsonlPath) {
@@ -418,6 +517,7 @@ module.exports = {
   parseSince,
   encodeWorktreePath,
   findNativeTranscripts,
+  resolveNativeSession,
   extractDialog,
   filterByTopic,
   loadSessionWithHistory,

@@ -106,11 +106,15 @@ or keep checking my progress.
 
 ## Delegation & parallelism
 
-- **Delegate execution, keep the main thread interactive.** Run concrete/multi-step work
-  (builds, deploys, verifications, PRs, drills) in **background subagents** with a complete
-  self-contained brief. The main thread does reasoning, decisions, relaying (SendMessage),
-  and quick reads only — so Frank can talk and steer while work runs. Never block the main
-  thread on execution.
+- **Delegate by DEFAULT — the main session stays idle and answerable.** Any multi-step
+  execution (edits, test runs, PR/merge chains, watch/wait loops, rebases, releases) goes
+  to a BACKGROUND subagent with a complete self-contained brief, even when it looks quick.
+  The main thread does: answering my questions FIRST, reasoning, decisions, quick reads,
+  relaying. Inline main-session work is the EXCEPTION: only for a single quick
+  read/command, or when checking with me is genuinely better — when in doubt, delegate.
+- **Questions interrupt work, never queue behind it.** If I ask something while work is
+  running, answer immediately from what's known; the work continues in the background.
+  Never make me wait on a work chain to get an answer.
 - **A subagent never self-approves a prod gate.** Only Frank can give the go that
   [production-safety](./production-safety.md) requires, and he is not in the subagent's
   loop. A subagent that reaches a gate stops, reports what it would run and why, and

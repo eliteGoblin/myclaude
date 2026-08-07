@@ -53,6 +53,8 @@ procedure that verifiably worked. Then:
 - **Metric:** the repeat-mistake. If a mistake recurs that an existing lesson already
   covered, that's a retrieval/compliance failure — surface it and make the lesson
   more prominent, don't just re-log it.
+- **Prune what never gets used.** A memory file that is never read or edited is dead
+  weight — delete it rather than carrying it.
 
 ## Canonical "## Memory" block for agent definitions
 
@@ -76,21 +78,13 @@ If the project you are working in has a `.claude/agents/memory/` directory (repo
 A lesson goes to exactly ONE layer: project/system fact → role memory; personal
 cross-project habit → instinct/ECC rule.
 
-## Research grounding (why these mechanics)
-
-- **Distilled reflections beat transcripts** — Reflexion (Shinn 2023), ExpeL (Zhao
-  2023): store short "what went wrong → do differently" rules, feed only insights back.
-- **Working procedures compound; store them as artifacts** — Voyager skill library
-  (Wang 2023), Agent Workflow Memory (Wang 2024): induct only from verified successes.
-- **Write at reflection triggers, not continuously** — Reflexion (post-failure),
-  Generative Agents (Park 2023, threshold-gated reflection synthesis).
-- **Small always-loaded core + read-on-demand rest** — MemGPT/Letta (Packer 2023),
-  Anthropic context-engineering guidance (high-signal tokens up front, paths as pointers).
-- **Correction-over-append; contradictions must not coexist** — Mem0's
-  ADD/UPDATE/DELETE writes; the consolidation-problem literature (stale near-dupes
-  outrank fresh facts).
-- **Evidence-gated writes + provenance/review defeat memory poisoning** — memory
-  poisoning/misevolution studies (2026); git diff/blame/revert + PR review is the
-  audit trail vector DBs lack.
-- **Memory must change behavior** — Reflexion/AWM validate by delta on repeated
-  tasks; operationally: track repeat-mistakes, prune files never read or edited.
+<!-- Research grounding for the mechanics above: Reflexion (Shinn 2023) and ExpeL
+     (Zhao 2023) on distilled reflections over transcripts and post-failure write
+     triggers; Voyager (Wang 2023) and Agent Workflow Memory (Wang 2024) on inducting
+     only from verified successes; Generative Agents (Park 2023) on threshold-gated
+     reflection; MemGPT/Letta (Packer 2023) on a small always-loaded core plus
+     read-on-demand rest; Mem0's ADD/UPDATE/DELETE on correction-over-append; the
+     2026 memory-poisoning/misevolution work on evidence-gated writes and provenance.
+     Full write-up:
+       git show f4853445 -- fsun_config/custom/rules/frank/agent-self-learning.md
+     -->

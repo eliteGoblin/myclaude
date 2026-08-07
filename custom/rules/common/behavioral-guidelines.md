@@ -1,5 +1,9 @@
 # Behavioral Guidelines
 
+<!-- Adapted (MIT) from the karpathy-guidelines skill, derived from Andrej Karpathy's
+     observations on LLM coding pitfalls: https://x.com/karpathy/status/2015883857489522876
+     Kept as an always-on rule rather than an on-demand skill. -->
+
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.

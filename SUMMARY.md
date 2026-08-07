@@ -54,9 +54,13 @@ git push origin main
 
 ---
 
-## What's Installed (70 files, pruned from 421)
+## What's Installed
 
-### Rules (23 files) — loaded into EVERY conversation
+A curated subset of upstream, plus Frank's custom overlay. For live counts and the
+exact file list run `node fsun_config/ecc.js ls` — the numbers below are illustrative
+of the shape of the install, not a ledger to keep in sync.
+
+### Rules — loaded into EVERY conversation
 
 These are the most impactful files. Claude reads all of them as system context.
 

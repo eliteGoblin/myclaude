@@ -30,4 +30,7 @@ Summarize what happened in this session and append it to the `CLAUDE.md` file in
 
 5. **Keep it concise** — 3-7 bullets. Focus on what changed and why, not how. Include file paths only when they help future sessions understand the change.
 
-6. **Show the entry** to the user for confirmation before writing.
+6. **Write it, then show what was written.** Do not ask for confirmation first —
+   invoking `/done` IS the confirmation (see `rules/common/session-log.md`, which is
+   what keeps the session log from being written automatically). Print the entry you
+   appended so it can be corrected if it is wrong.

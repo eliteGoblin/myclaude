@@ -101,6 +101,7 @@
     "commands/done.md",
     "commands/product-cycle.md",
     "commands/sessions.md",
+    "commands/ticket-sizing.md",
     "rules/common/behavioral-guidelines.md",
     "rules/common/session-log.md",
     "rules/frank/agent-self-learning.md",
@@ -108,6 +109,7 @@
     "rules/frank/learn-from-mistakes.md",
     "rules/frank/pr-workflow.md",
     "rules/frank/preferences.md",
+    "rules/frank/production-safety.md",
     "scripts/hooks/session-alias-hint-fsun.js",
     "scripts/hooks/session-save-gate-fsun.js",
     "scripts/lib/session-manager-fsun.js",
@@ -209,6 +211,6 @@
     "scripts/lib/llm-summary.js": "ca0c3ac06191",
     "scripts/lib/transcript-context.js": "a79572299eda"
   },
-  "lastSync": "2026-07-23T23:06:58.460Z",
+  "lastSync": "2026-08-07T06:12:02.754Z",
   "bible": []
 }

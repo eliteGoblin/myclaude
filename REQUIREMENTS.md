@@ -20,11 +20,14 @@
 - Cross-platform: macOS (zsh) + Ubuntu/Linux (zsh/bash)
 
 ## Custom overlays (`fsun_config/custom/`)
-- `commands/done.md` — append-to-CLAUDE.md session log
-- `commands/sessions.md` — context-rich `/sessions load` (overrides upstream)
-- `scripts/lib/session-manager-fsun.js` — extension lib backing the overlay
-- `rules/common/behavioral-guidelines.md` — Frank's behavioral rules
-- `rules/common/session-log.md` — session-log convention rule
+
+The authoritative list is `manifest.json` `custom[]` — run `node fsun_config/ecc.js ls`
+rather than reading a copy here that drifts. Four kinds of overlay live there:
+
+- **Always-on rules** (`rules/frank/`, `rules/common/`) — loaded into every conversation
+- **Agents** (`agents/`) — ba-curator, e2e-verifier, release-verifier
+- **Commands** (`commands/`) — `/done`, `/product-cycle`, `/sessions`, `/ticket-sizing`
+- **Session tooling** (`scripts/`) — the `*-fsun.js` extension libs and hooks
 
 ## Session aliases (alias-first session management)
 See `fsun_config/docs/session-aliases.md` for the full spec. Shipped 2026-07-08 via PR #19.
@@ -51,9 +54,8 @@ See `fsun_config/docs/sessions-extended.md` for full design.
 - `sessions help` prints full flag reference
 
 ## Current State
-- Installed: 81 upstream files (common + TS + web + python rules, agents, commands, skills)
-- 5 custom overlays (incl. sessions.md + session-manager-fsun.js)
-- Alias-first session management built (PR #19, `feat/session-alias-registry`) — not yet merged to main
+- Installed file counts: `node fsun_config/ecc.js ls` (upstream picks + custom overlays)
+- Alias-first session management shipped — PR #19, #20, #21, #23, #24 merged
 - All agents upgraded to opus (Max sub)
 - Fork: eliteGoblin/everything-claude-code
 - Upstream: affaan-m/everything-claude-code

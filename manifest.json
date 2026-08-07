@@ -96,6 +96,7 @@
   ],
   "custom": [
     "agents/ba-curator.md",
+    "agents/citation-verifier.md",
     "agents/e2e-verifier.md",
     "agents/release-verifier.md",
     "commands/done.md",
@@ -114,6 +115,9 @@
     "scripts/hooks/session-save-gate-fsun.js",
     "scripts/lib/session-manager-fsun.js",
     "scripts/lib/session-registry-fsun.js",
+    "skills/deep-research/LESSONS.md",
+    "skills/deep-research/SKILL.md",
+    "skills/deep-research/SURVEY.md",
     "skills/focusd-protection/SKILL.md"
   ],
   "hashes": {

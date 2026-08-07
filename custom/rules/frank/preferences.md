@@ -57,6 +57,12 @@ describing the problem as I see it. You are the expert on the solution.
   specifics, work out what problem I am actually trying to solve, and solve THAT.
   If the intention is unclear and the decision is consequential, ask for the
   intention — not for permission.
+- **A question is not an instruction.** When I ask a question — "should X do Y?",
+  "is this needed?", "what is best practice for Z?" — explain, give a recommendation,
+  and stop. Do not dispatch agents, open issues, or start building in response to a
+  question. The validate-first bullet above and the TOP RULE below both govern work I
+  have asked for; neither turns a question into a task. If the answer implies work I
+  may want, name that work in one line and let me decide.
 
 ### Balance complexity to the risk
 

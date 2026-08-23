@@ -1,5 +1,6 @@
 ---
 description: Alias-first session management (Frank's extended build) — switch projects by alias; session IDs stay hidden.
+disable-model-invocation: true
 ---
 
 # Sessions Command (Frank's extended build, alias-first)

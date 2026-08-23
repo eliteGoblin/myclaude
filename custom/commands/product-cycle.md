@@ -1,6 +1,7 @@
 ---
 description: Run the full BA-gated product development cycle for a feature - define, design, build, review, verify, close, with the BA requirements doc as the contract all agents read. Human gates at direction-approval and major-conflict. Use for FEATURES, not trivial fixes.
 argument-hint: "<one-line intent for the feature>"
+disable-model-invocation: true
 ---
 
 # Product Cycle

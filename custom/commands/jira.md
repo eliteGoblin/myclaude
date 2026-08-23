@@ -1,5 +1,6 @@
 ---
 description: Retrieve a Jira ticket, analyze requirements, update status, or add comments. Uses the jira-integration skill and MCP or REST API.
+disable-model-invocation: true
 ---
 
 # Jira Command

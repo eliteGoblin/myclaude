@@ -308,6 +308,42 @@
       "src": "ecc",
       "path": "skills/security-review/SKILL.md",
       "hash": "fe6f9151fb15"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/engineering/codebase-design/",
+      "dest": "skills/codebase-design/",
+      "hash": "5f17b5080ffb"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/engineering/diagnosing-bugs/",
+      "dest": "skills/diagnosing-bugs/",
+      "hash": "5075efe3130a"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/engineering/tdd/",
+      "dest": "skills/tdd/",
+      "hash": "7cc72883c75a"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/productivity/grilling/",
+      "dest": "skills/grilling/",
+      "hash": "d6ae2cc9cd97"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/productivity/wait-what/",
+      "dest": "skills/wait-what/",
+      "hash": "4147334437e2"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/productivity/writing-for-agents/",
+      "dest": "skills/writing-for-agents/",
+      "hash": "78c41feba8e1"
     }
   ],
   "settingsOwned": [],

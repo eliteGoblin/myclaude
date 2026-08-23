@@ -9,7 +9,7 @@ Frank's personal Claude Code configuration. One manifest lists which files are i
 | `myclaude.js`, `lib/` | The tool (CommonJS, Node >= 18, standard library only; `git` on PATH) |
 | `manifest.json` | Manifest v2: `sources`, `entries`, `settingsOwned`, `lastSync` |
 | `custom/` | Files Frank owns: `rules/`, `agents/`, `commands/`, `skills/`, `scripts/`, `settings/` |
-| `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json` |
+| `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json`; see `custom/settings/README.md` |
 | `docs/`, `requirements/`, `mcp_recipes/` | Research notes, requirements register, MCP recipes |
 | `tests/` | `node --test` suite |
 | `~/.myclaude/sources/<name>` | Full clones of each git source, detached at the pinned sha (not in this repo) |
@@ -20,7 +20,7 @@ Frank's personal Claude Code configuration. One manifest lists which files are i
 |---|---|---|
 | `ecc` | https://github.com/affaan-m/everything-claude-code | Agents, commands, rules, skills, session scripts. Pinned; read-only clone, not a fork. |
 | `karpathy` | https://github.com/forrestchang/andrej-karpathy-skills | Registered, no picks (the guidance lives in `custom/rules/common/behavioral-guidelines.md`). |
-| `mattpocock` | https://github.com/mattpocock/skills | Registered, no picks yet. Planned picks: `writing-for-agents`, `grilling`, `wait-what`, `diagnosing-bugs`, `codebase-design`, `tdd`. |
+| `mattpocock` | https://github.com/mattpocock/skills | Picks: `writing-for-agents`, `grilling`, `wait-what` (productivity), `diagnosing-bugs`, `codebase-design`, `tdd` (engineering). Installed flat as `skills/<name>/`. |
 | `custom` | `custom/` in this repo | Frank's own files. Edits here install with `sync`; no `accept` step. |
 
 ## Manifest entry

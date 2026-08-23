@@ -192,6 +192,11 @@
       "hash": "b9872f8193b1"
     },
     {
+      "src": "custom",
+      "path": "skills/observability-buildout/SKILL.md",
+      "hash": "371af231e915"
+    },
+    {
       "src": "ecc",
       "path": "agents/architect.md",
       "hash": "6b8e1e8bd274"

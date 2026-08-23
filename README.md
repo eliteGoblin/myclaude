@@ -1,0 +1,111 @@
+# myclaude
+
+Frank's personal Claude Code configuration. One manifest lists which files are installed into `~/.claude`, where each file comes from (a pinned git source or the `custom/` directory), and the hash it had when it was last installed. `myclaude.js` compares source, recorded hash, and installed copy before it writes anything, so an upstream update never overwrites a local edit silently.
+
+## Layout
+
+| Path | Content |
+|---|---|
+| `myclaude.js`, `lib/` | The tool (CommonJS, Node >= 18, standard library only; `git` on PATH) |
+| `manifest.json` | Manifest v2: `sources`, `entries`, `settingsOwned`, `lastSync` |
+| `custom/` | Files Frank owns: `rules/`, `agents/`, `commands/`, `skills/`, `scripts/`, `settings/` |
+| `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json` |
+| `docs/`, `requirements/`, `mcp_recipes/` | Research notes, requirements register, MCP recipes |
+| `tests/` | `node --test` suite |
+| `~/.myclaude/sources/<name>` | Full clones of each git source, detached at the pinned sha (not in this repo) |
+
+## Sources
+
+| Name | Repository | Role |
+|---|---|---|
+| `ecc` | https://github.com/affaan-m/everything-claude-code | Agents, commands, rules, skills, session scripts. Pinned; read-only clone, not a fork. |
+| `karpathy` | https://github.com/forrestchang/andrej-karpathy-skills | Registered, no picks (the guidance lives in `custom/rules/common/behavioral-guidelines.md`). |
+| `mattpocock` | https://github.com/mattpocock/skills | Registered, no picks yet. Planned picks: `writing-for-agents`, `grilling`, `wait-what`, `diagnosing-bugs`, `codebase-design`, `tdd`. |
+| `custom` | `custom/` in this repo | Frank's own files. Edits here install with `sync`; no `accept` step. |
+
+## Manifest entry
+
+```json
+{ "src": "mattpocock", "path": "skills/productivity/grilling/", "dest": "skills/grilling/", "hash": "1a2b3c4d5e6f" }
+```
+
+`path` is relative to the source root; a trailing `/` means a directory entry (all files under it, hashed as one unit). `dest` is relative to `~/.claude` and is recorded only when it differs from `path`: `skills/<category>/<name>/` installs as `skills/<name>/` because the user skill scope is flat; every other path installs 1:1. `--as <name>` on `pick` renames the last segment. `hash` is the first 12 hex characters of the sha256 of the source at the last accepted sync. `forkedFrom` records the source a custom file was copied from. `kind: "settings"` marks a fragment.
+
+## States
+
+Each entry is classified from three hashes: S = source at the clone HEAD, B = recorded `hash`, D = installed copy.
+
+| State | Condition | `sync` |
+|---|---|---|
+| CURRENT | S = B = D | skip |
+| MISSING | D absent | copy, record hash |
+| UPSTREAM-CHANGED | S differs, D = B | wait for `accept` (custom entries copy directly) |
+| LOCAL-MODIFIED | S = B, D differs | refuse; `fork <dest>` keeps the edit, `sync --force` overwrites it |
+| CONFLICT | S and D both differ from B | refuse; `diff --content` shows both sides |
+| CONVERGED | S differs, D = S | record hash |
+| DELETED-UPSTREAM | S absent | keep D, report; `unpick` or `fork` to resolve |
+| FORK-DRIFT | custom entry with `forkedFrom`, upstream moved past `forkedFrom.hash` | report only; `accept` records the new upstream hash |
+
+## Daily workflow: update, diff, accept, sync
+
+```bash
+node myclaude.js src update          # fetch every source; clone HEAD moves to the ref tip, pins stay
+node myclaude.js diff                # list entries that are not CURRENT
+node myclaude.js diff --content ecc  # unified diff per entry, one source only
+node myclaude.js accept --all        # take every UPSTREAM-CHANGED entry; moves each source pin to its clone HEAD
+node myclaude.js accept <dest>       # take one entry (the source pin also moves; see note below)
+node myclaude.js sync                # install MISSING and custom changes; refuses LOCAL-MODIFIED and CONFLICT
+node myclaude.js sync --dry-run      # same report, no writes
+node myclaude.js status              # pins, state counts, unmanaged files under ~/.claude
+```
+
+`accept` copies the upstream version and records its hash in one step, so a following `sync` has nothing left to do for that entry. Note on per-entry `accept`: the pin of that source moves to the clone HEAD even if other entries from the same source were not accepted; on a new machine those entries would then install from the newer commit. Prefer `accept --all` after reviewing the diff.
+
+## Picking and owning files
+
+```bash
+node myclaude.js ls ecc agents/                                  # files available in a source (* = picked)
+node myclaude.js pick ecc agents/code-reviewer.md                # file entry
+node myclaude.js pick mattpocock skills/productivity/grilling/   # directory entry, installs as skills/grilling/
+node myclaude.js pick mattpocock skills/engineering/tdd/ --as mp-tdd
+node myclaude.js pick custom settings/hooks.json                 # settings fragment
+node myclaude.js unpick skills/grilling/                         # removes the entry and the installed copy
+node myclaude.js fork agents/code-reviewer.md                    # moves the entry into custom/ with forkedFrom
+node myclaude.js own rules/frank/new-rule.md                     # creates a custom file; never overwrites
+```
+
+`pick` refuses a `dest` that another source already provides and the reserved prefix `skills/synced/`.
+
+## Settings fragments
+
+`custom/settings/*.json` are partial settings objects. `sync` deep-merges them into `~/.claude/settings.json` (a `settings.json.bak` copy is written first). Objects merge recursively. `hooks.<Event>` arrays and `permissions.allow/deny/ask` arrays are unions keyed by identity (hook = matcher + command strings; permission = the rule string): an owned item is replaced in place or appended, and items the fragments do not own are kept. Every other value is a leaf where the fragment wins. The manifest's `settingsOwned` lists every leaf the fragments own; `unpick` of a fragment removes exactly those leaves. A hand edit to an owned leaf shows as LOCAL-MODIFIED and is overwritten only with `sync --force`. Keys such as `model`, `env`, `tui`, `skipAutoPermissionPrompt` are never touched unless a fragment names them.
+
+## New machine
+
+```bash
+git clone https://github.com/eliteGoblin/myclaude.git ~/devel/myclaude
+cd ~/devel/myclaude
+node myclaude.js install          # clones every source at its pinned sha, then runs sync
+```
+
+Environment overrides: `MYCLAUDE_CLAUDE_HOME` (default `~/.claude`), `MYCLAUDE_SOURCES_DIR` (default `~/.myclaude/sources`).
+
+## Migration from manifest v1
+
+`node myclaude.js migrate-v1 --ecc-sha <sha> [--karpathy-sha <sha>]` converts the v1 manifest (`upstream[]`, `bible[]`, `custom[]`, `hashes{}`) in place. `upstream` becomes source `ecc` pinned at the given sha (the fork's merge-base with upstream at migration time), `bible` becomes `karpathy`, `custom` keeps its files, and a path present in both lists becomes a custom entry with `forkedFrom`. Custom entries take the installed copy as their base hash because v1 kept none. Already done in this repo; kept for reference.
+
+## Tests
+
+```bash
+npm test            # node --test tests/*.test.js
+```
+
+## Not built, on purpose
+
+- No semver, dependency resolution, globs, or symlink install mode. Entries are explicit paths; directories end with `/`.
+- No plugin or marketplace packaging of `custom/` (plugins cannot ship rules).
+- No per-machine manifest overrides, no management of project-level `.claude/settings.json` or `~/.claude.json`, no JSON-with-comments in fragments.
+- No GitHub API hash checks, no `npx skills add` integration, no automatic pull.
+- No deletion of unmanaged files in `~/.claude`; `status` lists them and Frank decides.
+- No `rollback` command; `src update` moves the clone HEAD, `install` returns it to the pin, and git history of `manifest.json` holds every earlier pin.
+- No `agents --opus` style edits of installed files; a per-agent `model:` change is a `fork`.

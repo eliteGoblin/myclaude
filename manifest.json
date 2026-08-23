@@ -4,7 +4,7 @@
     "ecc": {
       "repo": "https://github.com/affaan-m/everything-claude-code.git",
       "ref": "main",
-      "sha": "4130457d674d2180c5af2c5f634f3cae4cbc6c4f"
+      "sha": "d8409a4b0813771235555e32e3d8046a73988bfa"
     },
     "karpathy": {
       "repo": "https://github.com/forrestchang/andrej-karpathy-skills.git",
@@ -44,7 +44,7 @@
     {
       "src": "custom",
       "path": "commands/jira.md",
-      "hash": "0503ced85e11",
+      "hash": "bdfdb5491dc9",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/jira.md",
@@ -54,12 +54,12 @@
     {
       "src": "custom",
       "path": "commands/product-cycle.md",
-      "hash": "129827285779"
+      "hash": "5e22a9b9b5db"
     },
     {
       "src": "custom",
       "path": "commands/resume-session.md",
-      "hash": "73983070d7e4",
+      "hash": "e5c4c6845406",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/resume-session.md",
@@ -69,7 +69,7 @@
     {
       "src": "custom",
       "path": "commands/save-session.md",
-      "hash": "a9488a8819d6",
+      "hash": "d98d11cba17d",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/save-session.md",
@@ -79,7 +79,7 @@
     {
       "src": "custom",
       "path": "commands/sessions.md",
-      "hash": "45e15781d6ee",
+      "hash": "b1d4027796e3",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/sessions.md",
@@ -179,7 +179,7 @@
     {
       "src": "custom",
       "path": "skills/deep-research/LESSONS.md",
-      "hash": "f382a1447f91"
+      "hash": "ace3bfb5012b"
     },
     {
       "src": "custom",
@@ -199,27 +199,27 @@
     {
       "src": "ecc",
       "path": "agents/architect.md",
-      "hash": "36e782e21364"
+      "hash": "6b8e1e8bd274"
     },
     {
       "src": "ecc",
       "path": "agents/code-reviewer.md",
-      "hash": "07447dbe8733"
+      "hash": "9dd23be23d65"
     },
     {
       "src": "ecc",
       "path": "agents/python-reviewer.md",
-      "hash": "ffe00e20bdb1"
+      "hash": "d2180b115f58"
     },
     {
       "src": "ecc",
       "path": "agents/security-reviewer.md",
-      "hash": "46d310c1ddc4"
+      "hash": "813e4062bed5"
     },
     {
       "src": "ecc",
       "path": "agents/typescript-reviewer.md",
-      "hash": "fcb0a9fa95cb"
+      "hash": "6b012db1a903"
     },
     {
       "src": "ecc",
@@ -284,12 +284,17 @@
     {
       "src": "ecc",
       "path": "scripts/lib/agent-data-home.js",
-      "hash": "aa30d80260c6"
+      "hash": "0a39212f8183"
     },
     {
       "src": "ecc",
       "path": "scripts/lib/llm-summary.js",
       "hash": "ca0c3ac06191"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/path-safety.js",
+      "hash": "542126cf4724"
     },
     {
       "src": "ecc",
@@ -309,7 +314,7 @@
     {
       "src": "ecc",
       "path": "scripts/lib/utils.js",
-      "hash": "6bd987b90cf5"
+      "hash": "d230d03b89c1"
     },
     {
       "src": "ecc",

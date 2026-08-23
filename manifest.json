@@ -123,6 +123,16 @@
     },
     {
       "src": "custom",
+      "path": "rules/typescript/testing.md",
+      "hash": "92e3d02b4fff",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/testing.md",
+        "hash": "92e3d02b4fff"
+      }
+    },
+    {
+      "src": "custom",
       "path": "scripts/hooks/session-alias-hint-fsun.js",
       "hash": "7ef0c8b147a9"
     },
@@ -286,11 +296,6 @@
       "src": "ecc",
       "path": "rules/typescript/security.md",
       "hash": "86b14a5a56f4"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/typescript/testing.md",
-      "hash": "92e3d02b4fff"
     },
     {
       "src": "ecc",

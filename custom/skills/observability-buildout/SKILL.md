@@ -366,6 +366,6 @@ The whole rollout is documented commit-by-commit on the `main` branch of that re
 
 ## See also
 
-- Companion agent: `observability-architect` — orchestrates the buildout end-to-end, spawns sub-agents (architect / code-reviewer / e2e-runner) for reviews at each step.
+- Companion reviews: spawn `architect` / `code-reviewer` / `e2e-verifier` sub-agents at each step of the buildout.
 - [`docs/runbook.md`](runbook.md) format in the call-summary-agent reference.
 - The 5-category verification matrix template at `tests/manual/*-log-injection-verification.md`.

@@ -35,7 +35,7 @@ Two NON-NEGOTIABLE design checks the architect must perform (do NOT settle on th
 - If the design surfaces a PRODUCT conflict (forces a tradeoff the spec didn't anticipate, or tension with philosophy), route it back to `ba-curator`, which decides minor (note it) vs major.
 - **HUMAN GATE on major conflict only** - if the conflict is material or would reverse an ADR, stop and ask the user.
 
-### Stage 3 - BUILD  (agents: dev via general-purpose or tdd-guide)
+### Stage 3 - BUILD  (agent: dev via general-purpose; TDD conventions from the `tdd` skill)
 Implement against the spec + design. Write unit + integration tests, and an e2e plan derived from the spec's acceptance criteria. Prefer an isolated worktree if the build is large. TDD where it fits.
 
 ### Stage 4 - REVIEW  (agents: code-reviewer + language reviewer + security-reviewer, in parallel — AND GitHub Copilot on the PR)

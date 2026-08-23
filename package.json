@@ -1,0 +1,9 @@
+{
+  "name": "myclaude",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Personal Claude Code config: pinned git sources, custom rules/skills/agents, three-way sync into ~/.claude",
+  "engines": { "node": ">=18" },
+  "bin": { "myclaude": "./myclaude.js" },
+  "scripts": { "test": "node --test tests/*.test.js" }
+}

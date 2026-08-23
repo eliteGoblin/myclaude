@@ -173,6 +173,12 @@
     },
     {
       "src": "custom",
+      "path": "settings/pretooluse-guards.json",
+      "hash": null,
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
       "path": "skills/config-management/SKILL.md",
       "hash": null
     },

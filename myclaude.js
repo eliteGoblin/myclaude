@@ -7,6 +7,7 @@
 const { buildCtx } = require('./lib/manifest');
 const pick = require('./lib/cmd-pick');
 const sync = require('./lib/cmd-sync');
+const router = require('./lib/cmd-router');
 
 const HELP = `myclaude.js — personal Claude Code config manager (manifest v2)
 
@@ -28,7 +29,8 @@ Compare and apply
                                           LOCAL-MODIFIED CONFLICT CONVERGED DELETED-UPSTREAM FORK-DRIFT
   accept <dest> | accept --all            take the upstream version (copies, records hash, moves the pin)
   sync [--dry-run] [--force]              install MISSING/CONVERGED/custom changes; refuses LOCAL-MODIFIED
-                                          and CONFLICT unless --force
+                                          and CONFLICT unless --force; regenerates skills/SOURCES.md
+  router                                  regenerate skills/SOURCES.md (provenance) and docs/SKILL-ROUTER.md
   install [--dry-run]                     new machine: clone every source at its pin, then sync
   status                                  pins, state counts, unmanaged files in ~/.claude
   migrate-v1 --ecc-sha <sha> [--karpathy-sha <sha>]   convert a v1 manifest.json to v2
@@ -51,6 +53,7 @@ const COMMANDS = {
   sync: sync.cmdSync,
   install: sync.cmdInstall,
   status: sync.cmdStatus,
+  router: router.cmdRouter,
   'migrate-v1': sync.cmdMigrateV1,
 };
 

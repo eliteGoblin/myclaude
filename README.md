@@ -57,6 +57,7 @@ node myclaude.js accept <dest>       # take one entry (the source pin also moves
 node myclaude.js sync                # install MISSING and custom changes; refuses LOCAL-MODIFIED and CONFLICT
 node myclaude.js sync --dry-run      # same report, no writes
 node myclaude.js status              # pins, state counts, unmanaged files under ~/.claude
+node myclaude.js router              # regenerate skills/SOURCES.md (provenance) and docs/SKILL-ROUTER.md (trigger check)
 ```
 
 `accept` copies the upstream version and records its hash in one step, so a following `sync` has nothing left to do for that entry. Note on per-entry `accept`: the pin of that source moves to the clone HEAD even if other entries from the same source were not accepted; on a new machine those entries would then install from the newer commit. Prefer `accept --all` after reviewing the diff.

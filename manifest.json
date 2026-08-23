@@ -123,6 +123,11 @@
     },
     {
       "src": "custom",
+      "path": "rules/frank/skill-routing.md",
+      "hash": null
+    },
+    {
+      "src": "custom",
       "path": "scripts/hooks/session-alias-hint-fsun.js",
       "hash": "7ef0c8b147a9"
     },

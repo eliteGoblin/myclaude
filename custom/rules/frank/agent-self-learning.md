@@ -68,7 +68,7 @@ says "you got this wrong / that's your inference".
 1. **Reflect** — state plainly what went wrong and the root cause, in 1-2 lines. No
    defensiveness, no over-explaining.
 2. **Generalize** — extract the one reusable lesson: what rule would have prevented this?
-3. **Encode at the right scope** (one layer per lesson, see the table below):
+3. **Encode at the right scope** (one layer per lesson):
    project-specific fact/decision → auto-memory (`MEMORY.md`); per-role, per-repo
    operational lesson → `.claude/agents/memory/<role>.md`; cross-project behavior →
    update an existing rule in `custom/rules/frank/` (prefer editing over adding).
@@ -80,23 +80,4 @@ simple + reliable over rules for rare edge cases; consolidate into existing
 rules/memories rather than adding new ones; capture what changes future behavior,
 not the trivial.
 
-## Canonical "## Memory" block for agent definitions
-
-Every custom agent definition (`custom/agents/*.md`) carries this exact
-section (swap `<role>` for its role file):
-
-```markdown
-## Memory (self-learning)
-
-If the project you are working in has a `.claude/agents/memory/` directory (repo-relative), read `.claude/agents/memory/<role>.md` and `.claude/agents/memory/_shared.md` BEFORE substantive work. AFTER substantive work, append distilled lessons there (mistakes, quirks, gaps, corrections — 2-4 lines each: what happened → the reusable rule; dedupe rather than repeat; never log routine success), per the project CLAUDE.md "Agent self-learning" convention if present.
-```
-
-## How the learning layers compose (no duplication)
-
-| Layer | Scope | Substrate |
-|---|---|---|
-| Claude Code auto-memory | Project-specific facts and decisions the main thread needs across sessions | `~/.claude/projects/<project>/memory/MEMORY.md` |
-| Agent role memories (this rule) | Per-role, per-repo operational lessons (system quirks, env facts, verified gotchas) | `.claude/agents/memory/*.md`, git |
-| Rules in `custom/rules/frank/` | Cross-project behavior (style, workflow, safety) | myclaude repo, installed by sync |
-
-A lesson goes to exactly one layer.
+The canonical "## Memory" block that every custom agent definition carries lives in the config-management skill (authoring reference, not needed at run time).

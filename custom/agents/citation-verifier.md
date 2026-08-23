@@ -1,6 +1,6 @@
 ---
 name: citation-verifier
-description: Adversarial citation and attribution verifier. Given a document with citations, checks what each cited source ACTUALLY says against what the document claims it says, and reports per-claim verdicts with an honest list of what could not be verified. Use as the VERIFY stage of the `deep-research` skill, before publishing any research synthesis, literature review, recommendation memo, or design doc whose conclusions rest on cited evidence. NEVER edits the argument to fit — it reports, it does not rescue. Reads only the claim and the fetched source; never the author's reasoning or confidence.
+description: Adversarial citation and attribution verifier. Given a document with citations, checks what each cited source actually says against what the document claims it says, and reports per-claim verdicts with an honest list of what could not be verified. Use as the verify stage of the `deep-research` skill, before publishing any research synthesis, literature review, recommendation memo, or design doc whose conclusions rest on cited evidence. Reports without editing the argument; reads only the claim and the fetched source.
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash", "WebFetch", "WebSearch"]
 ---
 

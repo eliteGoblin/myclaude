@@ -108,11 +108,6 @@
     },
     {
       "src": "custom",
-      "path": "rules/frank/pr-workflow.md",
-      "hash": "f4a1ae3dcfb2"
-    },
-    {
-      "src": "custom",
       "path": "rules/frank/preferences.md",
       "hash": "7d5bf2aa3b80"
     },
@@ -205,6 +200,11 @@
       "src": "custom",
       "path": "skills/observability-buildout/SKILL.md",
       "hash": "371af231e915"
+    },
+    {
+      "src": "custom",
+      "path": "skills/pr-workflow/SKILL.md",
+      "hash": null
     },
     {
       "src": "ecc",
@@ -328,13 +328,13 @@
     },
     {
       "src": "ecc",
-      "path": "skills/security-review/cloud-infrastructure-security.md",
-      "hash": "7d9a83852475"
+      "path": "skills/security-review/SKILL.md",
+      "hash": "fe6f9151fb15"
     },
     {
       "src": "ecc",
-      "path": "skills/security-review/SKILL.md",
-      "hash": "fe6f9151fb15"
+      "path": "skills/security-review/cloud-infrastructure-security.md",
+      "hash": "7d9a83852475"
     },
     {
       "src": "mattpocock",

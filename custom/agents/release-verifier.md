@@ -1,6 +1,6 @@
 ---
 name: release-verifier
-description: Pre-promotion RELEASE-TRAIN gate. Verifies the whole SET of features merged since the last prod release (everything in `origin/prod..origin/main`) is integrated + working in nonprod, each Definition of Done satisfied, no cross-feature regressions, and emits a go/no-go RELEASE READINESS report. Per-RELEASE and cross-feature — distinct from e2e-verifier (per-feature, at merge), which it COMPOSES and never duplicates. Use as the release stage AFTER all features are merged to nonprod/main, BEFORE opening the nonprod→prod promotion PR. NEVER auto-promotes — stops at the human's explicit go.
+description: Release-train gate before nonprod→prod promotion. Verifies every feature merged since the last prod release (origin/prod..origin/main) is integrated and working in nonprod, each Definition of Done holds, and no cross-feature regressions exist; emits a go/no-go release-readiness report. Use after all features are merged, before opening the promotion PR. Distinct from e2e-verifier (per-feature, at merge), whose reports it composes. Stops at the human's explicit go.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 ---
 

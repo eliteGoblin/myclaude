@@ -1,12 +1,6 @@
 ---
 name: observability-buildout
-description: |
-  Methodology for building monitoring + alerting for a service from scratch.
-  Covers SRE principles (provider-agnostic) plus concrete GCP Cloud Monitoring
-  implementation. Codifies the AIP-604 call-summary-agent rollout — design doc
-  → app instrumentation → IaC → e2e verification matrix → log-injection test.
-  Use when designing or reviewing observability for any service. Pairs with
-  the `observability-architect` agent for the orchestrated workflow.
+description: Build or review monitoring and alerting for a service — SRE principles plus concrete GCP Cloud Monitoring implementation (design doc → app instrumentation → IaC → e2e verification matrix → log-injection test). Use when designing, reviewing, or extending observability or alerting for any service.
 license: MIT
 ---
 

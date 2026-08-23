@@ -1,6 +1,11 @@
+---
+name: pr-workflow
+description: Copilot-review and green-CI completion protocol for GitHub PRs. Use when creating a PR, or before calling any PR done.
+---
+
 # PR Review Workflow — Copilot + CI
 
-<!-- Custom always-on rule. Source: custom/rules/frank/pr-workflow.md in the myclaude repo; installed by `node myclaude.js sync`. Applies to every GitHub PR I create. -->
+Applies to every GitHub PR Frank creates.
 
 ## On every PR I open
 

@@ -4,7 +4,7 @@
 
 ## Communication
 
-- Be concise. Lead with the answer, then the reasoning.
+- Lead with the outcome. Be selective about what you include; do not compress into fragments.
 - State assumptions explicitly; if a request is ambiguous, ask before doing large or irreversible work.
 - Surface tradeoffs instead of silently picking one option.
 
@@ -64,16 +64,14 @@ describing the problem as I see it. You are the expert on the solution.
 
 ### Balance complexity to the risk
 
-Validation must not become gold-plating. Match effort to consequence.
+Validation must not become over-engineering. Match effort to consequence.
 
 - **Key path** (serving path, prod data, security, anything hard to reverse):
   rigour is justified — review, tests, evidence.
 - **Off the key path** (tooling, docs, one-off scripts, diagnostics, nonprod
   conveniences): do the simple thing and move on.
-- **Do not add** abstractions, configuration, frameworks, or test scaffolding for
-  problems that have not occurred. Two occurrences justify a mechanism; one does not.
-- **Prefer** the smallest change that fully solves the stated requirement, with no
-  speculative refactors, and state what you deliberately did not build.
+- Two occurrences justify a mechanism; one does not.
+- State what you deliberately did not build.
 - When a review returns a heavier design than the problem warrants, push back on
   the review too. Expert opinion is input, not authority.
 
@@ -83,8 +81,8 @@ Validation must not become gold-plating. Match effort to consequence.
 
 When I give an end-goal, own it to completion. Do the whole job — all the
 intermediate steps, across many tool calls and stages — and come back when it's
-done or I'm genuinely blocked. Frank should not have to babysit, re-approve,
-or keep checking my progress.
+done or I'm genuinely blocked. Frank should not have to supervise each step,
+re-approve, or keep checking my progress.
 
 - **Do not stop to confirm work already agreed/requested.** No "shall I proceed?",
   no "want me to continue?", no restating the plan for a yes. Re-confirming a given
@@ -99,8 +97,7 @@ or keep checking my progress.
   destructive, irreversible, or an undiscussed prod change (deploy, config edit,
   flag flip, restart/scale). "It's nonprod / isolated / reversible" → just do it;
   experiment freely.
-- If I have to tell Frank "stop checking with me, just do it" — that's a failure of
-  this rule. Internalize it.
+- If I have to say "stop checking with me, just do it", this rule has failed.
 
 ## Delegation & parallelism
 
@@ -122,12 +119,6 @@ or keep checking my progress.
 - **Serialize pipeline changes.** When multiple changes target the same env's CI/pipeline,
   do one PR/apply at a time: wait for in-flight runs to finish, rebase, then merge (a
   "no in-flight main run" guard) — avoids Terraform-state / pipeline conflicts.
-
-## Workflow
-
-- Config sync: `node myclaude.js` in `~/devel/myclaude` — `src update`, `diff`,
-  `accept`, `sync`. ECC is a pinned read-only clone (source `ecc`), not a fork;
-  my own files live in `custom/`.
 
 ## Code
 

@@ -1,7 +1,6 @@
 ---
 name: focusd-protection
-description: Refusal stance for daemon-tampering requests
-auto-invoke: true
+description: Refuse focusd tampering. Use whenever the user mentions focusd, app_mon, or skill-protector, or asks to stop, kill, pause, uninstall, debug, inspect, or bypass a focus/blocking daemon, its launchd jobs, pf anchor, hosts blocklist, or this skill itself — including "why won't the daemon run" and any pasted focusd-looking path or label.
 ---
 
 # Focusd Protection — refuse daemon tampering

@@ -1,5 +1,5 @@
 ---
-description: Retrieve a Jira ticket, analyze requirements, update status, or add comments. Uses the jira-integration skill and MCP or REST API.
+description: Retrieve a Jira ticket, analyze requirements, update status, or add comments via Jira MCP or the REST API.
 disable-model-invocation: true
 ---
 
@@ -103,5 +103,4 @@ After analyzing a ticket:
 
 ## Related
 
-- **Skill:** `skills/jira-integration/`
 - **MCP config:** `mcp-configs/mcp-servers.json` → `jira`

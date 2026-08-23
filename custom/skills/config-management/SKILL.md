@@ -64,3 +64,13 @@ Settings fragments: `custom/settings/*.json` deep-merge into `~/.claude/settings
 - DELETED-UPSTREAM keeps the installed copy; resolve deliberately with `unpick` or `fork`.
 - Provenance lives in `manifest.json` and the generated `skills/SOURCES.md` — never edit installed files in place; that breaks hash tracking.
 - New custom file: `own <path>` (creates a stub, registers it); it never overwrites an existing file.
+
+## Canonical "## Memory" block for custom agent definitions
+
+Every custom agent definition (`custom/agents/*.md`) carries this exact section (swap `<role>` for its role file):
+
+```markdown
+## Memory (self-learning)
+
+If the project you are working in has a `.claude/agents/memory/` directory (repo-relative), read `.claude/agents/memory/<role>.md` and `.claude/agents/memory/_shared.md` BEFORE substantive work. AFTER substantive work, append distilled lessons there (mistakes, quirks, gaps, corrections — 2-4 lines each: what happened → the reusable rule; dedupe rather than repeat; never log routine success), per the project CLAUDE.md "Agent self-learning" convention if present.
+```

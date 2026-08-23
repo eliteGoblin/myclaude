@@ -8,5 +8,3 @@
 - `/resume-session` — resume the most recent saved session.
 - `/product-cycle` — full BA-gated feature cycle (features, not trivial fixes).
 - `/jira` — retrieve or update a Jira ticket.
-
-Skill provenance: see `~/.claude/skills/SOURCES.md`; managed by `~/devel/myclaude` (update flow: src update → diff → accept → sync).

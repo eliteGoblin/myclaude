@@ -19,8 +19,8 @@ If the environment is not explicitly stated, assume it is production.
 
 ## Signals to read before touching anything
 
-Before any action that changes remote state, scan for these and state what
-you see:
+Before any action that changes remote state in an environment not yet
+confirmed non-prod, scan for these and state what you see:
 
 - Env vars: `AWS_PROFILE`, `AWS_ACCOUNT`, `KUBECONFIG`, `KUBE_CONTEXT`,
   `GCP_PROJECT`, `DATABASE_URL`, `NODE_ENV`, `RAILS_ENV`, `ENV`, `STAGE`.
@@ -72,8 +72,7 @@ flips, cron toggles, CDN purges) require:
 2. A stated rollback: how to undo it, and how long undo takes.
 3. My explicit go-ahead in this session.
 
-Do not "drift" into a prod change by following an apparently logical next
-step. If a workflow naturally ends at "and now apply this in prod", stop
+Do not arrive at a prod change as an unexamined next step. If a workflow naturally ends at "and now apply this in prod", stop
 at the boundary and surface the decision.
 
 ## When something looks wrong in prod

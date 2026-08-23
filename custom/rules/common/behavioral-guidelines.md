@@ -14,10 +14,9 @@ Don't assume. Don't hide confusion. Surface tradeoffs.
 
 Before implementing:
 
-- State your assumptions explicitly. If uncertain, ask.
+- State your assumptions explicitly.
 - If multiple interpretations exist, present them — don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
 
 ## 2. Simplicity First
 
@@ -29,11 +28,11 @@ Minimum code that solves the problem. Nothing speculative.
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+If a senior engineer would call it overcomplicated, simplify.
 
 ## 3. Surgical Changes
 
-Touch only what you must. Clean up only your own mess.
+Touch only what you must. Remove only what your change orphaned.
 
 When editing existing code:
 
@@ -58,15 +57,3 @@ Transform tasks into verifiable goals:
 - "Add validation" → "Write tests for invalid inputs, then make them pass"
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
 - "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
----
-
-These guidelines are working if: fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

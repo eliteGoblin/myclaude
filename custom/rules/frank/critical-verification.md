@@ -47,7 +47,7 @@ diversify the angle, not just the count.
 ### 4. Present with evidence + confidence
 State the conclusion, the evidence (commands/sources), the confidence level, and
 what could not be verified. Give bounds when exact is unknown ("≤ N, upper bound").
-Surface residual risk explicitly rather than rounding it to a clean answer.
+Surface residual risk explicitly rather than simplifying it into a clean answer.
 
 ### 5. Gate irreversible action
 For anything irreversible (see [production-safety.md](./production-safety.md)): state
@@ -73,8 +73,8 @@ make different predictions — run the query that distinguishes them before conc
 A feature/task is DONE only after its behavior is actually exercised end-to-end —
 deployed, hit with a real request, and the result observed. Never report "green" for a
 path you did not run. If e2e cannot be completed, say so explicitly: list which
-checkpoints are un-exercised and why, and hand them back — do not round an
-un-run path up to success.
+checkpoints are un-exercised and why, and hand them back — do not report an
+un-run path as a success.
 
 Match the verification environment to the task:
 - A live/prod issue (incident, anomaly, "is prod healthy", a real dashboard/metric
@@ -86,12 +86,4 @@ Match the verification environment to the task:
 - Unsure which env or what exactly to verify → consult the architect agent.
 
 ## Definition of done — critical task
-- [ ] Material claims labeled FACT / INFERENCE / ASSUMPTION.
-- [ ] Intermediate data sanity-checked/asserted; no conclusion drawn on a failed query.
-- [ ] Key numbers cross-checked from a second independent source.
-- [ ] High-stakes conclusion/plan adversarially reviewed from an independent angle.
-- [ ] Presented with evidence, confidence, and explicitly-stated unverified gaps.
-- [ ] Cause attributed from the failing operation's own record — not inferred from co-occurring errors.
-- [ ] Proposed cause (esp. a "global" one) tested against contradicting evidence — checked whether anything on the same path succeeds.
-- [ ] Feature/task exercised end-to-end (deployed + real request + observed result) before "done"; any un-exercised checkpoints reported with reasons.
-- [ ] Irreversible steps gated on explicit confirmation.
+Every protocol step above (1-8) applied, or explicitly waived with the reason stated.

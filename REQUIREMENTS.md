@@ -26,7 +26,7 @@ rather than reading a copy here that drifts. Four kinds of overlay live there:
 
 - **Always-on rules** (`rules/frank/`, `rules/common/`) — loaded into every conversation
 - **Agents** (`agents/`) — ba-curator, e2e-verifier, release-verifier
-- **Commands** (`commands/`) — `/done`, `/product-cycle`, `/sessions`, `/ticket-sizing`
+- **Commands** (`commands/`) — `/product-cycle`, `/sessions`, `/ticket-sizing`
 - **Session tooling** (`scripts/`) — the `*-fsun.js` extension libs and hooks
 
 ## Session aliases (alias-first session management)

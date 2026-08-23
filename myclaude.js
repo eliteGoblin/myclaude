@@ -20,7 +20,7 @@ Sources
 
 Entries
   pick <src> <path> [path...] [--as name] track a file or a dir/ (skills/<cat>/<name>/ installs as skills/<name>/)
-  unpick <dest> [dest...]                 stop tracking and remove from ~/.claude
+  unpick <dest> [dest...] [--force]       stop tracking and remove from ~/.claude (--force when locally modified)
   fork <dest>                             move a picked entry into custom/ with forkedFrom provenance
   own <path>                              create a new file under custom/ (never overwrites)
 

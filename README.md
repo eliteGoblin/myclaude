@@ -60,6 +60,14 @@ node myclaude.js status              # pins, state counts, unmanaged files under
 node myclaude.js router              # regenerate skills/SOURCES.md (provenance) and docs/SKILL-ROUTER.md (trigger check)
 ```
 
+### Guards
+
+- `sync` refuses to copy from (or record a hash against) a source whose clone HEAD is not at its pin — after `src update`, review with `diff` and `accept`, or run `install` to return the clone to its pin. This prevents installing unreviewed tip content.
+- `sync --force` first prints the exact LOCAL-MODIFIED/CONFLICT list it is about to overwrite.
+- A directory entry and a file inside it cannot both be managed: `pick` and `own` refuse the overlap, and `sync` refuses a manifest that carries one.
+- `unpick` of a LOCAL-MODIFIED or CONFLICT entry requires `--force`; `fork <dest>` keeps the edits instead.
+- `fork` records `forkedFrom.hash` from the entry's recorded base (not the clone HEAD), so upstream commits between the base and an updated clone still surface as FORK-DRIFT.
+
 `accept` copies the upstream version and records its hash in one step, so a following `sync` has nothing left to do for that entry. Note on per-entry `accept`: the pin of that source moves to the clone HEAD even if other entries from the same source were not accepted; on a new machine those entries would then install from the newer commit. Prefer `accept --all` after reviewing the diff.
 
 ## Picking and owning files

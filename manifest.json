@@ -43,8 +43,38 @@
     },
     {
       "src": "custom",
+      "path": "commands/jira.md",
+      "hash": "0503ced85e11",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/jira.md",
+        "hash": "0503ced85e11"
+      }
+    },
+    {
+      "src": "custom",
       "path": "commands/product-cycle.md",
       "hash": "129827285779"
+    },
+    {
+      "src": "custom",
+      "path": "commands/resume-session.md",
+      "hash": "73983070d7e4",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/resume-session.md",
+        "hash": "73983070d7e4"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "commands/save-session.md",
+      "hash": "a9488a8819d6",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/save-session.md",
+        "hash": "a9488a8819d6"
+      }
     },
     {
       "src": "custom",
@@ -161,53 +191,8 @@
     },
     {
       "src": "ecc",
-      "path": "agents/build-error-resolver.md",
-      "hash": "57e8d92be918"
-    },
-    {
-      "src": "ecc",
       "path": "agents/code-reviewer.md",
       "hash": "07447dbe8733"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/database-reviewer.md",
-      "hash": "c69200806b9b"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/doc-updater.md",
-      "hash": "c2799a9bf64e"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/docs-lookup.md",
-      "hash": "e27b1c2c214b"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/e2e-runner.md",
-      "hash": "47b406309f1b"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/go-build-resolver.md",
-      "hash": "6b8ee2a78f17"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/go-reviewer.md",
-      "hash": "a2472d08781f"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/performance-optimizer.md",
-      "hash": "a877b0ae8809"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/planner.md",
-      "hash": "2c53525c1ad9"
     },
     {
       "src": "ecc",
@@ -216,153 +201,13 @@
     },
     {
       "src": "ecc",
-      "path": "agents/refactor-cleaner.md",
-      "hash": "91925f7f34da"
-    },
-    {
-      "src": "ecc",
       "path": "agents/security-reviewer.md",
       "hash": "46d310c1ddc4"
     },
     {
       "src": "ecc",
-      "path": "agents/tdd-guide.md",
-      "hash": "b1dc01a56d66"
-    },
-    {
-      "src": "ecc",
       "path": "agents/typescript-reviewer.md",
       "hash": "fcb0a9fa95cb"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/aside.md",
-      "hash": "828d2739fce0"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/build-fix.md",
-      "hash": "2620e3b8733d"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/checkpoint.md",
-      "hash": "92926e49d18f"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/code-review.md",
-      "hash": "20f4b8fcf132"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/jira.md",
-      "hash": "0503ced85e11"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/learn.md",
-      "hash": "afdb4e38bce6"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/prune.md",
-      "hash": "b2ff4b7ff2ee"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/quality-gate.md",
-      "hash": "e5b4ff0509c4"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/refactor-clean.md",
-      "hash": "be911e404a89"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/resume-session.md",
-      "hash": "73983070d7e4"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/save-session.md",
-      "hash": "a9488a8819d6"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/setup-pm.md",
-      "hash": "163b3cd10602"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/test-coverage.md",
-      "hash": "f492c2dac27b"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/update-codemaps.md",
-      "hash": "dee7709ae404"
-    },
-    {
-      "src": "ecc",
-      "path": "commands/update-docs.md",
-      "hash": "f0f4645d697c"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/coding-style.md",
-      "hash": "f16be09179b6"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/git-workflow.md",
-      "hash": "1b8e1958c637"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/hooks.md",
-      "hash": "b3bfb0ed86bf"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/patterns.md",
-      "hash": "8a32c0552c8b"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/performance.md",
-      "hash": "851cde9e6952"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/common/security.md",
-      "hash": "58f0acc56331"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/golang/coding-style.md",
-      "hash": "c32f6a271529"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/golang/hooks.md",
-      "hash": "518fe31d4baa"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/golang/patterns.md",
-      "hash": "aca279088c39"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/golang/security.md",
-      "hash": "72ff9516083e"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/golang/testing.md",
-      "hash": "b0fcde8be4ce"
     },
     {
       "src": "ecc",
@@ -421,41 +266,6 @@
     },
     {
       "src": "ecc",
-      "path": "rules/web/coding-style.md",
-      "hash": "a1ff88858d73"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/design-quality.md",
-      "hash": "ca0654b7fe31"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/hooks.md",
-      "hash": "fc6bc015d5c3"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/patterns.md",
-      "hash": "334fa10d5a31"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/performance.md",
-      "hash": "73df4d1664cc"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/security.md",
-      "hash": "565851f9df70"
-    },
-    {
-      "src": "ecc",
-      "path": "rules/web/testing.md",
-      "hash": "1ce7194c30b5"
-    },
-    {
-      "src": "ecc",
       "path": "scripts/hooks/session-end.js",
       "hash": "0202a52ad32e"
     },
@@ -491,86 +301,6 @@
     },
     {
       "src": "ecc",
-      "path": "skills/api-design/SKILL.md",
-      "hash": "ad7230f931b6"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/architecture-decision-records/SKILL.md",
-      "hash": "525e51b4ed98"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/backend-patterns/SKILL.md",
-      "hash": "472ec92c95e5"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/coding-standards/SKILL.md",
-      "hash": "f8a05b67c22e"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/continuous-learning/config.json",
-      "hash": "8af9150b6dca"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/continuous-learning/evaluate-session.sh",
-      "hash": "3e07e0b2916f"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/continuous-learning/SKILL.md",
-      "hash": "86d2836d7226"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/e2e-testing/SKILL.md",
-      "hash": "de79b897a7b9"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/frontend-patterns/SKILL.md",
-      "hash": "ab63402f3ecb"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/git-workflow/SKILL.md",
-      "hash": "707999138b92"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/golang-patterns/SKILL.md",
-      "hash": "ab8186c319b1"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/golang-testing/SKILL.md",
-      "hash": "6056559e12e9"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/mcp-server-patterns/SKILL.md",
-      "hash": "0d2d77ff4cff"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/nestjs-patterns/SKILL.md",
-      "hash": "984df44b40cd"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/python-patterns/SKILL.md",
-      "hash": "bcdc0e72c463"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/python-testing/SKILL.md",
-      "hash": "76549eacc221"
-    },
-    {
-      "src": "ecc",
       "path": "skills/security-review/cloud-infrastructure-security.md",
       "hash": "7d9a83852475"
     },
@@ -578,16 +308,6 @@
       "src": "ecc",
       "path": "skills/security-review/SKILL.md",
       "hash": "fe6f9151fb15"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/tdd-workflow/SKILL.md",
-      "hash": "e3a0051a99e8"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/verification-loop/SKILL.md",
-      "hash": "685117c71414"
     }
   ],
   "settingsOwned": [],

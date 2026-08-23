@@ -160,6 +160,18 @@
     },
     {
       "src": "custom",
+      "path": "settings/output-style.json",
+      "hash": "f2115fb06f91",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/permissions.json",
+      "hash": "88f6b079d301",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
       "path": "settings/plugins.json",
       "hash": "11587b690faf",
       "kind": "settings"

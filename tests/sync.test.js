@@ -171,3 +171,92 @@ test('install clones every pinned source on a fresh machine and syncs', () => {
   assert.equal(read(path.join(ctx.claudeHome, 'agents/x.md')), 'X1', 'installed at the pin, not the tip');
   assert.equal(require('../lib/sources').headSha(ctx, 'up'), pin);
 });
+
+test('sync refuses to copy or record from a clone that is not at its pin', () => {
+  const { root, ctx } = makeTempCtx();
+  const origin = makeSourceRepo(root, 'up', { 'rules/a.md': 'A1' });
+  const log = collect();
+  cmdSrc(ctx, ['add', 'up', origin], log);
+  cmdPick(ctx, ['up', 'rules/a.md'], log);
+  assert.equal(cmdSync(ctx, [], log), true);
+  // move the clone HEAD past the pin, then delete the installed copy (MISSING)
+  commitFiles(origin, { 'rules/a.md': 'A2-tip' }, 'past pin');
+  cmdSrc(ctx, ['update', 'up'], log);
+  fs.rmSync(path.join(ctx.claudeHome, 'rules/a.md'));
+  assert.equal(cmdSync(ctx, [], log), false, 'copy from an unpinned clone is refused');
+  assert.ok(!fs.existsSync(path.join(ctx.claudeHome, 'rules/a.md')), 'tip content was not installed');
+  assert.match(log.text(), /not at its pin/);
+  // install restores the clone to the pin, then the copy is the pinned content
+  assert.equal(cmdInstall(ctx, [], log), true);
+  assert.equal(read(path.join(ctx.claudeHome, 'rules/a.md')), 'A1', 'pinned content installed, not the tip');
+  // accept moves the pin to the reviewed HEAD; sync then copies normally
+  cmdSrc(ctx, ['update', 'up'], log);
+  cmdAccept(ctx, ['--all'], log);
+  assert.equal(cmdSync(ctx, [], log), true);
+  assert.equal(read(path.join(ctx.claudeHome, 'rules/a.md')), 'A2-tip');
+});
+
+test('sync --force first prints the list of entries it will overwrite', () => {
+  const { root, ctx } = makeTempCtx();
+  const origin = makeSourceRepo(root, 'up', { 'rules/a.md': 'A1', 'rules/b.md': 'B1' });
+  const log = collect();
+  cmdSrc(ctx, ['add', 'up', origin], log);
+  cmdPick(ctx, ['up', 'rules/a.md', 'rules/b.md'], log);
+  cmdSync(ctx, [], log);
+  write(path.join(ctx.claudeHome, 'rules/a.md'), 'hand edit');
+  const forceLog = collect();
+  assert.equal(cmdSync(ctx, ['--force'], forceLog), true);
+  const text = forceLog.text();
+  assert.match(text, /--force will overwrite 1 LOCAL-MODIFIED\/CONFLICT entry:/);
+  assert.match(text, /LOCAL-MODIFIED {4}rules\/a\.md/);
+  assert.equal(read(path.join(ctx.claudeHome, 'rules/a.md')), 'A1');
+});
+
+test('overlapping dests are rejected at pick/own time and refused by sync', () => {
+  const { root, ctx } = makeTempCtx();
+  const origin = makeSourceRepo(root, 'up', { 'skills/cat/sk/SKILL.md': 'S1', 'rules/frank/x.md': 'X1' });
+  const log = collect();
+  cmdSrc(ctx, ['add', 'up', origin], log);
+  cmdPick(ctx, ['up', 'skills/cat/sk/'], log);
+  // a file inside a managed dir: own refuses
+  assert.throws(() => cmdOwn(ctx, ['skills/sk/extra.md'], log), /overlaps entry skills\/sk\//);
+  // a dir pick over an existing file entry is also refused
+  cmdPick(ctx, ['up', 'rules/frank/x.md'], log);
+  assert.throws(() => cmdPick(ctx, ['up', 'rules/'], log), /overlaps entry rules\/frank\/x\.md/);
+  const m = loadManifest(ctx);
+  // a manifest already carrying an overlap (edited by hand) is refused by sync
+  m.entries.push(require('../lib/manifest').makeEntry({ src: 'up', path: 'skills/cat/sk/notes.md', dest: 'skills/sk/notes.md', hash: null }));
+  require('../lib/manifest').saveManifest(ctx, m);
+  assert.throws(() => cmdSync(ctx, [], log), /manage overlapping paths/);
+});
+
+test('unpick refuses a LOCAL-MODIFIED entry unless --force', () => {
+  const { root, ctx } = makeTempCtx();
+  const origin = makeSourceRepo(root, 'up', { 'rules/a.md': 'A1' });
+  const log = collect();
+  cmdSrc(ctx, ['add', 'up', origin], log);
+  cmdPick(ctx, ['up', 'rules/a.md'], log);
+  cmdSync(ctx, [], log);
+  write(path.join(ctx.claudeHome, 'rules/a.md'), 'local edit');
+  assert.throws(() => cmdUnpick(ctx, ['rules/a.md'], log), /LOCAL-MODIFIED.*--force/);
+  assert.equal(read(path.join(ctx.claudeHome, 'rules/a.md')), 'local edit', 'edit kept');
+  cmdUnpick(ctx, ['rules/a.md', '--force'], log);
+  assert.ok(!fs.existsSync(path.join(ctx.claudeHome, 'rules/a.md')));
+  assert.equal(findEntry(loadManifest(ctx), 'rules/a.md'), null);
+});
+
+test('fork records forkedFrom.hash from the entry base, not the clone HEAD', () => {
+  const { root, ctx } = makeTempCtx();
+  const origin = makeSourceRepo(root, 'up', { 'rules/a.md': 'A1' });
+  const log = collect();
+  cmdSrc(ctx, ['add', 'up', origin], log);
+  cmdPick(ctx, ['up', 'rules/a.md'], log);
+  cmdSync(ctx, [], log);
+  const base = findEntry(loadManifest(ctx), 'rules/a.md').hash;
+  commitFiles(origin, { 'rules/a.md': 'A2' }, 'ahead of base');
+  cmdSrc(ctx, ['update', 'up'], log);
+  cmdFork(ctx, ['rules/a.md'], log);
+  const forked = findEntry(loadManifest(ctx), 'rules/a.md');
+  assert.equal(forked.forkedFrom.hash, base, 'base hash, so the A1->A2 upstream move still surfaces');
+  assert.ok(cmdDiff(ctx, [], collect()).some((r) => r.dest === 'rules/a.md' && r.drift), 'FORK-DRIFT visible');
+});

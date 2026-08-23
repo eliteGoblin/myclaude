@@ -1,19 +1,17 @@
 # Production Safety
 
-> Custom always-on rule. Highest priority — overrides upstream rules on conflict.
-> Lives in `fsun_config/custom/rules/frank/production-safety.md`, installs to
-> `~/.claude/rules/frank/production-safety.md` via `ecc.js sync`.
+<!-- Custom always-on rule. Source: custom/rules/frank/production-safety.md in the myclaude repo; installed by `node myclaude.js sync`. The permissions fragment custom/settings/permissions.json enforces the command-prefix part of this rule (ask prompts for terraform/kubectl/gcloud/aws deletes, force-push, rm -rf, DB CLIs, publishing). This prose still governs everything a prefix pattern cannot see: SQL text, scripts, MCP calls, and the environment judgment. -->
 
 ## Default assumption
 
-**If the environment is not explicitly stated, assume it is production.**
+If the environment is not explicitly stated, assume it is production.
 
 - Treat any unlabelled target (DB, cluster, project, account, host, deploy)
   as prod until I tell you otherwise.
 - Only treat a target as non-prod when I have explicitly said "dev", "local",
   "staging", "test", "sandbox", or pointed at an obviously local resource
   (`localhost`, `127.0.0.1`, a docker-compose service, a throwaway tmp path).
-- Names like `app-db`, `cluster-1`, `main`, `default` are **not** signals of
+- Names like `app-db`, `cluster-1`, `main`, `default` are not signals of
   non-prod. They are unlabelled → assume prod.
 - If I gave one signal earlier in the session and the current target is
   different or ambiguous, re-confirm. Do not extrapolate "we were in dev five
@@ -33,43 +31,37 @@ you see:
 - Command shape: anything containing `prod`, `production`, `live`, an
   account ID I have flagged as prod, or a domain matching a prod hostname.
 
-If any of these are missing or ambiguous, **ask before acting**. Do not
-guess.
+If any of these are missing or ambiguous, ask before acting. Do not guess.
 
 ## Always pause and confirm — even if "auto" mode is on
 
 Stop and get explicit confirmation from me before running any of:
 
-- **Data deletion / mutation at scale**: `DELETE FROM`, `TRUNCATE`,
-  `DROP TABLE`, `DROP DATABASE`, `DROP SCHEMA`, mass `UPDATE` without a
-  narrowly scoped `WHERE`, `redis FLUSHDB`/`FLUSHALL`, S3 object delete,
-  bucket lifecycle changes.
-- **Schema / migration**: running migrations, `ALTER TABLE`, index
-  rebuilds, anything that locks a hot table, anything not reversible by a
-  follow-up migration.
-- **Infrastructure destruction**: `terraform destroy`, `terraform apply`
-  against a prod workspace, `pulumi destroy`, `cdk destroy`, deleting a
-  cloud resource (RDS, bucket, VPC, load balancer, DNS record, IAM role,
-  KMS key, secret).
-- **Cluster ops**: `kubectl delete`, `helm uninstall`, scaling to zero,
-  changing a StatefulSet's storage, draining a node, switching contexts to
-  prod, applying manifests to a prod context.
-- **Cloud-provider deletes**: `aws … delete-*`, `aws s3 rm --recursive`,
-  `gcloud … delete`, `az … delete`, anything that empties a queue/topic.
-- **Auth / access changes**: rotating prod secrets, IAM policy changes,
-  RBAC changes, opening security groups, changing prod login.
-- **Filesystem destruction on a server you don't own**: `rm -rf`, `find
-  … -delete` against anything not a local scratch dir.
-- **Outbound side effects**: sending real emails / SMS / webhooks /
-  payment calls, posting to Slack/Discord channels visible to others,
-  publishing a package or release.
-- **Git on shared branches**: force-push to `main`/`master`/`release/*`,
-  `reset --hard` of a shared branch, deleting a remote branch I haven't
-  asked you to delete, amending an already-pushed commit.
+- Data deletion / mutation at scale: `DELETE FROM`, `TRUNCATE`, `DROP TABLE|DATABASE|SCHEMA`,
+  mass `UPDATE` without a narrowly scoped `WHERE`, redis `FLUSHDB`/`FLUSHALL`,
+  S3/GCS object delete, bucket lifecycle changes.
+- Schema / migration: running migrations, `ALTER TABLE`, index rebuilds, anything
+  that locks a hot table or is not reversible by a follow-up migration.
+- Infrastructure destruction: `terraform|pulumi|cdk destroy`, `terraform apply`
+  against a prod workspace, deleting a cloud resource (RDS, bucket, VPC, load
+  balancer, DNS record, IAM role, KMS key, secret).
+- Cluster ops: `kubectl delete`, `helm uninstall`, scaling to zero, changing a
+  StatefulSet's storage, draining a node, switching contexts to prod, applying
+  manifests to a prod context.
+- Cloud-provider deletes: `aws|gcloud|az … delete`, `aws s3 rm --recursive`,
+  anything that empties a queue/topic.
+- Auth / access changes: rotating prod secrets, IAM policy changes, RBAC changes,
+  opening security groups, changing prod login.
+- Filesystem destruction on a server you don't own: `rm -rf`, `find … -delete`
+  against anything not a local scratch dir.
+- Outbound side effects: sending real emails / SMS / webhooks / payment calls,
+  posting to Slack/Discord channels visible to others, publishing a package or release.
+- Git on shared branches: force-push to `main`/`master`/`release/*`, `reset --hard`
+  of a shared branch, deleting a remote branch I haven't asked you to delete,
+  amending an already-pushed commit.
 
-For each, state: **what** you're about to run, **where** (env + target),
-**why**, and **what's not reversible**. Then wait. Don't proceed on
-silence — only on an explicit "yes".
+For each, state: what you're about to run, where (env + target), why, and what's
+not reversible. Then wait. Don't proceed on silence — only on an explicit "yes".
 
 ## No undiscussed prod changes
 
@@ -86,13 +78,13 @@ at the boundary and surface the decision.
 
 ## When something looks wrong in prod
 
-- Do **not** "fix it quickly" by mutating prod state. Surface what you
+- Do not "fix it quickly" by mutating prod state. Surface what you
   see, propose options, wait.
 - Read-only investigation (logs, metrics, `SELECT`, `kubectl get`,
   `describe`) is fine and encouraged.
 - Don't restart, redeploy, scale, or evict to "see if it helps".
 
-## Local / dev work — what's NOT covered by this rule
+## Local / dev work — what's not covered by this rule
 
 Once I have explicitly said an environment is local or dev (or you can
 see it's `localhost` / docker-compose / a personal scratch repo), this

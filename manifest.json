@@ -178,6 +178,11 @@
     },
     {
       "src": "custom",
+      "path": "skills/config-management/SKILL.md",
+      "hash": null
+    },
+    {
+      "src": "custom",
       "path": "skills/deep-research/LESSONS.md",
       "hash": "ace3bfb5012b"
     },

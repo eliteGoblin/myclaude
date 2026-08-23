@@ -142,6 +142,10 @@ or keep checking my progress.
 
 - Match the conventions of the surrounding code.
 - No `console.log` or debug noise in committed code.
+- **No hard line wrapping in generated files (2026-08-11):** never wrap text at a
+  fixed column in anything I generate — emails, docs, drafts, notes. One
+  paragraph = one line; let the editor or email client wrap it. Hard wraps break
+  when pasted into Outlook or viewed at another width.
 - **No AI attribution in work artifacts (2026-08-06):** never mention Claude/AI
   generation in commit messages, PR descriptions, or GH issues — no
   `Co-Authored-By: Claude` trailer, no "Generated with Claude Code" footer.

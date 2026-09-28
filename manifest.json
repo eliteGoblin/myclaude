@@ -14,13 +14,23 @@
     "mattpocock": {
       "repo": "https://github.com/mattpocock/skills.git",
       "ref": "main",
-      "sha": "5b15a47f2d7150f545fbcacbfe381787fc0230dc"
+      "sha": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7"
     },
     "custom": {
       "local": true
     }
   },
   "entries": [
+    {
+      "src": "custom",
+      "path": "agents/architect.md",
+      "hash": "6b8e1e8bd274",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/architect.md",
+        "hash": "6b8e1e8bd274"
+      }
+    },
     {
       "src": "custom",
       "path": "agents/ba-curator.md",
@@ -33,13 +43,43 @@
     },
     {
       "src": "custom",
+      "path": "agents/code-reviewer.md",
+      "hash": "9dd23be23d65",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/code-reviewer.md",
+        "hash": "9dd23be23d65"
+      }
+    },
+    {
+      "src": "custom",
       "path": "agents/e2e-verifier.md",
       "hash": "8dd3b84323a7"
     },
     {
       "src": "custom",
+      "path": "agents/python-reviewer.md",
+      "hash": "d2180b115f58",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/python-reviewer.md",
+        "hash": "d2180b115f58"
+      }
+    },
+    {
+      "src": "custom",
       "path": "agents/release-verifier.md",
       "hash": "f9b7e94972d2"
+    },
+    {
+      "src": "custom",
+      "path": "agents/security-reviewer.md",
+      "hash": "813e4062bed5",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/security-reviewer.md",
+        "hash": "813e4062bed5"
+      }
     },
     {
       "src": "custom",
@@ -209,8 +249,38 @@
     },
     {
       "src": "custom",
+      "path": "skills/diagnosing-bugs/",
+      "hash": "5075efe3130a",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/diagnosing-bugs/",
+        "hash": "5075efe3130a"
+      }
+    },
+    {
+      "src": "custom",
       "path": "skills/focusd-protection/SKILL.md",
       "hash": "b9872f8193b1"
+    },
+    {
+      "src": "custom",
+      "path": "skills/clarify/",
+      "hash": "d6ae2cc9cd97",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/grilling/",
+        "hash": "d6ae2cc9cd97"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "skills/improve-codebase-architecture/",
+      "hash": "16fcfd94b209",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/improve-codebase-architecture/",
+        "hash": "16fcfd94b209"
+      }
     },
     {
       "src": "custom",
@@ -223,29 +293,24 @@
       "hash": null
     },
     {
-      "src": "ecc",
-      "path": "agents/architect.md",
-      "hash": "6b8e1e8bd274"
+      "src": "custom",
+      "path": "skills/tdd/",
+      "hash": "7cc72883c75a",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/tdd/",
+        "hash": "7cc72883c75a"
+      }
     },
     {
-      "src": "ecc",
-      "path": "agents/code-reviewer.md",
-      "hash": "9dd23be23d65"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/python-reviewer.md",
-      "hash": "d2180b115f58"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/security-reviewer.md",
-      "hash": "813e4062bed5"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/typescript-reviewer.md",
-      "hash": "6b012db1a903"
+      "src": "custom",
+      "path": "skills/writing-for-agents/",
+      "hash": "78c41feba8e1",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/writing-for-agents/",
+        "hash": "78c41feba8e1"
+      }
     },
     {
       "src": "ecc",
@@ -338,16 +403,6 @@
       "hash": "d230d03b89c1"
     },
     {
-      "src": "ecc",
-      "path": "skills/security-review/SKILL.md",
-      "hash": "fe6f9151fb15"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/security-review/cloud-infrastructure-security.md",
-      "hash": "7d9a83852475"
-    },
-    {
       "src": "mattpocock",
       "path": "skills/engineering/codebase-design/",
       "dest": "skills/codebase-design/",
@@ -355,33 +410,15 @@
     },
     {
       "src": "mattpocock",
-      "path": "skills/engineering/diagnosing-bugs/",
-      "dest": "skills/diagnosing-bugs/",
-      "hash": "5075efe3130a"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/engineering/tdd/",
-      "dest": "skills/tdd/",
-      "hash": "7cc72883c75a"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/productivity/grilling/",
-      "dest": "skills/grilling/",
-      "hash": "d6ae2cc9cd97"
+      "path": "skills/engineering/domain-modeling/",
+      "dest": "skills/domain-modeling/",
+      "hash": "3e5ba278061e"
     },
     {
       "src": "mattpocock",
       "path": "skills/productivity/wait-what/",
       "dest": "skills/wait-what/",
       "hash": "4147334437e2"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/productivity/writing-for-agents/",
-      "dest": "skills/writing-for-agents/",
-      "hash": "78c41feba8e1"
     }
   ],
   "settingsOwned": [],

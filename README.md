@@ -8,7 +8,9 @@ Frank's personal Claude Code configuration. One manifest lists which files are i
 |---|---|
 | `myclaude.js`, `lib/` | The tool (CommonJS, Node >= 18, standard library only; `git` on PATH) |
 | `manifest.json` | Manifest v2: `sources`, `entries`, `settingsOwned`, `lastSync` |
-| `custom/` | Files Frank owns: `rules/`, `agents/`, `commands/`, `skills/`, `scripts/`, `settings/` |
+| `custom/` | Files Frank owns: `rules/`, `agents/`, `commands/`, `skills/`, `scripts/`, `settings/`; `philosophy-src/` holds the Claude Bible sources (not installed) |
+| `INSTALL.md` | Steps Claude follows to install into an existing `~/.claude` |
+| `docs/INVENTORY.md`, `docs/REFERENCES.md` | Installed items with reasons and budgets; reference repos |
 | `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json`; see `custom/settings/README.md` |
 | `docs/`, `requirements/`, `mcp_recipes/` | Research notes, requirements register, MCP recipes |
 | `tests/` | `node --test` suite |
@@ -18,10 +20,13 @@ Frank's personal Claude Code configuration. One manifest lists which files are i
 
 | Name | Repository | Role |
 |---|---|---|
-| `ecc` | https://github.com/affaan-m/everything-claude-code | Agents, commands, rules, skills, session scripts. Pinned; read-only clone, not a fork. |
-| `karpathy` | https://github.com/forrestchang/andrej-karpathy-skills | Registered, no picks (the guidance lives in `custom/rules/common/behavioral-guidelines.md`). |
-| `mattpocock` | https://github.com/mattpocock/skills | Picks: `writing-for-agents`, `grilling`, `wait-what` (productivity), `diagnosing-bugs`, `codebase-design`, `tdd` (engineering). Installed flat as `skills/<name>/`. |
-| `custom` | `custom/` in this repo | Frank's own files. Edits here install with `sync`; no `accept` step. |
+| `ecc` | https://github.com/affaan-m/everything-claude-code | Picks: python and typescript rule packs, the session script closure. The reviewer agents are forked into `custom/`. Reference repo. |
+| `mattpocock` | https://github.com/mattpocock/skills | Picks: `codebase-design`, `domain-modeling`, `wait-what`. Forked into `custom/`: `tdd`, `diagnosing-bugs`, `writing-for-agents`, `improve-codebase-architecture`, `grilling` (as `clarify`). Installed flat as `skills/<name>/`. |
+| `karpathy` | https://github.com/forrestchang/andrej-karpathy-skills | Reference only, no picks (the principles live in `custom/rules/frank/philosophy.md` §9). |
+| `cct` | https://github.com/davila7/claude-code-templates | Reference only, no picks; read `cli-tool/components/`. |
+| `custom` | `custom/` in this repo | Frank's own files and forks. Edits here install with `sync`; no `accept` step. |
+
+What each installed item is for, and the budgets: `docs/INVENTORY.md`. Why each reference repo is listed: `docs/REFERENCES.md`.
 
 ## Manifest entry
 
@@ -93,11 +98,11 @@ node myclaude.js own rules/frank/new-rule.md                     # creates a cus
 
 ```bash
 git clone https://github.com/eliteGoblin/myclaude.git ~/devel/myclaude
-cd ~/devel/myclaude
-node myclaude.js install          # clones every source at its pinned sha, then runs sync
 ```
 
-Environment overrides: `MYCLAUDE_CLAUDE_HOME` (default `~/.claude`), `MYCLAUDE_SOURCES_DIR` (default `~/.myclaude/sources`).
+Then tell Claude "install myclaude": it follows `INSTALL.md` (backup, compare, one confirmation, `sync --force`, move old files into the backup, verify). `node myclaude.js install` alone clones every source at its pinned sha and runs `sync`; it refuses to overwrite locally modified files.
+
+Environment overrides: `MYCLAUDE_CLAUDE_HOME` (default `~/.claude`), `MYCLAUDE_SOURCES_DIR` (default `~/.myclaude/sources`). `status` does not report the app-owned paths `skills/synced/` and `skills/.trash/`.
 
 ## Migration from manifest v1
 

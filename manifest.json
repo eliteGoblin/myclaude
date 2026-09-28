@@ -18,6 +18,11 @@
     },
     "custom": {
       "local": true
+    },
+    "cct": {
+      "repo": "https://github.com/davila7/claude-code-templates.git",
+      "ref": "main",
+      "sha": "42886b2db9b8021a9830ab3722bd15bcdd5554af"
     }
   },
   "entries": [

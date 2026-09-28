@@ -1,62 +1,22 @@
 # myclaude — Requirements
 
-## Core
-- Single CLI entry point for managing my Claude Code setup
-- Quick cheatsheet so I don't need to memorize commands
-- Cherry-pick files from upstream ECC, track what's installed
-- Create my own custom rules/skills/commands/agents
-- Sync upstream updates without merge conflicts (fork workflow)
-- Symlink to ~/.local/bin for global access
-- Works on macOS + Ubuntu (zsh)
+Frank's personal Claude Code configuration: a small, curated set of rules, skills, agents, and commands that Frank owns and improves over time. Design record: GitHub issues #1 (curated setup), #2 (INSTALL.md), #3 (usage report, not built yet).
 
-- Subcommands: `myclaude rules`, `myclaude skills`, `myclaude commands` with `--verbose` flag
-- Verbose shows what each rule covers, skill sections & value, command details
-- Don't need to memorize — just `myclaude` to see everything
-- Default `myclaude` shows status dashboard: counts, hooks wired, sessions
-- `myclaude help` shows full command reference (separate from status)
-- Session hooks auto-save/load context across projects
-- `myclaude install` bootstraps a new machine: prereqs, sync, link, optional --opus
-- Multi-language rules support: common + typescript + web + python (add more as needed)
-- Cross-platform: macOS (zsh) + Ubuntu/Linux (zsh/bash)
+## Principles
 
-## Custom overlays (`fsun_config/custom/`)
+- Less is more. Every item fixes a named failure mode (F1-F6 in `docs/INVENTORY.md`) or is a work tool Frank uses.
+- Budgets: ≤ 3 always-on rule files and ≤ 400 lines; ≤ 15 model-invoked skills; ≤ 9 agents; ≤ 10 commands. At a limit, remove or merge before adding.
+- Upstream repos are references to read, not bases to follow (`docs/REFERENCES.md`). Items Frank edits are forked into `custom/`; items he follows unchanged stay picked and update through `accept` after a reviewed diff.
+- Every item in `custom/` has a `Sources:` line. Every proposed change names its source: a reference-repo file or a session failure.
+- Nothing is applied automatically. Claude reads every diff; Frank decides.
 
-The authoritative list is `manifest.json` `custom[]` — run `node fsun_config/ecc.js ls`
-rather than reading a copy here that drifts. Four kinds of overlay live there:
+## Functional
 
-- **Always-on rules** (`rules/frank/`, `rules/common/`) — loaded into every conversation
-- **Agents** (`agents/`) — ba-curator, e2e-verifier, release-verifier
-- **Commands** (`commands/`) — `/product-cycle`, `/sessions`, `/ticket-sizing`
-- **Session tooling** (`scripts/`) — the `*-fsun.js` extension libs and hooks
+- One manifest (`manifest.json`) lists every installed file, its source, pin, and hash; `node myclaude.js` compares source, recorded hash, and installed copy before writing (README.md).
+- `INSTALL.md` lets Claude install into an existing `~/.claude` with a backup, one comparison table, one confirmation, and verification. App-owned paths (`skills/synced/`, `skills/.trash/`, `plugins/`, `projects/`, `session-data/`, `settings.local.json`, `~/.claude.json`) are never touched.
+- Monthly review ("review my setup") with the `config-management` skill: use, overlap, size, upstream changes, at most 5 candidates.
+- Works on Linux (WSL) and macOS; Node >= 18, standard library only.
 
-## Session aliases (alias-first session management)
-See `fsun_config/docs/session-aliases.md` for the full spec. Shipped 2026-07-08 via PR #19.
-Verified 2026-07-08 (`fsun_config/docs/verify/session-alias-registry-2026-07-08.md`, 12/12 PASS) — BA sign-off ACCEPTED 2026-07-08. Three accepted gaps recorded in the spec's limitations (no unit tests; real interactive `~/claude_adhoc` exit unexercised — human step documented; LLM paths unexercised). Ships when PR #19 merges.
+## Session tooling
 
-- Persistent sessions switchable by **alias**; session IDs hidden from the user
-- "One alias = one project/topic. Same-alias context should be together, otherwise it's confusing"
-- Explicit registry: many sessions → exactly one alias; an alias can span multiple folders; new sessions auto-join their folder's alias
-- `/sessions` = alias overview; unassigned folders get **suggested** names — suggest-and-confirm, never silent-create
-- `/sessions switch <alias>` loads the whole alias context (all member summaries + transcripts from every attached folder, token-budgeted)
-- Organizing verbs: attach, assign, gather --topic, absorb, consolidate (archives, never deletes), rename, unalias, ignore (scratch folders)
-- Session-start hint: offer switch / ask which alias / ask to create / silent for ignored folders
-- Retention pruning off globally — cleanup is manual and human-confirmed
-
-## Sessions overlay
-See `fsun_config/docs/sessions-extended.md` for full design.
-
-- Default `sessions load <id>` is **context-rich**: combines `.tmp` summary with Claude-native JSONL transcripts under `~/.claude/projects/<encoded-cwd>/` up to a token budget
-- Token budget accepts shorthand: `500K`, `1M`, raw int. Default 500K (sized for 1M context window)
-- `--topic "<kw>"` runs LLM topic filter via `claude -p`; falls back to keyword grep if `claude` unavailable
-- `--no-history` returns to upstream-style metadata-only load
-- `--since 7d|24h|2w` time-bounded filter
-- `sessions merge <id> [--topic <kw>] [--dry-run]` consolidates sibling .tmp files into target
-- `sessions help` prints full flag reference
-
-## Current State
-- Installed file counts: `node fsun_config/ecc.js ls` (upstream picks + custom overlays)
-- Alias-first session management shipped — PR #19, #20, #21, #23, #24 merged
-- All agents upgraded to opus (Max sub)
-- Fork: eliteGoblin/everything-claude-code
-- Upstream: affaan-m/everything-claude-code
-- Languages: JavaScript/TypeScript, Web/Frontend, Python
+Alias-first session management (`/sessions`, `/save-session`, `/resume-session`) and its scripts: see `docs/session-aliases.md`, `docs/sessions-extended.md`, and `requirements/features/sessions-native-uuid-resume.md`.

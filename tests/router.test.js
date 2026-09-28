@@ -68,3 +68,18 @@ test('frontmatter block-scalar descriptions are read and empty ones flagged weak
   assert.match(doc, /\| block \| spans two lines and is definitely long enough to pass the check \| ok \|/);
   assert.match(doc, /\| empty \| \(none\) \| weak trigger — consider rewriting \|/);
 });
+
+test('status does not report app-owned paths (skills/synced/, skills/.trash/) as unmanaged', () => {
+  const { ctx } = setup();
+  assert.equal(cmdSync(ctx, [], collect()), true);
+  write(path.join(ctx.claudeHome, 'skills/synced/app-skill/SKILL.md'), 'app\n');
+  write(path.join(ctx.claudeHome, 'skills/.trash/old/SKILL.md'), 'old\n');
+  write(path.join(ctx.claudeHome, 'skills/stray/SKILL.md'), 'stray\n');
+  const { cmdStatus } = require('../lib/cmd-sync');
+  const slog = collect();
+  cmdStatus(ctx, [], slog);
+  assert.match(slog.text(), /unmanaged files under .*: 1/);
+  assert.match(slog.text(), /skills\/stray\/SKILL\.md/);
+  assert.doesNotMatch(slog.text(), /skills\/synced\//);
+  assert.doesNotMatch(slog.text(), /skills\/\.trash\//);
+});

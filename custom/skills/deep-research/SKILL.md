@@ -28,7 +28,7 @@ genuinely multi-branch questions justify a programme.
 1. **`LESSONS.md`** — this framework's own accumulated lessons: search strategies that worked,
    dead-end signals seen before, citation-failure patterns, how many rounds sufficed.
    Cross-project, cross-programme. Read it from whichever of these exists:
-   `~/devel/everything-claude-code/fsun_config/custom/skills/deep-research/LESSONS.md`
+   `~/devel/myclaude/custom/skills/deep-research/LESSONS.md`
    (the git-versioned source of truth) or `<skill-dir>/LESSONS.md` (the installed copy).
 2. **`.claude/agents/memory/research.md`** and **`.claude/agents/memory/_shared.md`** in the
    repo you are working in, if they exist — project-specific research lessons (which sources
@@ -318,9 +318,9 @@ failure pattern, a source that lied or would not fetch, a round count that turne
 enough or not enough, a mistake you had to correct.
 
 - **Framework-level → `LESSONS.md` in the ECC repo**, i.e.
-  `~/devel/everything-claude-code/fsun_config/custom/skills/deep-research/LESSONS.md` —
+  `~/devel/myclaude/custom/skills/deep-research/LESSONS.md` —
   anything about *how to run research well*: cross-project, cross-domain.
-  **Write to the repo source, not the installed `<skill-dir>` copy** — `ecc.js sync` copies
+  **Write to the repo source, not the installed `<skill-dir>` copy** — `node myclaude.js sync` copies
   source over installed unconditionally, so a lesson written to the installed file is destroyed
   on the next sync. Writing to the repo also puts the lesson in git, where it gets reviewed like
   code. If the ECC repo is not present on this machine, write to the installed copy and say so

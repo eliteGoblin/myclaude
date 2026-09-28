@@ -14,7 +14,7 @@ Written for Claude. Run it when Frank says "clean up the old setup", after `INST
 | 6 | Dead permission rule | `grep -n 'git push \* :\*' custom/settings/permissions.json` | **Ask Frank**: remove it (sessions stop printing a warning) or replace it with `Bash(git push *)` (every push asks for approval). Then `sync` |
 | 7 | Leaked GitHub token (2026-09-28) | A `gho_` token for eliteGoblin was printed in a local session log | Tell Frank to run `gh auth refresh -h github.com -u eliteGoblin` or revoke it in GitHub Settings → Applications. Claude cannot do this |
 | 8 | Links to removed rules | `grep -rln '\.\./common/' ~/.claude/rules` (python/typescript packs link to `common/*`, which is no longer installed) | Remove the dead links in the forked copies, or fork the two packs into `custom/` and fix them there |
-| 9 | Memory and notes that describe the old setup | `grep -rln 'ecc.js\|fsun_config' ~/.claude/projects/*/memory ~/.mycc/notes.md ~/.mycc/knowledge.md` | Update each hit to point to myclaude; mark finished notes DONE |
+| 9 | Memory, notes, and installed files that describe the old setup | `grep -rln 'ecc.js\|fsun_config' ~/.claude/projects/*/memory ~/.mycc/notes.md ~/.mycc/knowledge.md ~/.claude/skills ~/.claude/agents ~/.claude/commands ~/.claude/rules` (ignore provenance lines such as "moved to myclaude") | Update each hit to point to myclaude; mark finished notes DONE |
 | 10 | Unused source clones | `node myclaude.js src ls` (a source with 0 entries, for example `karpathy`) | Keep if it is in `docs/REFERENCES.md`; otherwise `src rm <name>` |
 
 ## Never touch

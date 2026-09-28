@@ -133,33 +133,18 @@
     },
     {
       "src": "custom",
-      "path": "rules/common/behavioral-guidelines.md",
-      "hash": "01ecaf2fcb06"
-    },
-    {
-      "src": "custom",
       "path": "rules/frank/agent-self-learning.md",
       "hash": "4e26a74487dc"
     },
     {
       "src": "custom",
-      "path": "rules/frank/critical-verification.md",
-      "hash": "3b6ec9f4bdfc"
-    },
-    {
-      "src": "custom",
-      "path": "rules/frank/preferences.md",
-      "hash": "7d5bf2aa3b80"
+      "path": "rules/frank/philosophy.md",
+      "hash": "fd1c98b3aebb"
     },
     {
       "src": "custom",
       "path": "rules/frank/production-safety.md",
       "hash": "a402c307bfa7"
-    },
-    {
-      "src": "custom",
-      "path": "rules/frank/skill-routing.md",
-      "hash": null
     },
     {
       "src": "custom",
@@ -229,6 +214,16 @@
     },
     {
       "src": "custom",
+      "path": "skills/clarify/",
+      "hash": "d6ae2cc9cd97",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/grilling/",
+        "hash": "d6ae2cc9cd97"
+      }
+    },
+    {
+      "src": "custom",
       "path": "skills/config-management/SKILL.md",
       "hash": null
     },
@@ -261,16 +256,6 @@
       "src": "custom",
       "path": "skills/focusd-protection/SKILL.md",
       "hash": "b9872f8193b1"
-    },
-    {
-      "src": "custom",
-      "path": "skills/clarify/",
-      "hash": "d6ae2cc9cd97",
-      "forkedFrom": {
-        "src": "mattpocock",
-        "path": "skills/productivity/grilling/",
-        "hash": "d6ae2cc9cd97"
-      }
     },
     {
       "src": "custom",

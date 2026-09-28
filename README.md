@@ -2,6 +2,13 @@
 
 Frank's personal Claude Code configuration. One manifest lists which files are installed into `~/.claude`, where each file comes from (a pinned git source or the `custom/` directory), and the hash it had when it was last installed. `myclaude.js` compares source, recorded hash, and installed copy before it writes anything, so an upstream update never overwrites a local edit silently.
 
+## Quick start (for Frank)
+
+1. `git clone https://github.com/eliteGoblin/myclaude.git ~/devel/myclaude` (skip if already cloned; `git pull` instead).
+2. Open Claude Code in `~/devel/myclaude` and say **"install myclaude"**. Claude follows `INSTALL.md`: backup, a comparison table, your yes, install, verify.
+3. Then say **"clean up the old setup"**. Claude follows `CLEANUP.md`: one table of proposed cleanups; it asks before anything that deletes or archives.
+4. Monthly: say **"review my setup"** (the `config-management` skill).
+
 ## Layout
 
 | Path | Content |
@@ -9,7 +16,7 @@ Frank's personal Claude Code configuration. One manifest lists which files are i
 | `myclaude.js`, `lib/` | The tool (CommonJS, Node >= 18, standard library only; `git` on PATH) |
 | `manifest.json` | Manifest v2: `sources`, `entries`, `settingsOwned`, `lastSync` |
 | `custom/` | Files Frank owns: `rules/`, `agents/`, `commands/`, `skills/`, `scripts/`, `settings/`; `philosophy-src/` holds the Claude Bible sources (not installed) |
-| `INSTALL.md` | Steps Claude follows to install into an existing `~/.claude` |
+| `INSTALL.md`, `CLEANUP.md` | Steps Claude follows to install into an existing `~/.claude`, then to clean up the old setup |
 | `docs/INVENTORY.md`, `docs/REFERENCES.md` | Installed items with reasons and budgets; reference repos |
 | `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json`; see `custom/settings/README.md` |
 | `docs/`, `requirements/`, `mcp_recipes/` | Research notes, requirements register, MCP recipes |

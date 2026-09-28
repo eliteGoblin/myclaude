@@ -67,3 +67,7 @@ Also leave alone everything else outside `agents commands rules skills scripts s
 ## Restore
 
 To return to the state before the install: remove the installed `agents commands rules skills scripts settings.json` except `skills/synced/` and `skills/.trash/`, then `tar -C "$CLAUDE_HOME" -xzf "$B/before.tgz"`. `old/` in the backup holds the moved files as a second copy.
+
+## Next
+
+After the verify step passes, clean up the old setup: follow `CLEANUP.md` (Frank says "clean up the old setup").

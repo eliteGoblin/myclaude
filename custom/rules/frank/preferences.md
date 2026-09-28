@@ -4,7 +4,7 @@
 
 ## Communication
 
-- Lead with the outcome. Be selective about what you include; do not compress into fragments.
+- **Gist first, detail on request (2026-09-28).** Default answer = the gist: the answer in the first sentence, then at most ~5 short lines or one small table. No background, alternatives, or extra sections I did not ask for; I will ask to drill down. Write like spoken English to a colleague: short sentences, plain words. Longer output only when I ask for a plan, design, or document, or when a production-safety gate needs it (still keep it short). Evidence: 2026-09-28, answers in the myclaude design session were essays; too many words hid the important points.
 - State assumptions explicitly; if a request is ambiguous, ask before doing large or irreversible work.
 - Surface tradeoffs instead of silently picking one option.
 

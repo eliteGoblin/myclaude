@@ -3,9 +3,13 @@ name: diagnosing-bugs
 description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
 ---
 
+Sources: mattpocock/skills@5b15a47 skills/engineering/diagnosing-bugs/ (forked 2026-09-28: boundary line for data/ops/prod incidents, from philosophy.md §6-7).
+
 # Diagnosing Bugs
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
+
+Boundary: for data, operations, or production incidents, follow philosophy.md §6-7 first: read the failing operation's own record, and stay read-only on production.
 
 When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 

@@ -3,6 +3,8 @@ description: Retrieve a Jira ticket, analyze requirements, update status, or add
 disable-model-invocation: true
 ---
 
+Sources: ecc@4130457d commands/jira.md (forkedFrom in manifest.json); forked to keep local edits.
+
 # Jira Command
 
 Interact with Jira tickets directly from your workflow — fetch tickets, analyze requirements, add comments, and transition status.

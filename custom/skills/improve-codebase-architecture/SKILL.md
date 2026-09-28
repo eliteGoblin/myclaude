@@ -1,8 +1,10 @@
 ---
 name: improve-codebase-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then work through the one the user picks with structured questions.
 disable-model-invocation: true
 ---
+
+Sources: mattpocock/skills@c55ee46 skills/engineering/improve-codebase-architecture/ (forked 2026-09-28: `grilling` → `clarify`, read as a file because `clarify` is user-invoked).
 
 # Improve Codebase Architecture
 
@@ -59,9 +61,9 @@ See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram pattern
 
 Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
 
-### 3. Grilling loop
+### 3. Clarify loop
 
-Once the user picks a candidate, call the Skill tool with "grilling" to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, read `~/.claude/skills/clarify/SKILL.md` and follow it (it is user-invoked, so the Skill tool cannot load it) to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
 Side effects happen inline as decisions crystallize; call the Skill tool with "domain-modeling" to keep the domain model current as you go:
 

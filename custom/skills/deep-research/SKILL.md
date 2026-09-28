@@ -1,7 +1,10 @@
 ---
 name: deep-research
-description: Run a PI-led multi-agent deep research programme — frame branches, fan out parallel researchers, critique in lab meetings, iterate until CONCLUDED or DEAD-END, verify citations adversarially, then synthesise with graded evidence. Use for any question worth more than one search pass — literature surveys, "is this hypothesis supported", technology/architecture evaluations, prior-art scans. Not for single-fact lookups.
+description: Run a PI-led multi-agent research programme with parallel researchers, critique rounds, adversarial citation checks, and a graded-evidence synthesis.
+disable-model-invocation: true
 ---
+
+Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; research survey in SURVEY.md, lessons in LESSONS.md. User-invoked since 2026-09-28 (name collides with the built-in anthropic-skills:deep-research).
 
 # Deep Research — a PI-led research programme
 

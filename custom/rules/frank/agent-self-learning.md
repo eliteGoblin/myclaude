@@ -1,6 +1,6 @@
 # Agent self-learning — role memories
 
-<!-- Sources: myclaude@f77bb6d custom/rules/frank/agent-self-learning.md (83 lines, shrunk 2026-09-28; the learning loop moved to philosophy.md §13; the canonical agent Memory block lives in the config-management skill). -->
+<!-- Sources: myclaude@f77bb6d custom/rules/frank/agent-self-learning.md (83 lines, shrunk 2026-09-28; the learning loop moved to philosophy.md §13; every custom agent carries the Memory block itself). -->
 
 Applies to every agent (main thread or subagent) in every project.
 

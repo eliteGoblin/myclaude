@@ -1,41 +1,59 @@
 ---
 name: pr-workflow
-description: Copilot-review and green-CI completion protocol for GitHub PRs. Use when creating a PR, or before calling any PR done.
+description: The one PR process for Frank's GitHub PRs - scope, reviewers, Copilot review with every thread fixed or rebutted and resolved, green CI. Use when opening a PR, or before calling any PR done or merging it.
 ---
 
-# PR Review Workflow — Copilot + CI
+Sources: myclaude@f77bb6d custom/skills/pr-workflow/SKILL.md; custom/commands/product-cycle.md "Copilot review — exact commands" (moved here 2026-09-28); claude-bible.md rule 9 (small PRs, decisions settled before opening, merge only if clean, verify after merge).
 
-Applies to every GitHub PR Frank creates.
+# PR workflow
 
-## On every PR I open
+## Before opening
 
-1. Request a GitHub Copilot code review on the PR. Use the available
-   mechanism (`gh` CLI, `gh api .../requested_reviewers` adding the Copilot
-   reviewer, or the GitHub review-request equivalent). Confirm the request
-   actually registered — do not assume.
-2. Wait for Copilot's review to post, then fetch all of its comments.
+- One change = one PR. Keep it small and single-purpose; do not batch unrelated changes.
+- Settle the scope and every material decision before opening. Collect the open questions together, get the answers, then open one clean PR. Amending the approach inside an open PR forces repeated CI and review.
 
-## Address every Copilot comment
+## Review
 
-For each comment, do exactly one of:
+1. Run the `code-reviewer` agent on the diff (and `python-reviewer` for `.py` changes, `security-reviewer` when the change touches input handling, auth, secrets, or endpoints). When the PR changes architecture, also run the `architect` agent. Fix CRITICAL and HIGH findings in the PR or state why each is deferred.
+2. Request a GitHub Copilot review and address every comment with the commands below.
 
-- Agree → fix it in code, push the fix, then reply on that comment
-  thread: `Fixed`.
-- Disagree → reply on that thread with a clear, specific reason. Never
-  silently ignore or dismiss without explanation.
+## Copilot review — exact commands
 
-No Copilot comment may be left unaddressed. Every single one ends in either
-a fix + `Fixed` reply, or a reasoned rebuttal reply.
+Set `O`, `R`, `N` to owner, repo, PR number.
 
-## CI must be green
+1. Request Copilot, then confirm the request registered (do not assume):
+   ```bash
+   gh api --method POST repos/$O/$R/pulls/$N/requested_reviewers -f "reviewers[]=copilot-pull-request-reviewer[bot]"
+   gh api repos/$O/$R/pulls/$N/requested_reviewers -q '.users[].login'
+   ```
+2. Wait 1-3 minutes, then fetch the review and every inline comment:
+   ```bash
+   gh api repos/$O/$R/pulls/$N/reviews  -q '.[]|select(.user.login|startswith("copilot"))|.body'
+   gh api repos/$O/$R/pulls/$N/comments -q '.[]|{id,path,line,body:.body[0:300]}'
+   ```
+3. For each comment, do exactly one: agree → fix it, push, reply `Fixed`; disagree → reply with a specific reason. No comment is left without a reply.
+   ```bash
+   gh api --method POST repos/$O/$R/pulls/$N/comments/<COMMENT_ID>/replies -f body="Fixed"
+   gh api --method POST repos/$O/$R/pulls/$N/comments/<COMMENT_ID>/replies -f body="Won't fix: <specific reason>"
+   ```
+4. Resolve every thread (a reply does not resolve it):
+   ```bash
+   gh api graphql -f query='{repository(owner:"'$O'",name:"'$R'"){pullRequest(number:'$N'){reviewThreads(first:50){nodes{id isResolved comments(first:1){nodes{databaseId}}}}}}}'
+   gh api graphql -f query='mutation{resolveReviewThread(input:{threadId:"<THREAD_ID>"}){thread{isResolved}}}'
+   ```
 
-- Before treating the PR as done, all CI checks for that PR must pass.
-- If any check is failing, diagnose and fix the cause, push, and re-check
-  until every check is green.
-- Never hand off or call a PR complete while its CI is red or pending-failed.
+If the Copilot request fails (for example, Copilot review is not enabled for the repo), report that; do not claim a review happened.
 
-## Definition of done (for a PR I created)
+## CI and merge
 
-- [ ] Copilot review requested and received
-- [ ] Every Copilot comment resolved — fixed (`Fixed`) or rebutted (reason)
+- Every CI check is green before the PR is done: `gh pr checks $N --repo $O/$R`. If a check fails, find the cause, fix it, push, and check again.
+- Merge only when clean: CI green, no open CRITICAL or HIGH finding, every Copilot thread resolved, and no destructive plan (a destructive plan is a production-safety gate).
+- After merge, verify the result: pipeline green, state converged, the expected effect observed.
+
+## Definition of done
+
+- [ ] Copilot review requested and received (or its failure reported)
+- [ ] Every Copilot comment fixed (`Fixed`) or rebutted, and every thread resolved
+- [ ] Reviewer agents run; CRITICAL/HIGH fixed or deferred with reason
 - [ ] All CI checks green
+- [ ] After merge: the result verified

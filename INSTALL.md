@@ -45,7 +45,17 @@ Also leave alone everything else outside `agents commands rules skills scripts s
 
 5. **Replace.** Run `node myclaude.js sync --force`. It prints the files it overwrites first, then copies every inventory item, merges the settings fragments (writing `settings.json.bak` first), and regenerates `skills/SOURCES.md`.
 
-6. **Move old files into the backup.** For each path in the "only on this machine" list (run `node myclaude.js status` again to get the current list), move it to `$B/old/<same relative path>`; do not delete. Remove directories that become empty. The never-touch paths are never in this list (`status` ignores them); if one appears, stop and report.
+6. **Move old files into the backup.** Move each path in the "only on this machine" list (run `node myclaude.js status` again to get the current list) to `$B/old/<same relative path>`; do not delete. The never-touch paths are never in this list (`status` ignores them); if one appears, stop and report. Use one `node` command, not a shell loop: in the 2026-09-28 end-to-end run, a shell loop in this step was refused after step 5 with "Contains compound_statement".
+   ```bash
+   node myclaude.js status | node -e '
+   const fs=require("fs"),path=require("path");const H=process.argv[1],B=process.argv[2];
+   const lines=fs.readFileSync(0,"utf8").split("\n");const i=lines.findIndex(l=>l.startsWith("unmanaged files"));
+   let n=0;for(const l of lines.slice(i+1)){if(!/^  \S/.test(l))break;const rel=l.trim();
+   if(/^skills\/(synced|\.trash)\//.test(rel))throw new Error("never-touch path listed: "+rel);
+   const to=path.join(B,"old",rel);fs.mkdirSync(path.dirname(to),{recursive:true});fs.renameSync(path.join(H,rel),to);n++}
+   console.log("moved",n)' "$CLAUDE_HOME" "$B"
+   ```
+   Then remove directories under `agents commands rules skills scripts` that are now empty (except `skills/synced/` and `skills/.trash/`).
 
 7. **Verify.** Every check must pass; report each with its evidence.
    - `node myclaude.js status`: every entry CURRENT, `unmanaged files ...: 0`.

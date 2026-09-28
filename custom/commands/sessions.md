@@ -3,6 +3,8 @@ description: Alias-first session management (Frank's extended build) — switch 
 disable-model-invocation: true
 ---
 
+Sources: ecc@4130457d commands/sessions.md (forkedFrom in manifest.json); alias-first extension, docs/sessions-extended.md.
+
 # Sessions Command (Frank's extended build, alias-first)
 
 Aliases are the primary handle: **one alias = one project/topic**, owning many

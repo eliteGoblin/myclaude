@@ -6,8 +6,8 @@ about *how to run research well*. Lessons about a specific codebase or domain go
 repo's `.claude/agents/memory/research.md` instead.
 
 > **Write to this file in the ECC repo** —
-> `~/devel/everything-claude-code/fsun_config/custom/skills/deep-research/LESSONS.md` —
-> never to the installed `~/.claude/skills/deep-research/` copy. `ecc.js sync` copies source
+> `~/devel/myclaude/custom/skills/deep-research/LESSONS.md` —
+> never to the installed `~/.claude/skills/deep-research/` copy. `node myclaude.js sync` copies source
 > over installed unconditionally, so a lesson written to the installed copy is destroyed on the
 > next sync. Writing here also puts every lesson in git, where Frank reviews the diff like code
 > — which is the defence against a wrong lesson compounding.

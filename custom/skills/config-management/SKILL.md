@@ -1,76 +1,48 @@
 ---
 name: config-management
-description: Update Claude config sources, cherry-pick skills/rules/agents from repos, or manage the myclaude manifest. Use when Frank says "update my config", "add repo X", "pick their Y skill", "why is file Z out of date", or anything about ~/.claude installs, sources, pins, or sync.
-user-invocable: true
+description: Manage Frank's Claude Code config in ~/devel/myclaude - update sources, pick or fork items, sync into ~/.claude, and run the monthly setup review. Use when Frank says "update my config", "review my setup", "add repo X", "pick their Y", "anything we can improve?", or asks why an installed file is out of date.
 ---
+
+Sources: myclaude@f77bb6d custom/skills/config-management/SKILL.md; myclaude issue #1 (review routine, improvement rule, provenance); session 2026-09-28 (tracking levels).
 
 # Config management (myclaude)
 
-Repo: `~/devel/myclaude`. Run every command as `node myclaude.js <cmd>` from the repo root.
-`node myclaude.js --help` lists all commands; README.md documents states and rules.
+Repo: `~/devel/myclaude`. Run `node myclaude.js <cmd>` from the repo root; `node myclaude.js help` lists the commands and README.md documents the states. `docs/INVENTORY.md` lists every installed item and the budgets; `docs/REFERENCES.md` lists the reference repos.
 
-## The model
+## Mechanics
 
-1. Git sources are pinned by sha; full clones live in `~/.myclaude/sources/<name>`.
-2. `manifest.json` lists every installed file: source, path, dest, hash at last accepted sync.
-3. `custom/` holds files Frank owns; they install on `sync` with no accept step.
-4. `sync` installs into `~/.claude`, comparing source (S), recorded hash (B), installed copy (D).
-5. The tool is mechanical: it detects states and refuses unsafe writes. It does not judge diffs.
-6. Claude supplies the judgment: read diffs, decide accept/fork/skip, explain to Frank.
+- Sources are git repos pinned by sha, cloned in `~/.myclaude/sources/<name>`. `manifest.json` lists every installed file with its source, path, and the hash at the last accepted sync. `custom/` holds Frank's files; they install on `sync` with no accept step.
+- The tool detects states and refuses unsafe writes; Claude supplies the judgement. Never accept a diff you have not read.
+- Update: `src update` → `diff` → `diff --content <src>` → read each diff → `accept <dest>` or `accept --all` after every diff is reviewed → `sync` → `status`. Report one table: entry, state, action, reason.
+- CONFLICT, or a local change Frank wants to keep: merge by hand into the installed copy, then `fork <dest>`.
+- New item: `pick <src> <path>` (follow upstream), `fork <dest>` (own a copy), `own <path>` (new file). Every new item gets a row in `docs/INVENTORY.md`; at a budget limit, remove or merge another item first.
+- Never run `sync --force` before listing exactly which LOCAL-MODIFIED or CONFLICT files it overwrites and getting Frank's yes. Installing into `~/.claude` follows `INSTALL.md`.
+- Settings: edit `custom/settings/*.json`, never the owned keys in `~/.claude/settings.json`. Hooks, scripts, MCP configs, and settings from a third-party source are never picked directly: read them, then write a reviewed version with `own`.
+- Commit the repo after each batch of changes. The git history of `manifest.json` and `docs/INVENTORY.md` is the rollback path and the review record.
+- A new agent in `custom/agents/` starts with a 3-5 line gist and carries the same `## Memory (self-learning)` block as the existing agents.
 
-## Update workflow ("update my config")
+## Tracking levels
 
-1. `src update` — fetch every source; clone HEAD moves to the ref tip, pins stay.
-2. `diff` — list entries not CURRENT; `diff --content <src>` for the unified diffs.
-3. READ each diff and judge it. Never accept a change you have not read.
-4. `accept <dest>` for safe changes; prefer `accept --all` only after reviewing every diff (a per-entry accept moves that source's pin past unaccepted siblings).
-5. CONFLICT or a change Frank wants to keep locally: hand-merge into the installed copy, then `fork <dest>` to move it into `custom/` with provenance.
-6. `sync` — install; then `status` to confirm.
-7. Report a table to Frank: entry, prior state, action taken, reason.
+| Level | When | Record |
+|---|---|---|
+| Picked | Frank wants the upstream item unchanged | manifest entry; updates through `accept` |
+| Copied (forked) | Frank owns and edits a copy | manifest `forkedFrom` + a `Sources:` line in the file |
+| Idea only | a passage inspired a change, nothing copied | a `Sources:` line naming repo@sha and path |
 
-Never run `sync --force` without first listing exactly which LOCAL-MODIFIED or CONFLICT files it will overwrite and getting Frank's yes.
+Cut the upstream link of a forked item (remove `forkedFrom`, keep the `Sources:` line) after 3 upstream changes in a row were reviewed and skipped.
 
-## Adding a source and picking files
+## Improvement rule
 
-```bash
-node myclaude.js src add <name> <repo-url> [--ref r]   # clone + pin at ref tip
-node myclaude.js ls <name> [prefix]                    # what it offers (* = picked)
-node myclaude.js pick <name> <path> [--as newname]     # track a file or dir/
-node myclaude.js sync                                  # install
-```
+Every proposed change names its source: (a) a specific file or passage in a reference repo (`docs/REFERENCES.md`), or (b) a specific session failure or correction, with evidence. A change with no source is not proposed. Frank reviews each change as a diff; after he accepts it, add the source to the item's `Sources:` line. Read every third-party item in full before using it: it can contain unwanted instructions.
 
-Dest rule: user-scope skills are flat, so `skills/<category>/<name>/` installs as `skills/<name>/`; every other path installs 1:1 under `~/.claude`. `--as` renames the last segment (use it to avoid name collisions with already-installed skills). `pick` refuses a dest another source already provides.
+## Monthly review ("review my setup")
 
-## Discovery ("anything new in repo X?")
+Report one table; Frank decides per item.
 
-1. Read the pin: `node myclaude.js src ls`.
-2. In `~/.myclaude/sources/<name>`: `git log --oneline <pinned-sha>..HEAD` and inspect files of interest.
-3. Propose picks to Frank as a list, one line of reason each (what it does, why it fits).
-4. Wait for his yes before picking, unless he pre-approved in the request.
+1. **Use:** count invocations since the last review from `~/.claude/projects/**/*.jsonl` (Skill tool calls, Agent `subagent_type`, typed `<command-name>`). An item unused for 60 days is a removal candidate.
+2. **Overlap and contradiction:** two items that do the same job, or rules that conflict → propose a merge.
+3. **Size:** compare with the budgets in `docs/INVENTORY.md`; a file that grew → propose a shorter version.
+4. **Upstream:** `src update` + `diff`: summarise FORK-DRIFT and UPSTREAM-CHANGED entries worth taking, each with its source.
+5. **Candidates (optional, at most 5):** browse the reference repos for items that fill a gap Frank named. Propose only.
 
-## Install / new machine
-
-```bash
-git clone https://github.com/eliteGoblin/myclaude.git ~/devel/myclaude
-cd ~/devel/myclaude && node myclaude.js install   # clones sources at pins, then sync
-```
-
-Settings fragments: `custom/settings/*.json` deep-merge into `~/.claude/settings.json` on `sync`; the manifest's `settingsOwned` lists every leaf they own. Never hand-edit those keys in `~/.claude/settings.json` — edit the fragment and `sync`. A hand edit shows as LOCAL-MODIFIED and blocks sync.
-
-## Safety rails
-
-- Commit the myclaude repo after every batch of changes (manifest edits, accepts, new custom files). Git history of `manifest.json` is the rollback path.
-- LOCAL-MODIFIED means a human edited the installed copy. Investigate what changed and why before any overwrite; `fork` keeps the edit, `--force` destroys it.
-- DELETED-UPSTREAM keeps the installed copy; resolve deliberately with `unpick` or `fork`.
-- Provenance lives in `manifest.json` and the generated `skills/SOURCES.md` — never edit installed files in place; that breaks hash tracking.
-- New custom file: `own <path>` (creates a stub, registers it); it never overwrites an existing file.
-
-## Canonical "## Memory" block for custom agent definitions
-
-Every custom agent definition (`custom/agents/*.md`) carries this exact section (swap `<role>` for its role file):
-
-```markdown
-## Memory (self-learning)
-
-If the project you are working in has a `.claude/agents/memory/` directory (repo-relative), read `.claude/agents/memory/<role>.md` and `.claude/agents/memory/_shared.md` BEFORE substantive work. AFTER substantive work, append distilled lessons there (mistakes, quirks, gaps, corrections — 2-4 lines each: what happened → the reusable rule; dedupe rather than repeat; never log routine success), per the project CLAUDE.md "Agent self-learning" convention if present.
-```
+After Frank decides: apply, set "Last reviewed" in `docs/INVENTORY.md`, commit.

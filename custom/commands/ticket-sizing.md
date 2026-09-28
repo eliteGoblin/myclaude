@@ -2,6 +2,8 @@
 description: Team ticket-sizing / story-point estimation standard. Apply when creating, sizing, or reviewing Jira/GitHub tickets. Pairs with the /jira command.
 ---
 
+Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; the team story-point standard.
+
 # Ticket Sizing Standard
 
 Team standard for story-point estimation. **Follow this whenever creating, sizing, splitting, or reviewing a ticket** (Jira or GitHub), and when helping plan a sprint. This is the canonical pattern — new tickets should conform to it.

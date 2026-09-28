@@ -3,6 +3,8 @@ description: Save current session state to a dated file in ~/.claude/session-dat
 disable-model-invocation: true
 ---
 
+Sources: ecc@4130457d commands/save-session.md (forkedFrom in manifest.json).
+
 # Save Session Command
 
 Capture everything that happened in this session — what was built, what worked, what failed, what's left — and write it to a dated file so the next session can pick up exactly where this one left off.

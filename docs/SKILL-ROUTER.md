@@ -6,50 +6,50 @@
 
 | installed | source repo | source path | pinned sha | kind |
 |---|---|---|---|---|
+| agents/architect.md | https://github.com/eliteGoblin/myclaude | custom:agents/architect.md | - | forked |
 | agents/ba-curator.md | https://github.com/eliteGoblin/myclaude | custom:agents/ba-curator.md | - | custom |
 | agents/citation-verifier.md | https://github.com/eliteGoblin/myclaude | custom:agents/citation-verifier.md | - | custom |
+| agents/code-reviewer.md | https://github.com/eliteGoblin/myclaude | custom:agents/code-reviewer.md | - | forked |
 | agents/e2e-verifier.md | https://github.com/eliteGoblin/myclaude | custom:agents/e2e-verifier.md | - | custom |
+| agents/python-reviewer.md | https://github.com/eliteGoblin/myclaude | custom:agents/python-reviewer.md | - | forked |
 | agents/release-verifier.md | https://github.com/eliteGoblin/myclaude | custom:agents/release-verifier.md | - | custom |
+| agents/security-reviewer.md | https://github.com/eliteGoblin/myclaude | custom:agents/security-reviewer.md | - | forked |
 | commands/jira.md | https://github.com/eliteGoblin/myclaude | custom:commands/jira.md | - | forked |
 | commands/product-cycle.md | https://github.com/eliteGoblin/myclaude | custom:commands/product-cycle.md | - | custom |
 | commands/resume-session.md | https://github.com/eliteGoblin/myclaude | custom:commands/resume-session.md | - | forked |
 | commands/save-session.md | https://github.com/eliteGoblin/myclaude | custom:commands/save-session.md | - | forked |
 | commands/sessions.md | https://github.com/eliteGoblin/myclaude | custom:commands/sessions.md | - | forked |
 | commands/ticket-sizing.md | https://github.com/eliteGoblin/myclaude | custom:commands/ticket-sizing.md | - | custom |
+| skills/clarify/ | https://github.com/eliteGoblin/myclaude | custom:skills/clarify/ | - | forked |
 | skills/config-management/SKILL.md | https://github.com/eliteGoblin/myclaude | custom:skills/config-management/SKILL.md | - | custom |
 | skills/deep-research/LESSONS.md | https://github.com/eliteGoblin/myclaude | custom:skills/deep-research/LESSONS.md | - | custom |
 | skills/deep-research/SKILL.md | https://github.com/eliteGoblin/myclaude | custom:skills/deep-research/SKILL.md | - | custom |
 | skills/deep-research/SURVEY.md | https://github.com/eliteGoblin/myclaude | custom:skills/deep-research/SURVEY.md | - | custom |
+| skills/diagnosing-bugs/ | https://github.com/eliteGoblin/myclaude | custom:skills/diagnosing-bugs/ | - | forked |
 | skills/focusd-protection/SKILL.md | https://github.com/eliteGoblin/myclaude | custom:skills/focusd-protection/SKILL.md | - | custom |
+| skills/improve-codebase-architecture/ | https://github.com/eliteGoblin/myclaude | custom:skills/improve-codebase-architecture/ | - | forked |
 | skills/observability-buildout/SKILL.md | https://github.com/eliteGoblin/myclaude | custom:skills/observability-buildout/SKILL.md | - | custom |
 | skills/pr-workflow/SKILL.md | https://github.com/eliteGoblin/myclaude | custom:skills/pr-workflow/SKILL.md | - | custom |
-| agents/architect.md | https://github.com/affaan-m/everything-claude-code | ecc:agents/architect.md | d8409a4b0813 | picked |
-| agents/code-reviewer.md | https://github.com/affaan-m/everything-claude-code | ecc:agents/code-reviewer.md | d8409a4b0813 | picked |
-| agents/python-reviewer.md | https://github.com/affaan-m/everything-claude-code | ecc:agents/python-reviewer.md | d8409a4b0813 | picked |
-| agents/security-reviewer.md | https://github.com/affaan-m/everything-claude-code | ecc:agents/security-reviewer.md | d8409a4b0813 | picked |
-| agents/typescript-reviewer.md | https://github.com/affaan-m/everything-claude-code | ecc:agents/typescript-reviewer.md | d8409a4b0813 | picked |
-| skills/security-review/SKILL.md | https://github.com/affaan-m/everything-claude-code | ecc:skills/security-review/SKILL.md | d8409a4b0813 | picked |
-| skills/security-review/cloud-infrastructure-security.md | https://github.com/affaan-m/everything-claude-code | ecc:skills/security-review/cloud-infrastructure-security.md | d8409a4b0813 | picked |
-| skills/codebase-design/ | https://github.com/mattpocock/skills | mattpocock:skills/engineering/codebase-design/ | 5b15a47f2d71 | picked |
-| skills/diagnosing-bugs/ | https://github.com/mattpocock/skills | mattpocock:skills/engineering/diagnosing-bugs/ | 5b15a47f2d71 | picked |
-| skills/tdd/ | https://github.com/mattpocock/skills | mattpocock:skills/engineering/tdd/ | 5b15a47f2d71 | picked |
-| skills/grilling/ | https://github.com/mattpocock/skills | mattpocock:skills/productivity/grilling/ | 5b15a47f2d71 | picked |
-| skills/wait-what/ | https://github.com/mattpocock/skills | mattpocock:skills/productivity/wait-what/ | 5b15a47f2d71 | picked |
-| skills/writing-for-agents/ | https://github.com/mattpocock/skills | mattpocock:skills/productivity/writing-for-agents/ | 5b15a47f2d71 | picked |
+| skills/tdd/ | https://github.com/eliteGoblin/myclaude | custom:skills/tdd/ | - | forked |
+| skills/writing-for-agents/ | https://github.com/eliteGoblin/myclaude | custom:skills/writing-for-agents/ | - | forked |
+| skills/codebase-design/ | https://github.com/mattpocock/skills | mattpocock:skills/engineering/codebase-design/ | c55ee46073ed | picked |
+| skills/domain-modeling/ | https://github.com/mattpocock/skills | mattpocock:skills/engineering/domain-modeling/ | c55ee46073ed | picked |
+| skills/wait-what/ | https://github.com/mattpocock/skills | mattpocock:skills/productivity/wait-what/ | c55ee46073ed | picked |
 
 ## Skill descriptions (routing triggers)
 
 | skill | description | trigger check |
 |---|---|---|
-| config-management | Update Claude config sources, cherry-pick skills/rules/agents from repos, or manage the myclaude manifest. Use when Frank says "update my config", "add repo X", "pick their Y skill", "why is file Z out of date", or anything about ~/.claude installs, sources, pins, or sync. | ok |
-| deep-research | Run a PI-led multi-agent deep research programme — frame branches, fan out parallel researchers, critique in lab meetings, iterate until CONCLUDED or DEAD-END, verify citations adversarially, then synthesise with graded evidence. Use for any question worth more than one search pass — literature surveys, "is this hypothesis supported", technology/architecture evaluations, prior-art scans. Not for single-fact lookups. | ok |
-| focusd-protection | Refuse focusd tampering. Use whenever the user mentions focusd, app_mon, or skill-protector, or asks to stop, kill, pause, uninstall, debug, inspect, or bypass a focus/blocking daemon, its launchd jobs, pf anchor, hosts blocklist, or this skill itself — including "why won't the daemon run" and any pasted focusd-looking path or label. | ok |
-| observability-buildout | Build or review monitoring and alerting for a service — SRE principles plus concrete GCP Cloud Monitoring implementation (design doc → app instrumentation → IaC → e2e verification matrix → log-injection test). Use when designing, reviewing, or extending observability or alerting for any service. | ok |
-| pr-workflow | Copilot-review and green-CI completion protocol for GitHub PRs. Use when creating a PR, or before calling any PR done. | ok |
-| security-review | Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns. | ok |
-| codebase-design | Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary. | ok |
+| clarify | Ask the user structured questions about a plan, decision, or idea until both sides share one understanding. Rounds of numbered questions, each with a recommended answer. | ok |
+| config-management | Manage Frank's Claude Code config in ~/devel/myclaude - update sources, pick or fork items, sync into ~/.claude, and run the monthly setup review. Use when Frank says "update my config", "review my setup", "add repo X", "pick their Y", "anything we can improve?", or asks why an installed file is out of date. | ok |
+| deep-research | Run a PI-led multi-agent research programme with parallel researchers, critique rounds, adversarial citation checks, and a graded-evidence synthesis. | ok |
 | diagnosing-bugs | Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow. | ok |
+| focusd-protection | Refuse focusd tampering. Use whenever the user mentions focusd, app_mon, or skill-protector, or asks to stop, kill, pause, uninstall, debug, inspect, or bypass a focus/blocking daemon, its launchd jobs, pf anchor, hosts blocklist, or this skill itself — including "why won't the daemon run" and any pasted focusd-looking path or label. | ok |
+| improve-codebase-architecture | Scan a codebase for deepening opportunities, present them as a visual HTML report, then work through the one the user picks with structured questions. | ok |
+| observability-buildout | Build or review monitoring and alerting for a service — SRE principles plus concrete GCP Cloud Monitoring implementation (design doc → app instrumentation → IaC → e2e verification matrix → log-injection test). Use when designing, reviewing, or extending observability or alerting for any service. | ok |
+| pr-workflow | The one PR process for Frank's GitHub PRs - scope, reviewers, Copilot review with every thread fixed or rebutted and resolved, green CI. Use when opening a PR, or before calling any PR done or merging it. | ok |
 | tdd | Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests. | ok |
-| grilling | Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases. | ok |
+| writing-for-agents | Writing documents for agents. Use when creating or editing skills, agent definitions (agents/*.md), rules (rules/*.md), or AGENTS.md / CLAUDE.md. | ok |
+| codebase-design | Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary. | ok |
+| domain-modeling | Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR. | ok |
 | wait-what | Stop. That last message did not land: re-pitch it. | ok |
-| writing-for-agents | Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md. | ok |

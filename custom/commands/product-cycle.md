@@ -1,12 +1,14 @@
 ---
-description: Run the full BA-gated product development cycle for a feature - define, design, build, review, verify, close, with the BA requirements doc as the contract all agents read. Human gates at direction-approval and major-conflict. Use for FEATURES, not trivial fixes.
+description: Run the product cycle for a feature - define, design, build, review, verify, close - with the BA requirements doc as the contract every agent reads. Pauses only at Decision-altitude gates. For features, not trivial fixes.
 argument-hint: "<one-line intent for the feature>"
 disable-model-invocation: true
 ---
 
+Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; rewired 2026-09-28 (clarify, tdd, two-axis code-reviewer, pr-workflow; myclaude issue #1).
+
 # Product Cycle
 
-Orchestrate a feature end-to-end like a disciplined product team. You are the **conductor** - you do not write the doc or the code yourself; you dispatch the specialist agents in order, pass each one's output to the next, route feedback, and STOP at human gates.
+Orchestrate a feature end-to-end like a disciplined product team. You are the **conductor** - you do not write the doc or the code yourself; you dispatch the specialist agents and skills in order, pass each one's output to the next, route feedback, and pause only at the gates listed under "Decision altitude".
 
 The **BA requirements doc is the contract.** Every downstream agent reads `<docroot>/requirements/features/*.md` for what to build and verify. Keep the cycle anchored to it.
 
@@ -20,31 +22,30 @@ Trivial changes (typos, one-line fixes, formatting) skip this cycle - just do th
 ### Stage 0 - Setup (only if docs aren't bootstrapped)
 Dispatch `ba-curator` with verb **bootstrap** IF the requirements doc structure doesn't exist or is messy. It will detect the doc root, propose a migration plan for any legacy docs, and (after the user confirms the plan) establish the standard structure. Skip if already bootstrapped.
 
-### Stage 1 - DEFINE  (agent: ba-curator, verb: update)
-Turn the user's intent into a short, product-altitude feature spec under `requirements/features/`: what, why, acceptance criteria (product-level, testable behavior - NOT code detail), honest limitations, design questions. Record the decision as an ADR if it's non-trivial or reverses a prior one.
+### Stage 1 - DEFINE  (skill: clarify, then agent: ba-curator, verb: update)
+Read `~/.claude/skills/clarify/SKILL.md` and follow it with the user (it is user-invoked, so the Skill tool cannot load it). Its final step, the user confirming the shared understanding, **is HUMAN GATE 1**. Settled terms and decisions go to `CONTEXT.md` and `docs/adr/` through the `domain-modeling` skill.
 
-**HUMAN GATE 1** - show the user the spec's what/why/acceptance + any design questions. Get explicit approval (or edits) before proceeding. Do NOT pass this gate on material/new scope without a clear yes.
+Then dispatch `ba-curator` with the confirmed understanding to write a short, product-altitude feature spec under `requirements/features/`: what, why, acceptance criteria (product-level, testable behaviour - NOT code detail), honest limitations. ba-curator asks the user again only if the spec would add scope beyond what was confirmed.
 
 ### Stage 2 - DESIGN  (agent: architect)
-Hand the approved spec to `architect` for the technical approach + risks. The architect reads the spec + `philosophy.md` + relevant ADRs.
+Hand the spec to `architect`. It reads the spec, `philosophy.md`, `CONTEXT.md` and the relevant ADRs, runs its two design checks (vendor best practice first; smallest consumer contract), and returns the design, trade-offs, **the test seams**, and the decisions that need the human.
 
-Two NON-NEGOTIABLE design checks the architect must perform (do NOT settle on the first thing that works):
-- **Vendor / managed-service best-practice FIRST.** For anything built on a managed service (Cloud Run, GCS, a SaaS, a framework), find and cite the vendor's **documented / recommended** solution before adopting a hand-rolled one. Compare the recommended option against any custom approach and justify the choice. (Real miss: shipped a hand-rolled "second audience env var" to reach Cloud Run via a load balancer; the user had to ask "is this the Google-recommended way?" before we found Cloud Run **custom audiences** — the documented, simpler answer. Don't make the user surface the best practice.)
-- **Interface / boundary KISS — optimise the CONSUMER's contract, not just "does it work".** The caller must be isolated from implementation detail; minimise what they have to know. When options tie on function, pick the one with the **smallest caller contract** and hide everything else. (Same case: custom audiences won because the caller needs **one URL** — nothing about Cloud Run's internal run.app URL leaks across the boundary.) State, for the chosen design, exactly what the consumer must know — and cut anything they don't.
+- If the design surfaces a PRODUCT conflict (a tradeoff the spec did not anticipate, or tension with philosophy), route it back to `ba-curator`, which decides minor (note it) vs major.
+- **HUMAN GATE only for key decisions** per "Decision altitude" below (architecture, key feature scope, ADR reversal, security tradeoff). Record accepted ADRs in `docs/adr/` (ba-curator or the conductor; architect is read-only).
 
-- If the design surfaces a PRODUCT conflict (forces a tradeoff the spec didn't anticipate, or tension with philosophy), route it back to `ba-curator`, which decides minor (note it) vs major.
-- **HUMAN GATE on major conflict only** - if the conflict is material or would reverse an ADR, stop and ask the user.
+### Stage 3 - BUILD  (dev via general-purpose, following the `tdd` skill)
+Implement against the spec + design, test-first at the seams the architect listed. No confirmations during the build: seams, test design and implementation details are decided here without asking. Write unit + integration tests, and an e2e plan derived from the spec's acceptance criteria. Prefer an isolated worktree if the build is large.
 
-### Stage 3 - BUILD  (agent: dev via general-purpose; TDD conventions from the `tdd` skill)
-Implement against the spec + design. Write unit + integration tests, and an e2e plan derived from the spec's acceptance criteria. Prefer an isolated worktree if the build is large. TDD where it fits.
+### Stage 4 - REVIEW  (agents in parallel, then GitHub Copilot on the PR)
+Dispatch concurrently on the diff:
+- `code-reviewer` twice: once with axis **Standards**, once with axis **Spec** (pass the spec path). Keep the two reports separate.
+- `python-reviewer` when the diff changes `.py` files.
+- `security-reviewer`.
 
-### Stage 4 - REVIEW  (agents: code-reviewer + language reviewer + security-reviewer, in parallel — AND GitHub Copilot on the PR)
-Run the relevant reviewers concurrently on the diff. Collect findings, dispatch fixes back to the build agent. This stage has NO human gate - review-and-fix is routine. Loop until reviewers are satisfied (CRITICAL/HIGH cleared).
-
-**Copilot review on the PR is MANDATORY before merge** (mirrors the always-on PR workflow). Once the PR is open and the local reviewers are clear: **request a GitHub Copilot review, WAIT for it to post, address EVERY comment** — fix it (push + reply `Fixed`) or rebut it (reasoned why-not) — **and mark each thread RESOLVED** (a reply alone does NOT resolve a line-level thread on GitHub). "Code review" for this cycle = the local specialist agents **and** Copilot; both must be satisfied. Do NOT merge with any unresolved Copilot thread or red CI. The exact commands are in **[Copilot review — exact commands](#copilot-review--exact-commands)** below.
+Collect findings and dispatch fixes back to the build agent. No human gate here - review-and-fix is routine. Loop until CRITICAL/HIGH are cleared. Then open the PR and follow the `pr-workflow` skill (Copilot review, every thread fixed or rebutted and resolved, CI green).
 
 ### Stage 5 - VERIFY  (agent: e2e-verifier — owns the verify report)
-Dispatch `e2e-verifier` (the web-frontend `e2e-runner` is for browser UIs; use it only for web work). It reads the feature's acceptance criteria **and** any project verification contract (e.g. `requirements/e2e-verification.md` / a vital-features list) and **exercises the real behavior**, then **emits the release verify report** — the gate before CLOSE.
+Dispatch `e2e-verifier`. It reads the feature's acceptance criteria **and** any project verification contract (e.g. `requirements/e2e-verification.md` / a vital-features list) and **exercises the real behavior**, then **emits the release verify report** — the gate before CLOSE.
 
 Non-negotiable rules the verifier enforces (mirror these when you read its report):
 - **Verified means EXERCISED.** Every item is `VERIFIED` (the real path was run + observed) or `NOT VERIFIED` (say why + hand the exact steps to the human). No third state, no guessing, no "green status ⇒ it works". The user has been burned by claimed-but-unverified results — do not repeat it.
@@ -80,40 +81,11 @@ Canonical example: **consolidating two daemons into one (dual-mesh -> single-mes
 
 Note: with an AI dev loop most code is quickly reversible via git, so "hard to revert" is judged by architectural/product SIGNIFICANCE, not literal revert difficulty. When unsure which side of the line a decision is on, treat it as a gate and ask - a 30-second check beats the user catching up to a shipped surprise later.
 
-## Human-gate discipline
-The cycle is NOT fire-and-forget. Run a stage, report the result, STOP at each HUMAN GATE, and wait for the user to say continue. The gates are: (1) direction approval at DEFINE, (2) any architecture / key-feature / threat-model decision (per "Decision altitude" above), (3) major behavior/product conflict at VERIFY, plus any ADR reversal. Everything else (code-review fixes, test additions, implementation details, minor doc tweaks) proceeds without interrupting the user.
+## Gates
+The only gates are: (1) the shared understanding confirmed at DEFINE, (2) any architecture / key-feature / threat-model decision per "Decision altitude" above, (3) a major behaviour/product conflict at VERIFY, plus any ADR reversal, and any production-safety gate. Everything else (code-review fixes, test additions, implementation details, minor doc edits) proceeds without asking the user.
 
 ## Everything via PR
-Code changes go through the project's PR workflow: branch -> PR -> local reviewers -> **request GitHub Copilot review -> address + RESOLVE every Copilot thread (fix + reply `Fixed` + mark resolved, or a reasoned rebuttal reply + resolve)** -> CI green -> merge. **Never merge a PR with an unresolved Copilot thread or red/pending CI.** Config/agent changes go through the config repo's PR workflow (same Copilot + CI gate). Never push directly to a shared branch.
-
-## Copilot review — exact commands
-Set `O`/`R`/`N` to owner / repo / PR-number. Run these as the literal mechanical steps:
-
-1. **Request Copilot** (after the PR is open):
-   ```bash
-   gh api --method POST repos/$O/$R/pulls/$N/requested_reviewers -f "reviewers[]=copilot-pull-request-reviewer[bot]"
-   ```
-2. **Wait** ~1–3 min, then **pull its review + inline comments**:
-   ```bash
-   gh api repos/$O/$R/pulls/$N/reviews  -q '.[]|select(.user.login|startswith("copilot"))|.body'
-   gh api repos/$O/$R/pulls/$N/comments -q '.[]|{id,path,line,body:.body[0:300]}'
-   ```
-3. **Address each comment** — fix in code (push the fix) or decide won't-fix — then **reply on that comment thread**:
-   ```bash
-   gh api --method POST repos/$O/$R/pulls/$N/comments/<COMMENT_ID>/replies -f body="Fixed: <what changed>"
-   # or a reasoned rebuttal: -f body="Won't fix: <specific reason>"
-   ```
-4. **Mark the thread RESOLVED** (a reply does NOT resolve it). Get thread node-ids, then resolve each:
-   ```bash
-   gh api graphql -f query='{repository(owner:"'$O'",name:"'$R'"){pullRequest(number:'$N'){reviewThreads(first:50){nodes{id isResolved comments(first:1){nodes{databaseId}}}}}}}'
-   gh api graphql -f query='mutation{resolveReviewThread(input:{threadId:"<THREAD_ID>"}){thread{isResolved}}}'
-   ```
-5. **Verify** before merge: every thread `isResolved:true` and CI green:
-   ```bash
-   gh pr checks $N --repo $O/$R          # all pass
-   gh api repos/$O/$R/pulls/$N/comments -q '[.[]|.id]|length'   # cross-check none left unaddressed
-   ```
-Only then merge. No unresolved Copilot thread, no red CI.
+Code changes go through a PR and the `pr-workflow` skill. Config and agent changes go through the config repo's PR the same way. Never push directly to a shared branch.
 
 ## Above the per-feature cycle — the RELEASE gate (agent: release-verifier)
 This cycle verifies ONE feature at merge (Stage 5). A release usually ships a

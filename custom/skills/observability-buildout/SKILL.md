@@ -4,6 +4,8 @@ description: Build or review monitoring and alerting for a service — SRE princ
 license: MIT
 ---
 
+Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; codifies the AIP-604 call-summary-agent monitoring rollout (per the skill body).
+
 # Observability Buildout
 
 Methodology for adding monitoring + alerting + dashboarding to a service. The

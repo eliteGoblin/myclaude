@@ -3,6 +3,8 @@ description: Load the most recent session file from ~/.claude/session-data/ and 
 disable-model-invocation: true
 ---
 
+Sources: ecc@4130457d commands/resume-session.md (forkedFrom in manifest.json).
+
 # Resume Session Command
 
 Load the last saved session state and orient fully before doing any work.

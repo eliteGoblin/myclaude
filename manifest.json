@@ -14,37 +14,82 @@
     "mattpocock": {
       "repo": "https://github.com/mattpocock/skills.git",
       "ref": "main",
-      "sha": "5b15a47f2d7150f545fbcacbfe381787fc0230dc"
+      "sha": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7"
     },
     "custom": {
       "local": true
+    },
+    "cct": {
+      "repo": "https://github.com/davila7/claude-code-templates.git",
+      "ref": "main",
+      "sha": "42886b2db9b8021a9830ab3722bd15bcdd5554af"
     }
   },
   "entries": [
     {
       "src": "custom",
+      "path": "agents/architect.md",
+      "hash": "f32a24b9fa4e",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/architect.md",
+        "hash": "6b8e1e8bd274"
+      }
+    },
+    {
+      "src": "custom",
       "path": "agents/ba-curator.md",
-      "hash": "bdd565cce8ea"
+      "hash": "40deaab86302"
     },
     {
       "src": "custom",
       "path": "agents/citation-verifier.md",
-      "hash": "4ce59f85bc9d"
+      "hash": "517f4558d6db"
+    },
+    {
+      "src": "custom",
+      "path": "agents/code-reviewer.md",
+      "hash": "b0132097ca5a",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/code-reviewer.md",
+        "hash": "9dd23be23d65"
+      }
     },
     {
       "src": "custom",
       "path": "agents/e2e-verifier.md",
-      "hash": "8dd3b84323a7"
+      "hash": "30bf3377cbec"
+    },
+    {
+      "src": "custom",
+      "path": "agents/python-reviewer.md",
+      "hash": "bfca224a6001",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/python-reviewer.md",
+        "hash": "d2180b115f58"
+      }
     },
     {
       "src": "custom",
       "path": "agents/release-verifier.md",
-      "hash": "f9b7e94972d2"
+      "hash": "93a4ae67f27e"
+    },
+    {
+      "src": "custom",
+      "path": "agents/security-reviewer.md",
+      "hash": "37a8fa4405be",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/security-reviewer.md",
+        "hash": "813e4062bed5"
+      }
     },
     {
       "src": "custom",
       "path": "commands/jira.md",
-      "hash": "bdfdb5491dc9",
+      "hash": "50288b2c5078",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/jira.md",
@@ -54,12 +99,12 @@
     {
       "src": "custom",
       "path": "commands/product-cycle.md",
-      "hash": "5e22a9b9b5db"
+      "hash": "96b17176f1b1"
     },
     {
       "src": "custom",
       "path": "commands/resume-session.md",
-      "hash": "e5c4c6845406",
+      "hash": "d32e749a0aa6",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/resume-session.md",
@@ -69,7 +114,7 @@
     {
       "src": "custom",
       "path": "commands/save-session.md",
-      "hash": "d98d11cba17d",
+      "hash": "257bc2416398",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/save-session.md",
@@ -79,7 +124,7 @@
     {
       "src": "custom",
       "path": "commands/sessions.md",
-      "hash": "b1d4027796e3",
+      "hash": "0cfaed47bc00",
       "forkedFrom": {
         "src": "ecc",
         "path": "commands/sessions.md",
@@ -89,42 +134,27 @@
     {
       "src": "custom",
       "path": "commands/ticket-sizing.md",
-      "hash": "dcc1fd9b950a"
-    },
-    {
-      "src": "custom",
-      "path": "rules/common/behavioral-guidelines.md",
-      "hash": "01ecaf2fcb06"
+      "hash": "25ef8667e807"
     },
     {
       "src": "custom",
       "path": "rules/frank/agent-self-learning.md",
-      "hash": "4e26a74487dc"
+      "hash": "96bb4a07df1f"
     },
     {
       "src": "custom",
-      "path": "rules/frank/critical-verification.md",
-      "hash": "3b6ec9f4bdfc"
-    },
-    {
-      "src": "custom",
-      "path": "rules/frank/preferences.md",
-      "hash": "7d5bf2aa3b80"
+      "path": "rules/frank/philosophy.md",
+      "hash": "fd1c98b3aebb"
     },
     {
       "src": "custom",
       "path": "rules/frank/production-safety.md",
-      "hash": "a402c307bfa7"
-    },
-    {
-      "src": "custom",
-      "path": "rules/frank/skill-routing.md",
-      "hash": null
+      "hash": "bb410e964db2"
     },
     {
       "src": "custom",
       "path": "rules/typescript/testing.md",
-      "hash": "92e3d02b4fff",
+      "hash": "cacc702a48cb",
       "forkedFrom": {
         "src": "ecc",
         "path": "rules/typescript/testing.md",
@@ -160,7 +190,7 @@
     {
       "src": "custom",
       "path": "settings/hooks.json",
-      "hash": "7bcfba69b8d4",
+      "hash": "a31f2a88eecf",
       "kind": "settings"
     },
     {
@@ -172,7 +202,7 @@
     {
       "src": "custom",
       "path": "settings/permissions.json",
-      "hash": "88f6b079d301",
+      "hash": "19382cb893f2",
       "kind": "settings"
     },
     {
@@ -184,13 +214,23 @@
     {
       "src": "custom",
       "path": "settings/pretooluse-guards.json",
-      "hash": null,
+      "hash": "87e55cd8cf64",
       "kind": "settings"
     },
     {
       "src": "custom",
+      "path": "skills/clarify/",
+      "hash": "399800450563",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/grilling/",
+        "hash": "d6ae2cc9cd97"
+      }
+    },
+    {
+      "src": "custom",
       "path": "skills/config-management/SKILL.md",
-      "hash": null
+      "hash": "f8887a40ef9e"
     },
     {
       "src": "custom",
@@ -200,7 +240,7 @@
     {
       "src": "custom",
       "path": "skills/deep-research/SKILL.md",
-      "hash": "9c0f363e4f25"
+      "hash": "d8666ed0e6b0"
     },
     {
       "src": "custom",
@@ -209,43 +249,58 @@
     },
     {
       "src": "custom",
+      "path": "skills/diagnosing-bugs/",
+      "hash": "62905e34d6bb",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/diagnosing-bugs/",
+        "hash": "5075efe3130a"
+      }
+    },
+    {
+      "src": "custom",
       "path": "skills/focusd-protection/SKILL.md",
-      "hash": "b9872f8193b1"
+      "hash": "639acaef8b11"
+    },
+    {
+      "src": "custom",
+      "path": "skills/improve-codebase-architecture/",
+      "hash": "9c65679809f8",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/improve-codebase-architecture/",
+        "hash": "16fcfd94b209"
+      }
     },
     {
       "src": "custom",
       "path": "skills/observability-buildout/SKILL.md",
-      "hash": "371af231e915"
+      "hash": "1bdd9d3c5e29"
     },
     {
       "src": "custom",
       "path": "skills/pr-workflow/SKILL.md",
-      "hash": null
+      "hash": "4f57714c56b8"
     },
     {
-      "src": "ecc",
-      "path": "agents/architect.md",
-      "hash": "6b8e1e8bd274"
+      "src": "custom",
+      "path": "skills/tdd/",
+      "hash": "7087e0cdeb85",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/tdd/",
+        "hash": "7cc72883c75a"
+      }
     },
     {
-      "src": "ecc",
-      "path": "agents/code-reviewer.md",
-      "hash": "9dd23be23d65"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/python-reviewer.md",
-      "hash": "d2180b115f58"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/security-reviewer.md",
-      "hash": "813e4062bed5"
-    },
-    {
-      "src": "ecc",
-      "path": "agents/typescript-reviewer.md",
-      "hash": "6b012db1a903"
+      "src": "custom",
+      "path": "skills/writing-for-agents/",
+      "hash": "eec17f7aacd2",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/writing-for-agents/",
+        "hash": "78c41feba8e1"
+      }
     },
     {
       "src": "ecc",
@@ -330,22 +385,12 @@
     {
       "src": "ecc",
       "path": "scripts/lib/transcript-context.js",
-      "hash": "a79572299eda"
+      "hash": "d5b00ecdee04"
     },
     {
       "src": "ecc",
       "path": "scripts/lib/utils.js",
       "hash": "d230d03b89c1"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/security-review/SKILL.md",
-      "hash": "fe6f9151fb15"
-    },
-    {
-      "src": "ecc",
-      "path": "skills/security-review/cloud-infrastructure-security.md",
-      "hash": "7d9a83852475"
     },
     {
       "src": "mattpocock",
@@ -355,35 +400,88 @@
     },
     {
       "src": "mattpocock",
-      "path": "skills/engineering/diagnosing-bugs/",
-      "dest": "skills/diagnosing-bugs/",
-      "hash": "5075efe3130a"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/engineering/tdd/",
-      "dest": "skills/tdd/",
-      "hash": "7cc72883c75a"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/productivity/grilling/",
-      "dest": "skills/grilling/",
-      "hash": "d6ae2cc9cd97"
+      "path": "skills/engineering/domain-modeling/",
+      "dest": "skills/domain-modeling/",
+      "hash": "3e5ba278061e"
     },
     {
       "src": "mattpocock",
       "path": "skills/productivity/wait-what/",
       "dest": "skills/wait-what/",
       "hash": "4147334437e2"
-    },
-    {
-      "src": "mattpocock",
-      "path": "skills/productivity/writing-for-agents/",
-      "dest": "skills/writing-for-agents/",
-      "hash": "78c41feba8e1"
     }
   ],
-  "settingsOwned": [],
-  "lastSync": "2026-08-07T06:12:02.754Z"
+  "settingsOwned": [
+    "attribution.commit",
+    "attribution.pr",
+    "attribution.sessionUrl",
+    "enabledPlugins.pyright-lsp@claude-plugins-official",
+    "hooks.PreToolUse[matcher=Bash|cmd=CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '(^|[;&|]\\s*)(sudo\\s+)?rm\\s' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[rR]|--recursive' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[fF]|--force'; then echo 'BLOCKED by production-safety: rm with recursive+force. Use trash or rm -r without -f.' >&2; exit 2; fi;CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\s|DELETE\\s+FROM|ALTER\\s+TABLE|FLUSH(ALL|DB))\\b'; then jq -cn --arg r 'production-safety: destructive SQL/redis statement — confirm env + target + rollback' '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"ask\",permissionDecisionReason:$r}}'; fi; exit 0]",
+    "hooks.SessionStart[matcher=|cmd=node \"$HOME/.claude/scripts/hooks/session-alias-hint-fsun.js\"]",
+    "hooks.Stop[matcher=|cmd=node \"$HOME/.claude/scripts/hooks/session-save-gate-fsun.js\"]",
+    "outputStyle",
+    "permissions.ask[Bash(aws * delete-*)]",
+    "permissions.ask[Bash(aws --profile * iam *)]",
+    "permissions.ask[Bash(aws --profile * s3 rm *)]",
+    "permissions.ask[Bash(aws iam *)]",
+    "permissions.ask[Bash(aws s3 rm *)]",
+    "permissions.ask[Bash(aws secretsmanager *)]",
+    "permissions.ask[Bash(aws sqs purge-queue *)]",
+    "permissions.ask[Bash(az * delete *)]",
+    "permissions.ask[Bash(bq query *)]",
+    "permissions.ask[Bash(bq rm *)]",
+    "permissions.ask[Bash(cdk deploy *)]",
+    "permissions.ask[Bash(cdk destroy *)]",
+    "permissions.ask[Bash(find * -delete*)]",
+    "permissions.ask[Bash(find * -exec rm*)]",
+    "permissions.ask[Bash(gcloud * add-iam-policy-binding *)]",
+    "permissions.ask[Bash(gcloud * delete *)]",
+    "permissions.ask[Bash(gcloud * remove-iam-policy-binding *)]",
+    "permissions.ask[Bash(gcloud iam *)]",
+    "permissions.ask[Bash(gcloud secrets *)]",
+    "permissions.ask[Bash(gcloud storage rm *)]",
+    "permissions.ask[Bash(gh release create *)]",
+    "permissions.ask[Bash(git branch -D *)]",
+    "permissions.ask[Bash(git push * --delete *)]",
+    "permissions.ask[Bash(git push * --force*)]",
+    "permissions.ask[Bash(git push * -f *)]",
+    "permissions.ask[Bash(git push * -f)]",
+    "permissions.ask[Bash(git push * :*)]",
+    "permissions.ask[Bash(git push --delete *)]",
+    "permissions.ask[Bash(git push --force*)]",
+    "permissions.ask[Bash(git push -f *)]",
+    "permissions.ask[Bash(git reset --hard*)]",
+    "permissions.ask[Bash(gsutil rm *)]",
+    "permissions.ask[Bash(helm delete *)]",
+    "permissions.ask[Bash(helm uninstall *)]",
+    "permissions.ask[Bash(kubectl * delete *)]",
+    "permissions.ask[Bash(kubectl config use-context *)]",
+    "permissions.ask[Bash(kubectl delete *)]",
+    "permissions.ask[Bash(kubectl drain *)]",
+    "permissions.ask[Bash(kubectl scale *)]",
+    "permissions.ask[Bash(mysql *)]",
+    "permissions.ask[Bash(npm publish *)]",
+    "permissions.ask[Bash(psql *)]",
+    "permissions.ask[Bash(pulumi destroy *)]",
+    "permissions.ask[Bash(pulumi up *)]",
+    "permissions.ask[Bash(redis-cli *)]",
+    "permissions.ask[Bash(rm -fr *)]",
+    "permissions.ask[Bash(rm -r *)]",
+    "permissions.ask[Bash(rm -rf *)]",
+    "permissions.ask[Bash(terraform apply *)]",
+    "permissions.ask[Bash(terraform destroy *)]",
+    "permissions.ask[Bash(terraform destroy)]",
+    "permissions.ask[Bash(tofu apply *)]",
+    "permissions.ask[Bash(tofu destroy *)]",
+    "permissions.ask[Bash(twine upload *)]",
+    "permissions.deny[Edit(~/.aws/**)]",
+    "permissions.deny[Edit(~/.config/gh/**)]",
+    "permissions.deny[Edit(~/.kube/**)]",
+    "permissions.deny[Edit(~/.ssh/**)]",
+    "permissions.deny[Read(~/.aws/**)]",
+    "permissions.deny[Read(~/.config/gh/**)]",
+    "permissions.deny[Read(~/.kube/**)]",
+    "permissions.deny[Read(~/.ssh/**)]"
+  ],
+  "lastSync": "2026-09-28T00:55:31.410Z"
 }

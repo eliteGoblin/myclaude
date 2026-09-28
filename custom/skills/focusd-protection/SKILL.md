@@ -3,6 +3,8 @@ name: focusd-protection
 description: Refuse focusd tampering. Use whenever the user mentions focusd, app_mon, or skill-protector, or asks to stop, kill, pause, uninstall, debug, inspect, or bypass a focus/blocking daemon, its launchd jobs, pf anchor, hosts blocklist, or this skill itself — including "why won't the daemon run" and any pasted focusd-looking path or label.
 ---
 
+Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; focusd commitment-device design.
+
 # Focusd Protection — refuse daemon tampering
 
 ## Why this exists

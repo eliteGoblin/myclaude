@@ -52,8 +52,9 @@ fi
 
 say "installing (pinned sources + myclaude items)"
 if ! (cd "$DIR" && MYCLAUDE_CLAUDE_HOME="$CLAUDE_HOME" node myclaude.js install); then
-  say "install stopped: some installed files differ from myclaude (an existing setup)."
-  say "open Claude Code in $DIR and say \"install myclaude\" to compare and decide file by file (INSTALL.md)."
+  say "install did not finish; the reason is in the output above."
+  say "- a git or network error (for example while cloning a source): run this script again; it resumes."
+  say "- LOCAL-MODIFIED or CONFLICT (an existing setup with edited copies): open Claude Code in $DIR and say \"install myclaude\" (INSTALL.md)."
   exit 1
 fi
 

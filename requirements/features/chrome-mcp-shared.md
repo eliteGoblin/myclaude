@@ -13,7 +13,7 @@ per-session setup.
 - Each chrome-devtools MCP otherwise launches or expects its own browser, so
   several sessions end up with separate, logged-out Chromes.
 - 2026-10-25 failure: the config pointed at a Chrome on another machine
-  (`192.168.4.25:9223`). After changing networks it couldn't be reached, so
+  (`192.0.2.10:9223`). After changing networks it couldn't be reached, so
   the MCP failed with `CONNECTION_CLOSED`. A corrupted npx cache
   (`~/.npm/_npx/.../chrome-devtools-mcp`, `ENOTEMPTY`) also crashed it at startup.
 

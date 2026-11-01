@@ -1,0 +1,557 @@
+{
+  "version": 2,
+  "sources": {
+    "ecc": {
+      "repo": "https://github.com/affaan-m/everything-claude-code.git",
+      "ref": "main",
+      "sha": "d8409a4b0813771235555e32e3d8046a73988bfa"
+    },
+    "karpathy": {
+      "repo": "https://github.com/forrestchang/andrej-karpathy-skills.git",
+      "ref": "main",
+      "sha": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    "mattpocock": {
+      "repo": "https://github.com/mattpocock/skills.git",
+      "ref": "main",
+      "sha": "c55ee46073ed923f86ce59a5eb3b6d895095d1b7"
+    },
+    "custom": {
+      "local": true
+    },
+    "cct": {
+      "repo": "https://github.com/davila7/claude-code-templates.git",
+      "ref": "main",
+      "sha": "42886b2db9b8021a9830ab3722bd15bcdd5554af"
+    }
+  },
+  "entries": [
+    {
+      "src": "custom",
+      "path": "agents/architect.md",
+      "hash": "f32a24b9fa4e",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/architect.md",
+        "hash": "6b8e1e8bd274"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "agents/ba-curator.md",
+      "hash": "463de0fab0c1"
+    },
+    {
+      "src": "custom",
+      "path": "agents/citation-verifier.md",
+      "hash": "d429675d1cad"
+    },
+    {
+      "src": "custom",
+      "path": "agents/code-reviewer.md",
+      "hash": "1073f5483521",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/code-reviewer.md",
+        "hash": "9dd23be23d65"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "agents/e2e-verifier.md",
+      "hash": "5bb3de326c9e"
+    },
+    {
+      "src": "custom",
+      "path": "agents/python-reviewer.md",
+      "hash": "67f42a7cfc36",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/python-reviewer.md",
+        "hash": "d2180b115f58"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "agents/release-verifier.md",
+      "hash": "066da2022681"
+    },
+    {
+      "src": "custom",
+      "path": "agents/security-reviewer.md",
+      "hash": "0cd0e1dfb82c",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "agents/security-reviewer.md",
+        "hash": "813e4062bed5"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "agents/solution-doc-reviewer.md",
+      "hash": "74ac6738a110"
+    },
+    {
+      "src": "custom",
+      "path": "agents/solution-doc-writer.md",
+      "hash": "4516c14eb5cb"
+    },
+    {
+      "src": "custom",
+      "path": "commands/jira.md",
+      "hash": "b71df1466098",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/jira.md",
+        "hash": "0503ced85e11"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "commands/product-cycle.md",
+      "hash": "5b5e6ced4dce"
+    },
+    {
+      "src": "custom",
+      "path": "commands/resume-session.md",
+      "hash": "b3b91f96fb66",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/resume-session.md",
+        "hash": "73983070d7e4"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "commands/save-session.md",
+      "hash": "b6c515b0acf2",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/save-session.md",
+        "hash": "a9488a8819d6"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "commands/sessions.md",
+      "hash": "0cfaed47bc00",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "commands/sessions.md",
+        "hash": "87d9eccf2c89"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "commands/ticket-sizing.md",
+      "hash": "ea4bac37d0f7"
+    },
+    {
+      "src": "custom",
+      "path": "rules/frank/agent-self-learning.md",
+      "hash": "96bb4a07df1f"
+    },
+    {
+      "src": "custom",
+      "path": "rules/frank/philosophy.md",
+      "hash": "039922312e10"
+    },
+    {
+      "src": "custom",
+      "path": "rules/frank/production-safety.md",
+      "hash": "9fc195fd7c23"
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/coding-style.md",
+      "hash": "827cb44b89ca",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/coding-style.md",
+        "hash": "f9d6d7a39c5f"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/fastapi.md",
+      "hash": "df68279ee22f",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/fastapi.md",
+        "hash": "e796ecbe93c4"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/hooks.md",
+      "hash": "eea52fe139ce",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/hooks.md",
+        "hash": "7ebd12233f69"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/patterns.md",
+      "hash": "877500223bb7",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/patterns.md",
+        "hash": "d9cab9b53632"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/security.md",
+      "hash": "121d27cf1dba",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/security.md",
+        "hash": "6bbbb6c800cd"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/python/testing.md",
+      "hash": "41748d927152",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/python/testing.md",
+        "hash": "92655aa5047e"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/typescript/coding-style.md",
+      "hash": "e241a39e2d0a",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/coding-style.md",
+        "hash": "cb6fbe555d70"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/typescript/hooks.md",
+      "hash": "8c18be875db9",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/hooks.md",
+        "hash": "930bbe5d5a66"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/typescript/patterns.md",
+      "hash": "605d607d7d9f",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/patterns.md",
+        "hash": "20870f78aa32"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/typescript/security.md",
+      "hash": "6e5558a28ef2",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/security.md",
+        "hash": "86b14a5a56f4"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "rules/typescript/testing.md",
+      "hash": "cacc702a48cb",
+      "forkedFrom": {
+        "src": "ecc",
+        "path": "rules/typescript/testing.md",
+        "hash": "92e3d02b4fff"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "scripts/hooks/session-alias-hint-fsun.js",
+      "hash": "7ef0c8b147a9"
+    },
+    {
+      "src": "custom",
+      "path": "scripts/hooks/session-save-gate-fsun.js",
+      "hash": "4e7cd158368d"
+    },
+    {
+      "src": "custom",
+      "path": "scripts/hooks/stop-verify-gate-fsun.js",
+      "hash": "1c85bf4238b5"
+    },
+    {
+      "src": "custom",
+      "path": "scripts/lib/session-manager-fsun.js",
+      "hash": "b276f51ce0df"
+    },
+    {
+      "src": "custom",
+      "path": "scripts/lib/session-registry-fsun.js",
+      "hash": "e835134a49d9"
+    },
+    {
+      "src": "custom",
+      "path": "settings/attribution.json",
+      "hash": "a1c14e9eec8e",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/hooks.json",
+      "hash": "47de9791f955",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/models.json",
+      "hash": "d2cbb4e78a9b",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/output-style.json",
+      "hash": "f2115fb06f91",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/permissions.json",
+      "hash": "da1cc47d5705",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/plugins.json",
+      "hash": "11587b690faf",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/pretooluse-guards.json",
+      "hash": "87e55cd8cf64",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "skills/clarify/",
+      "hash": "29d273e7230a",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/grilling/",
+        "hash": "d6ae2cc9cd97"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "skills/complaints/SKILL.md",
+      "hash": "122ea9d2dbd9"
+    },
+    {
+      "src": "custom",
+      "path": "skills/config-management/SKILL.md",
+      "hash": "98548c72df8c"
+    },
+    {
+      "src": "custom",
+      "path": "skills/deep-research/LESSONS.md",
+      "hash": "37f40d74b033"
+    },
+    {
+      "src": "custom",
+      "path": "skills/deep-research/SKILL.md",
+      "hash": "ff0a3efa00ab"
+    },
+    {
+      "src": "custom",
+      "path": "skills/deep-research/SURVEY.md",
+      "hash": "57e9154036f6"
+    },
+    {
+      "src": "custom",
+      "path": "skills/diagnosing-bugs/",
+      "hash": "916ba7ef1768",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/diagnosing-bugs/",
+        "hash": "5075efe3130a"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "skills/improve-codebase-architecture/",
+      "hash": "9c65679809f8",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/improve-codebase-architecture/",
+        "hash": "16fcfd94b209"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "skills/observability-buildout/SKILL.md",
+      "hash": "38a415f27505"
+    },
+    {
+      "src": "custom",
+      "path": "skills/pr-workflow/SKILL.md",
+      "hash": "4c8d0d96ec0f"
+    },
+    {
+      "src": "custom",
+      "path": "skills/tdd/",
+      "hash": "7087e0cdeb85",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/engineering/tdd/",
+        "hash": "7cc72883c75a"
+      }
+    },
+    {
+      "src": "custom",
+      "path": "skills/writing-for-agents/",
+      "hash": "eec17f7aacd2",
+      "forkedFrom": {
+        "src": "mattpocock",
+        "path": "skills/productivity/writing-for-agents/",
+        "hash": "78c41feba8e1"
+      }
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/hooks/session-end.js",
+      "hash": "0202a52ad32e"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/agent-data-home.js",
+      "hash": "0a39212f8183"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/llm-summary.js",
+      "hash": "ca0c3ac06191"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/path-safety.js",
+      "hash": "542126cf4724"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/session-aliases.js",
+      "hash": "a601ab52fddf"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/session-manager.js",
+      "hash": "cbfac8b5aa34"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/transcript-context.js",
+      "hash": "d5b00ecdee04"
+    },
+    {
+      "src": "ecc",
+      "path": "scripts/lib/utils.js",
+      "hash": "d230d03b89c1"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/engineering/codebase-design/",
+      "dest": "skills/codebase-design/",
+      "hash": "5f17b5080ffb"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/engineering/domain-modeling/",
+      "dest": "skills/domain-modeling/",
+      "hash": "3e5ba278061e"
+    },
+    {
+      "src": "mattpocock",
+      "path": "skills/productivity/wait-what/",
+      "dest": "skills/wait-what/",
+      "hash": "4147334437e2"
+    }
+  ],
+  "settingsOwned": [
+    "attribution.commit",
+    "attribution.pr",
+    "attribution.sessionUrl",
+    "enabledPlugins.pyright-lsp@claude-plugins-official",
+    "env.CLAUDE_CODE_SUBAGENT_MODEL",
+    "hooks.PreToolUse[matcher=Bash|cmd=CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '(^|[;&|]\\s*)(sudo\\s+)?rm\\s' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[rR]|--recursive' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[fF]|--force'; then echo 'BLOCKED by production-safety: rm with recursive+force. Use trash or rm -r without -f.' >&2; exit 2; fi;CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\s|DELETE\\s+FROM|ALTER\\s+TABLE|FLUSH(ALL|DB))\\b'; then jq -cn --arg r 'production-safety: destructive SQL/redis statement — confirm env + target + rollback' '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"ask\",permissionDecisionReason:$r}}'; fi; exit 0]",
+    "hooks.SessionStart[matcher=|cmd=node \"$HOME/.claude/scripts/hooks/session-alias-hint-fsun.js\"]",
+    "hooks.Stop[matcher=|cmd=node \"$HOME/.claude/scripts/hooks/session-save-gate-fsun.js\"]",
+    "hooks.Stop[matcher=|cmd=node \"$HOME/.claude/scripts/hooks/stop-verify-gate-fsun.js\"]",
+    "outputStyle",
+    "permissions.ask[Bash(aws * delete-*)]",
+    "permissions.ask[Bash(aws --profile * iam *)]",
+    "permissions.ask[Bash(aws --profile * s3 rm *)]",
+    "permissions.ask[Bash(aws iam *)]",
+    "permissions.ask[Bash(aws s3 rm *)]",
+    "permissions.ask[Bash(aws secretsmanager *)]",
+    "permissions.ask[Bash(aws sqs purge-queue *)]",
+    "permissions.ask[Bash(az * delete *)]",
+    "permissions.ask[Bash(bq query *)]",
+    "permissions.ask[Bash(bq rm *)]",
+    "permissions.ask[Bash(cdk deploy *)]",
+    "permissions.ask[Bash(cdk destroy *)]",
+    "permissions.ask[Bash(find * -delete*)]",
+    "permissions.ask[Bash(find * -exec rm*)]",
+    "permissions.ask[Bash(gcloud * add-iam-policy-binding *)]",
+    "permissions.ask[Bash(gcloud * delete *)]",
+    "permissions.ask[Bash(gcloud * remove-iam-policy-binding *)]",
+    "permissions.ask[Bash(gcloud iam *)]",
+    "permissions.ask[Bash(gcloud secrets *)]",
+    "permissions.ask[Bash(gcloud storage rm *)]",
+    "permissions.ask[Bash(gh release create *)]",
+    "permissions.ask[Bash(git branch -D *)]",
+    "permissions.ask[Bash(git push * --force*)]",
+    "permissions.ask[Bash(git push * -f *)]",
+    "permissions.ask[Bash(git push * -f)]",
+    "permissions.ask[Bash(git push --force*)]",
+    "permissions.ask[Bash(git push -f *)]",
+    "permissions.ask[Bash(git reset --hard*)]",
+    "permissions.ask[Bash(gsutil rm *)]",
+    "permissions.ask[Bash(helm delete *)]",
+    "permissions.ask[Bash(helm uninstall *)]",
+    "permissions.ask[Bash(kubectl * delete *)]",
+    "permissions.ask[Bash(kubectl config use-context *)]",
+    "permissions.ask[Bash(kubectl delete *)]",
+    "permissions.ask[Bash(kubectl drain *)]",
+    "permissions.ask[Bash(kubectl scale *)]",
+    "permissions.ask[Bash(mysql *)]",
+    "permissions.ask[Bash(npm publish *)]",
+    "permissions.ask[Bash(psql *)]",
+    "permissions.ask[Bash(pulumi destroy *)]",
+    "permissions.ask[Bash(pulumi up *)]",
+    "permissions.ask[Bash(redis-cli *)]",
+    "permissions.ask[Bash(rm -fr *)]",
+    "permissions.ask[Bash(rm -r *)]",
+    "permissions.ask[Bash(rm -rf *)]",
+    "permissions.ask[Bash(terraform apply *)]",
+    "permissions.ask[Bash(terraform destroy *)]",
+    "permissions.ask[Bash(terraform destroy)]",
+    "permissions.ask[Bash(tofu apply *)]",
+    "permissions.ask[Bash(tofu destroy *)]",
+    "permissions.ask[Bash(twine upload *)]",
+    "permissions.deny[Edit(~/.aws/**)]",
+    "permissions.deny[Edit(~/.config/gh/**)]",
+    "permissions.deny[Edit(~/.kube/**)]",
+    "permissions.deny[Edit(~/.ssh/**)]",
+    "permissions.deny[Read(~/.aws/**)]",
+    "permissions.deny[Read(~/.config/gh/**)]",
+    "permissions.deny[Read(~/.kube/**)]",
+    "permissions.deny[Read(~/.ssh/**)]"
+  ],
+  "lastSync": "2026-11-01T00:33:35.923Z"
+}

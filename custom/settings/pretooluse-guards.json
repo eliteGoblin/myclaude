@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '(^|[;&|]\\s*)(sudo\\s+)?rm\\s' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[rR]|--recursive' && echo \"$CMD\" | grep -qE '(^|\\s)-[a-zA-Z]*[fF]|--force'; then echo 'BLOCKED by production-safety: rm with recursive+force. Use trash or rm -r without -f.' >&2; exit 2; fi"
+          },
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\s|DELETE\\s+FROM|ALTER\\s+TABLE|FLUSH(ALL|DB))\\b'; then jq -cn --arg r 'production-safety: destructive SQL/redis statement \u2014 confirm env + target + rollback' '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"ask\",permissionDecisionReason:$r}}'; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

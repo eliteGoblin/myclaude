@@ -230,7 +230,7 @@ test('config: rejects a relative CHROME_MCP_PROFILE', () => {
 
 test('isLoopback: IPv4 and IPv6 loopback pass; wildcard and LAN addresses do not', () => {
   for (const a of ['127.0.0.1:9222', '[::1]:9222']) assert.equal(core.isLoopback(a), true, a);
-  for (const a of ['*:9222', '192.168.4.25:9222', '[::]:9222']) assert.equal(core.isLoopback(a), false, a);
+  for (const a of ['*:9222', '192.0.2.10:9222', '[::]:9222']) assert.equal(core.isLoopback(a), false, a);
 });
 
 test('status: IPv4 + IPv6 loopback listeners are not reported as exposed', async () => {

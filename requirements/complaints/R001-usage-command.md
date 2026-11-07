@@ -34,7 +34,7 @@ Situation: no way to see plan usage or per-task token use from myclaude.
 
 ## Fix
 
-- https://github.com/eliteGoblin/myclaude/pulls (feat/usage)
+- https://github.com/eliteGoblin/myclaude/pull/3
 
 ## Check history
 

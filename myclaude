@@ -218,6 +218,7 @@ ART
   printf "    ${GREEN}myclaude counts${RESET}        ${DIM}→ file counts${RESET}\n"
   printf "    ${GREEN}myclaude mcp${RESET}    ${DIM}[name]${RESET} ${DIM}→ MCP setup recipes (context for Claude)${RESET}\n"
   printf "    ${GREEN}myclaude chrome-mcp${RESET} ${DIM}start|stop|status|doctor|setup${RESET} ${DIM}→ shared debug Chrome for all sessions${RESET}\n"
+  printf "    ${GREEN}myclaude usage${RESET} ${DIM}[--json] [--since 24h|7d] [--session id]${RESET} ${DIM}→ plan usage %% and local token totals${RESET}\n"
   printf "    ${GREEN}myclaude complaints${RESET} ${DIM}list|check [id…] [--record]${RESET} ${DIM}→ complaints and requests as repeatable checks${RESET}\n"
   printf "\n"
   subhead "Bootstrap (new machine):"
@@ -862,6 +863,9 @@ case "$cmd" in
     ;;
   complaints)
     delegate complaints "$@"
+    ;;
+  usage)
+    delegate usage "$@"
     ;;
   explain|summarize)
     cmd_explain "$@"

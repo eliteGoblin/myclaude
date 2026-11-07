@@ -298,6 +298,11 @@
     },
     {
       "src": "custom",
+      "path": "scripts/statusline-fsun.js",
+      "hash": null
+    },
+    {
+      "src": "custom",
       "path": "settings/attribution.json",
       "hash": "a1c14e9eec8e",
       "kind": "settings"
@@ -336,6 +341,12 @@
       "src": "custom",
       "path": "settings/pretooluse-guards.json",
       "hash": "87e55cd8cf64",
+      "kind": "settings"
+    },
+    {
+      "src": "custom",
+      "path": "settings/statusline.json",
+      "hash": null,
       "kind": "settings"
     },
     {

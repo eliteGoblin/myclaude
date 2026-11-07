@@ -14,8 +14,10 @@ Frank is the customer; the `ba-curator` agent owns the register. Folder: `~/deve
 1. Copy Frank's exact words and the Claude reply that caused them, from this conversation or from the pasted text. Quote exactly; never paraphrase. A reply you do not have: write "excerpt: not captured at the time".
 2. Take the next free id (highest `C` or `R` number plus 1). Choose the failure mode (`docs/INVENTORY.md`).
 3. Write `## Expected` and a `json repro` block that fails today. For a request, `## Expected` is the acceptance list and the repro is the acceptance check. A behaviour that cannot be checked headlessly: status MANUAL and no repro block.
-4. Run `node ~/devel/myclaude/myclaude.js complaints list --write` for the index row. Branch from `origin/main`, commit, open a PR per the `pr-workflow` skill. Copilot is unavailable on this repo: say so in the PR.
-5. Tell Frank in one line: the id and the PR link.
+4. This repo is PUBLIC. Before saving, remove work-specific content from the quotes (company, people, repo and service names, code, URLs, IPs, tokens) and keep only the behaviour pattern. Mark each removed part as "[removed: work detail]". If the complaint cannot be described without private content, tell Frank and do not record it here.
+5. Run `node ~/devel/myclaude/myclaude.js complaints list --write` for the index row. Branch from `origin/main`, commit, open a PR per the `pr-workflow` skill. Copilot is unavailable on this repo: say so in the PR.
+6. After the PR is clean, merge it so the item lands on main (`pr-workflow`), then run `node myclaude.js sync`.
+7. Tell Frank in one line: the id and the PR link.
 
 ## Check
 

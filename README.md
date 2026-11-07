@@ -40,6 +40,7 @@ Rules that keep layers apart:
 | `custom/settings/*.json` | Settings fragments merged into `~/.claude/settings.json`; see `custom/settings/README.md` |
 | `docs/`, `requirements/`, `mcp_recipes/` | Research notes, requirements register, MCP recipes |
 | `lib/chrome-mcp*.js`, `lib/cmd-chrome-mcp.js` | `myclaude chrome-mcp`: one shared debug Chrome for every MCP client (`mcp_recipes/chrome.md`) |
+| `lib/usage.js`, `lib/cmd-usage.js`, `custom/scripts/statusline-fsun.js` | `myclaude usage [--json] [--since] [--session]`: plan usage % (status-line cache or `/usage`) and local token totals from transcripts; the status line script writes the cache |
 | `requirements/complaints/`, `lib/complaints.js`, `lib/cmd-complaints.js` | `myclaude complaints list\|check`: Frank's complaints and feature requests as exact quotes with repeatable checks; owned by the `ba-curator` agent (`complaints` skill) |
 | `tests/` | `node --test` suite |
 | `~/.myclaude/sources/<name>` | Full clones of each git source, detached at the pinned sha (not in this repo) |

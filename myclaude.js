@@ -33,6 +33,7 @@ Compare and apply
   router                                  regenerate skills/SOURCES.md (provenance) and docs/SKILL-ROUTER.md
   install [--dry-run]                     new machine: clone every source at its pin, then sync
   chrome-mcp <start|stop|status|doctor|setup|mcp>   one shared debug Chrome for all MCP clients
+  usage [--json] [--since 24h|7d] [--session <id>]   plan usage % and local token totals (JSON for other sessions)
   complaints <list|check>                 Frank's complaints and requests as repeatable checks (requirements/complaints/)
   status                                  pins, state counts, unmanaged files in ~/.claude
   migrate-v1 --ecc-sha <sha> [--karpathy-sha <sha>]   convert a v1 manifest.json to v2
@@ -67,6 +68,7 @@ function main(argv) {
   }
   // Async and needs no manifest, so it runs before buildCtx().
   if (cmd === 'chrome-mcp') return require('./lib/cmd-chrome-mcp').main(rest);
+  if (cmd === 'usage') return require('./lib/cmd-usage').main(rest);
   if (cmd === 'complaints') return require('./lib/cmd-complaints').main(rest);
   const fn = COMMANDS[cmd];
   if (!fn) {

@@ -132,6 +132,8 @@ Every step applies, or is waived with the reason stated.
 - Questions interrupt work; they never wait behind it. Answer from what is known while the work continues.
 - A subagent never approves a production gate itself. Only Frank can give that go. A subagent that reaches a gate stops and reports what it would run and why; its brief is not consent.
 - Parallel agents use git worktrees; never switch branches in a shared checkout. Never run two infra, Terraform, or app changes against the same environment at once.
+- Before a long background task (research, PR chain, complaint check) run `node ~/devel/myclaude/myclaude.js usage --json`; at the end report the task's usage (`--session <id>`).
+- Do not pass `model: opus` to a subagent unless the task needs Opus; the default is Sonnet (/usage flagged Opus overrides on 2026-11-08).
 - Serialize changes to one environment's pipeline: one PR or apply at a time; wait for in-flight runs, rebase, then merge.
 
 ## 12. Code and artifacts

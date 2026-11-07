@@ -9,6 +9,7 @@ Each `*.json` file here is a partial `settings.json` object. `node myclaude.js s
 | `pretooluse-guards.json` | `hooks.PreToolUse` | Two deterministic Bash guards (require `jq`): hard block on `rm` with recursive+force in any flag spelling or order; `ask` on destructive SQL/redis statement text (`DROP TABLE`, `TRUNCATE`, `DELETE FROM`, `ALTER TABLE`, `FLUSHALL/DB`). Backstop for shapes prefix patterns cannot see (flag reordering, SQL inside `psql -c`). |
 | `plugins.json` | `enabledPlugins` | `pyright-lsp` from the official marketplace. |
 | `output-style.json` | `outputStyle` | `Concise`: lead with the result, skip preamble; error reports and destructive-action confirmations stay complete. Takes effect after `/clear`. |
+| `statusline.json` | `statusLine` | Status line command `scripts/statusline-fsun.js`: one short line (model, ctx %, 5h %, week % with reset time) and the plan usage cache `~/.myclaude/usage-cache.json` that `myclaude usage` reads. |
 | `permissions.json` | `permissions.deny`, `permissions.ask` | Harness-enforced form of `rules/frank/production-safety.md`. See the groups below. |
 
 ## permissions.json groups

@@ -9,6 +9,8 @@ Sources: Frank's session 2026-11-01 (complaint loop: exact quotes, repro checks,
 
 Frank is the customer; the `ba-curator` agent owns the register. Folder: `~/devel/myclaude/requirements/complaints/`; format and check keys: its `README.md`. Two types: `complaint` (Claude behaved badly, id `C001`) and `request` (a capability Frank needs now, id `R001`).
 
+Run Record and Fix in a background `general-purpose` subagent with a complete brief; never inline in Frank's main session. Frank 2026-11-08: "using myclaude, you always do in subagent, avoid distracting my main session".
+
 ## Record
 
 1. Copy Frank's exact words and the Claude reply that caused them, from this conversation or from the pasted text. Quote exactly; never paraphrase. A reply you do not have: write "excerpt: not captured at the time".

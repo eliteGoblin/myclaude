@@ -109,7 +109,7 @@
     {
       "src": "custom",
       "path": "commands/product-cycle.md",
-      "hash": "5b5e6ced4dce"
+      "hash": "da0a141a6d29"
     },
     {
       "src": "custom",
@@ -154,7 +154,7 @@
     {
       "src": "custom",
       "path": "rules/frank/philosophy.md",
-      "hash": "039922312e10"
+      "hash": "d1dccb6eec05"
     },
     {
       "src": "custom",
@@ -299,7 +299,7 @@
     {
       "src": "custom",
       "path": "scripts/statusline-fsun.js",
-      "hash": null
+      "hash": "87ba06ad9ed9"
     },
     {
       "src": "custom",
@@ -346,7 +346,7 @@
     {
       "src": "custom",
       "path": "settings/statusline.json",
-      "hash": null,
+      "hash": "09cbf0de6621",
       "kind": "settings"
     },
     {
@@ -362,7 +362,7 @@
     {
       "src": "custom",
       "path": "skills/complaints/SKILL.md",
-      "hash": "122ea9d2dbd9"
+      "hash": "ac68842eb081"
     },
     {
       "src": "custom",
@@ -407,7 +407,7 @@
     {
       "src": "custom",
       "path": "skills/observability-buildout/SKILL.md",
-      "hash": "38a415f27505"
+      "hash": "0fd281592719"
     },
     {
       "src": "custom",
@@ -562,7 +562,9 @@
     "permissions.deny[Read(~/.aws/**)]",
     "permissions.deny[Read(~/.config/gh/**)]",
     "permissions.deny[Read(~/.kube/**)]",
-    "permissions.deny[Read(~/.ssh/**)]"
+    "permissions.deny[Read(~/.ssh/**)]",
+    "statusLine.command",
+    "statusLine.type"
   ],
-  "lastSync": "2026-11-01T00:33:35.923Z"
+  "lastSync": "2026-11-11T04:49:08.328Z"
 }

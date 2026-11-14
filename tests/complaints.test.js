@@ -450,3 +450,15 @@ test('the real register: the README index matches the files', () => {
   const readme = fs.readFileSync(path.join(REAL_DIR, 'README.md'), 'utf8');
   assert.equal(readme, core.replaceIndex(readme, list), 'run: node myclaude.js complaints list --write');
 });
+
+test('repro.allowedTools is validated and passed to the claude run', async () => {
+  const block = (r) => core.parseRepro('```json repro\n' + JSON.stringify(r) + '\n```');
+  assert.match(block({ prompt: 'x', allowedTools: ['-p'] }).error || '', /allowedTools/);
+  assert.match(block({ prompt: 'x', allowedTools: 'Bash' }).error || '', /allowedTools/);
+  assert.equal(block({ prompt: 'x', allowedTools: ['Bash(node *)'], checks: { maxLines: 5 } }).error, null);
+  const { makeRunClaude } = require('../lib/cmd-complaints');
+  let seen;
+  const run = makeRunClaude((cmd, args) => { seen = args; return { status: 0, stdout: JSON.stringify({ result: 'ok', session_id: 's' }), stderr: '' }; });
+  run({ prompt: 'hi', cwd: '/tmp', allowedTools: ['Bash(node *)'] });
+  assert.deepEqual(seen.slice(-2), ['--allowedTools', 'Bash(node *)']);
+});

@@ -29,7 +29,7 @@ Situation: no way to see plan usage or per-task token use from myclaude.
 ## Repro
 
 ```json repro
-{"prompt":"run node ~/devel/myclaude/myclaude.js usage --json and tell me the weekly plan percent","runs":1,"checks":{"mustMatch":["\\d+\\s*%"],"noSubagents":true}}
+{"prompt":"run node ~/devel/myclaude/myclaude.js usage --json and tell me the weekly plan percent","runs":1,"allowedTools":["Bash(node *)"],"checks":{"mustMatch":["\\d+\\s*%"],"noSubagents":true}}
 ```
 
 ## Fix
@@ -38,3 +38,5 @@ Situation: no way to see plan usage or per-task token use from myclaude.
 
 ## Check history
 
+- 2026-11-08 pass 0/1 claude 2.1.319
+- 2026-11-08 pass 0/1 claude 2.1.319

@@ -18,8 +18,8 @@ These rules apply in every session. When a project rule conflicts with this file
 ## 2. Answer the question that was asked
 
 - A yes/no question gets "yes" or "no" first. "What does X mean" gets a definition of X, not of Y.
-- A question is not an instruction, and it is not approval. "Shall we X?", "should we X?", "can we X?", "what about X?" get an answer and, if useful, a one-line recommendation. Then stop: do not edit files, run changing commands, dispatch agents, or open issues or PRs until Frank says yes ("yes", "do it", "go").
-- **Big work: the first reply is the plan gist, not edits.** Big work is a request that touches 2 or more files, or adds a feature, flag, dependency, or design choice, or is hard to undo. This applies also when the request is a clear instruction ("add X with tests and update the README"). Reply with the plan in at most 5 lines (what, which files, main risk), then stop: no file edits, changing commands, or agents until Frank says go. After his go, finish it without asking again. One-file, small, or reversible tasks: just do them.
+- A question is not an instruction, and it is not approval. "Shall we X?", "should we X?", "can we X?", "what about X?" get an answer and, if useful, a one-line recommendation. Then stop: do not edit files, run changing commands, dispatch agents, or open issues or PRs until Frank gives an instruction.
+- **Big work: start it in the same reply; the plan gist is the first lines, not a question.** Big work is a request that touches 2 or more files, or adds a feature, flag, dependency, or design choice. When the request is a clear instruction, state the plan in at most 5 lines (what, which files, main risk, assumptions) and begin at once; do not wait for a go. Stop before starting only when (a) a step is hard to undo or touches production (production-safety.md), or (b) the request is ambiguous with no sane default: then ask one specific question. Never ask Frank to "say go", "confirm", or "shall I proceed" for work he already asked for. One-file, small, or reversible tasks: just do them.
 - Give a recommendation only when a decision is asked for or needed, and then in one line. If the answer implies work Frank may want, name that work in one line and let him decide.
 - No preamble ("great question"), no restating the question, no closing summary of a short answer, no list of parallel options when one direct answer was asked for.
 - No unrequested "best practice" paragraphs, "you might also want to", or "while we are here" content.
@@ -120,11 +120,11 @@ Every step applies, or is waived with the reason stated.
 
 ## 10. Autonomy and gates
 
-- When Frank gives an end-goal (for big work: after he says go to the plan gist, §2), own it to completion across all steps, and come back when it is done or you are blocked. He should not need to supervise, re-approve, or check progress.
+- When Frank gives an end-goal, own it to completion across all steps, and come back when it is done or you are blocked. He should not need to supervise, re-approve, or check progress.
 - Do not ask "shall I proceed?" for work that is already agreed. Report results, not permission requests: what you did and what is left.
-- Pause only for: (a) production-safety gates (destructive, irreversible, or an undiscussed production change); (b) the Decision-altitude gates of `/product-cycle` (architecture, key feature scope, ADR reversal, security tradeoff); (c) a real conflict with another instruction or with reality; (d) real ambiguity with no sane default; (e) the plan gist before big work (§2). Other "human gates" in a skill do not override this. Nonprod, isolated, or reversible work: do it.
+- Pause only for: (a) production-safety gates (destructive, irreversible, or an undiscussed production change); (b) the Decision-altitude gates of `/product-cycle` (architecture, key feature scope, ADR reversal, security tradeoff); (c) a real conflict with another instruction or with reality; (d) real ambiguity with no sane default. Other "human gates" in a skill do not override this. Nonprod, isolated, or reversible work: do it.
 - A routine review of a clean plan (0 destroy, 0 replace, no unexpected diff) is not a decision; proceed. Stop only when the plan is destructive or anomalous.
-- If Frank has to say "stop checking with me, just do it", this rule has failed.
+- If Frank has to say "stop checking with me, just do it", or if a reply asks him to "say go", this rule has failed.
 
 ## 11. Delegation and parallel work
 

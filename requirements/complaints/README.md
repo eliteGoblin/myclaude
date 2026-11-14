@@ -82,5 +82,5 @@ The table is generated: `node myclaude.js complaints list --write` rewrites it f
 | [C003](C003-big-work-without-plan-gist.md) | Big work starts without a plan gist | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
 | [C004](C004-long-work-blocks-main-session.md) | Long work in the main session blocks the discussion | FIXED-VERIFIED | W | - |
 | [C005](C005-too-many-commands-to-remember.md) | Too many commands to remember | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
-| [R001](R001-usage-command.md) | Show current Claude plan usage; token budget per task | OPEN | W | - |
+| [R001](R001-usage-command.md) | Show current Claude plan usage; token budget per task | OPEN | W | 2026-11-08 0/1 |
 <!-- index:end -->

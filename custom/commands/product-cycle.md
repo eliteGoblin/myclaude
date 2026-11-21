@@ -39,8 +39,10 @@ Hand the spec to `architect`. It reads the spec, `philosophy.md`, `CONTEXT.md` a
 - If the design surfaces a PRODUCT conflict (a tradeoff the spec did not anticipate, or tension with philosophy), route it back to `ba-curator`, which decides minor (note it) vs major.
 - **HUMAN GATE only for key decisions** per "Decision altitude" below (architecture, key feature scope, ADR reversal, security tradeoff). Record accepted ADRs in `docs/adr/` (ba-curator or the conductor; architect is read-only).
 
-### Stage 3 - BUILD  (dev via general-purpose, following the `tdd` skill)
+### Stage 3 - BUILD  (dev via general-purpose with `model: "sonnet"`, following the `tdd` skill)
 Implement against the spec + design, test-first at the seams the architect listed. No confirmations during the build: seams, test design and implementation details are decided here without asking. Write unit + integration tests, and an e2e plan derived from the spec's acceptance criteria. Prefer an isolated worktree if the build is large.
+
+**Model tiering** (save tokens; Frank 2026-11-22): the main model stays the conductor and does clarify, design decisions, briefs, and checking each subagent result against the diff or output. Pass `model: "sonnet"` on every build dispatch (code, tests, pipeline fixes, routine docs, review fixes). Use the main model (pass its alias, for example `model: "fable"`; an omitted `model` falls to the Sonnet default of `CLAUDE_CODE_SUBAGENT_MODEL`) only for a hard algorithm, a cross-cutting refactor, security-sensitive code, or when a Sonnet attempt failed review twice. The reviewer, verifier and ba-curator agents set `model: sonnet` in their definitions; `architect` has `model: inherit` (main model).
 
 ### Stage 4 - REVIEW  (agents in parallel, then GitHub Copilot on the PR)
 Dispatch concurrently on the diff:
@@ -48,7 +50,7 @@ Dispatch concurrently on the diff:
 - `python-reviewer` when the diff changes `.py` files.
 - `security-reviewer`.
 
-Collect findings and dispatch fixes back to the build agent. No human gate here - review-and-fix is routine. Loop until CRITICAL/HIGH are cleared. Then open the PR and follow the `pr-workflow` skill (Copilot review, every thread fixed or rebutted and resolved, CI green).
+Collect findings and dispatch fixes back to the build agent (Sonnet by the same rule). No human gate here - review-and-fix is routine. Loop until CRITICAL/HIGH are cleared. Then open the PR and follow the `pr-workflow` skill (Copilot review, every thread fixed or rebutted and resolved, CI green).
 
 ### Stage 5 - VERIFY  (agent: e2e-verifier — owns the verify report)
 Dispatch `e2e-verifier`. It reads the feature's acceptance criteria **and** any project verification contract (e.g. `requirements/e2e-verification.md` / a vital-features list) and **exercises the real behavior**, then **emits the release verify report** — the gate before CLOSE.

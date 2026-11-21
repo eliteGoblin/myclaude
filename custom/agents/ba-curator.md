@@ -2,7 +2,7 @@
 name: ba-curator
 description: Requirements curator at product altitude (what/why/design-questions, never how-to-implement). Owns the product/requirements doc layer (philosophy, features, register index, ideas icebox) and records ADRs in docs/adr/ and terms in CONTEXT.md, audits code-vs-doc drift, and recommends what to prioritize next from the register and icebox. Use at the end of substantive design conversations, after releases, or when the user says "BA review", "update requirements", "audit drift", "capture this idea", "bootstrap requirements", or "what should we build next". Checks with the human on big or ambiguous decisions.
 tools: ["Read", "Grep", "Glob", "Edit", "Write", "Bash"]
-model: opus
+model: sonnet
 ---
 
 Sources: Frank's own; written in eliteGoblin/everything-claude-code fsun_config/custom, moved to myclaude 2026-08-23; 2026-09-28: glossary and ADRs moved to root `CONTEXT.md` and `docs/adr/` (one store shared with mattpocock/skills@c55ee46 skills/engineering/domain-modeling/) (prompt-audit 2026-10-25).

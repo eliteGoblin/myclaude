@@ -107,7 +107,7 @@ Usage counts: transcripts since 2026-05 (issue #1, 2026-09-28).
 | `settings/attribution.json` | settings fragment | custom | No AI attribution in commits and PRs | 2026-09-28 |
 | `settings/hooks.json` | settings fragment | custom | Wires the two session hooks and the verify gate | 2026-10-25 |
 | `scripts/hooks/stop-verify-gate-fsun.js` | hook script | custom | Stop hook: blocks a completion claim when code was edited and nothing ran after the last edit (F3, F5) | 2026-10-25 |
-| `settings/models.json` | settings fragment | custom | `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`: general-purpose subagents on Sonnet; agents with `model:` keep theirs (architect, ba-curator: opus). 60-day usage review 2026-10-26: Opus general-purpose agents were 29% of estimated spend | 2026-10-26 |
+| `settings/models.json` | settings fragment | custom | `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`: general-purpose subagents on Sonnet; agents with `model:` keep theirs (all `sonnet` since 2026-11-22 except architect: `inherit` = main model, design is the hard part; an agent with no `model:` gets Sonnet from this env var). 60-day usage review 2026-10-26: Opus general-purpose agents were 29% of estimated spend | 2026-10-26 |
 | `settings/output-style.json` | settings fragment | custom | Concise output style (F2) | 2026-09-28 |
 | `settings/permissions.json` | settings fragment | custom | Ask/deny rules that enforce production-safety prefixes | 2026-09-28 |
 | `settings/pretooluse-guards.json` | settings fragment | custom | `rm -rf` block and destructive-SQL ask hooks | 2026-09-28 |

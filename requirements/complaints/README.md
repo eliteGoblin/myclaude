@@ -83,5 +83,6 @@ The table is generated: `node myclaude.js complaints list --write` rewrites it f
 | [C004](C004-long-work-blocks-main-session.md) | Long work in the main session blocks the discussion | FIXED-VERIFIED | W | - |
 | [C005](C005-too-many-commands-to-remember.md) | Too many commands to remember | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
 | [C006](C006-design-discussion-verbosity.md) | Design discussion answers come as tables and rule lists | OPEN | F2 | - |
+| [C007](C007-no-stance-first-long-reply-to-short-question.md) | A one-word question gets a long answer and the stance is unclear | OPEN | F2 | - |
 | [R001](R001-usage-command.md) | Show current Claude plan usage; token budget per task | OPEN | W | - |
 <!-- index:end -->

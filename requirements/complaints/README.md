@@ -79,7 +79,7 @@ The table is generated: `node myclaude.js complaints list --write` rewrites it f
 |---|---|---|---|---|
 | [C001](C001-talks-too-much.md) | Claude talks too much | FIXED-VERIFIED | F2 | 2026-11-01 3/3 |
 | [C002](C002-acts-on-question-without-permission.md) | Claude acts on a question without permission | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
-| [C003](C003-big-work-without-plan-gist.md) | Big work starts without a plan gist | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
+| [C003](C003-big-work-without-plan-gist.md) | Big work starts without a plan gist | MANUAL | F1 | 2026-11-01 3/3 |
 | [C004](C004-long-work-blocks-main-session.md) | Long work in the main session blocks the discussion | FIXED-VERIFIED | W | - |
 | [C005](C005-too-many-commands-to-remember.md) | Too many commands to remember | FIXED-VERIFIED | F1 | 2026-11-01 3/3 |
 | [C006](C006-design-discussion-verbosity.md) | Design discussion answers come as tables and rule lists | OPEN | F2 | - |

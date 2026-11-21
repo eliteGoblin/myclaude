@@ -94,8 +94,8 @@ Usage counts: transcripts since 2026-05 (issue #1, 2026-09-28).
 | `agents/e2e-verifier.md` | agent | custom | VERIFY: exercised or NOT VERIFIED; 2 uses | F3, F5 | 2026-09-28 |
 | `agents/release-verifier.md` | agent | custom | Release-train go/no-go before promotion | F5 | 2026-09-28 |
 | `agents/citation-verifier.md` | agent | custom | Checks citations against sources for deep-research; 3 uses | F5 | 2026-09-28 |
-| `agents/solution-doc-writer.md` | agent (model: opus) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Writes solution architecture documents: gist first, diagram first, in scope, Confluence-ready; runs the reviewer checklist before handing over; not counted yet | F2 | 2026-11-01 |
-| `agents/solution-doc-reviewer.md` | agent (read-only, model: opus) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Cold-read review of a solution document: PASS/FAIL per test and an exact cut list; not counted yet | F2 | 2026-11-01 |
+| `agents/solution-doc-writer.md` | agent (model: sonnet) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Writes solution architecture documents: gist first, diagram first, in scope, Confluence-ready; runs the reviewer checklist before handing over; not counted yet | F2 | 2026-11-01 |
+| `agents/solution-doc-reviewer.md` | agent (read-only, model: sonnet) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Cold-read review of a solution document: PASS/FAIL per test and an exact cut list; not counted yet | F2 | 2026-11-01 |
 
 ## Support files (no context cost)
 

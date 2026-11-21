@@ -94,8 +94,8 @@ Usage counts: transcripts since 2026-05 (issue #1, 2026-09-28).
 | `agents/e2e-verifier.md` | agent | custom | VERIFY: exercised or NOT VERIFIED; 2 uses | F3, F5 | 2026-09-28 |
 | `agents/release-verifier.md` | agent | custom | Release-train go/no-go before promotion | F5 | 2026-09-28 |
 | `agents/citation-verifier.md` | agent | custom | Checks citations against sources for deep-research; 3 uses | F5 | 2026-09-28 |
-| `agents/solution-doc-writer.md` | agent (model: opus) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Writes solution architecture documents: gist first, diagram first, in scope, Confluence-ready; runs the reviewer checklist before handing over; not counted yet | F2 | 2026-11-01 |
-| `agents/solution-doc-reviewer.md` | agent (read-only, model: opus) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Cold-read review of a solution document: PASS/FAIL per test and an exact cut list; not counted yet | F2 | 2026-11-01 |
+| `agents/solution-doc-writer.md` | agent (model: sonnet) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Writes solution architecture documents: gist first, diagram first, in scope, Confluence-ready; runs the reviewer checklist before handing over; not counted yet | F2 | 2026-11-01 |
+| `agents/solution-doc-reviewer.md` | agent (read-only, model: sonnet) | custom (Frank's own, written 2026-10-20, tracked 2026-11-01) | Cold-read review of a solution document: PASS/FAIL per test and an exact cut list; not counted yet | F2 | 2026-11-01 |
 
 ## Support files (no context cost)
 
@@ -107,7 +107,7 @@ Usage counts: transcripts since 2026-05 (issue #1, 2026-09-28).
 | `settings/attribution.json` | settings fragment | custom | No AI attribution in commits and PRs | 2026-09-28 |
 | `settings/hooks.json` | settings fragment | custom | Wires the two session hooks and the verify gate | 2026-10-25 |
 | `scripts/hooks/stop-verify-gate-fsun.js` | hook script | custom | Stop hook: blocks a completion claim when code was edited and nothing ran after the last edit (F3, F5) | 2026-10-25 |
-| `settings/models.json` | settings fragment | custom | `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`: general-purpose subagents on Sonnet; agents with `model:` keep theirs (architect, ba-curator: opus). 60-day usage review 2026-10-26: Opus general-purpose agents were 29% of estimated spend | 2026-10-26 |
+| `settings/models.json` | settings fragment | custom | `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`: general-purpose subagents on Sonnet; agents with `model:` keep theirs (all `sonnet` since 2026-11-22 except architect: `inherit` = main model, design is the hard part; an agent with no `model:` gets Sonnet from this env var). 60-day usage review 2026-10-26: Opus general-purpose agents were 29% of estimated spend | 2026-10-26 |
 | `settings/output-style.json` | settings fragment | custom | Concise output style (F2) | 2026-09-28 |
 | `settings/permissions.json` | settings fragment | custom | Ask/deny rules that enforce production-safety prefixes | 2026-09-28 |
 | `settings/pretooluse-guards.json` | settings fragment | custom | `rm -rf` block and destructive-SQL ask hooks | 2026-09-28 |

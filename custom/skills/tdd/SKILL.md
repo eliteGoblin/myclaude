@@ -33,6 +33,8 @@ When the shape of that interface is itself in question (how deep the module is, 
 
 ## Rules of the loop
 
+- **Who runs the loop.** The conductor (main model) agrees the seams and writes the brief. It dispatches the red → green work to a builder subagent (`general-purpose`) with `model: "sonnet"`. It uses the main model for the loop only for a hard algorithm, a cross-cutting refactor, security-sensitive code, or after a Sonnet attempt failed review twice. The conductor checks the result against the diff or the test output.
+
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactoring is not part of the loop.** It belongs to the review stage (the `code-reviewer` agent), not the red → green implementation cycle.

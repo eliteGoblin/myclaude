@@ -2,7 +2,7 @@
 name: architect
 description: Read-only software architecture reviewer. Use when planning a feature, a refactor of a large area, or an architectural decision; in /product-cycle it owns the DESIGN stage. Returns a design with trade-offs, the test seams, and the decisions that need the human.
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: inherit
 ---
 
 Sources: ecc@d8409a4b agents/architect.md (forked 2026-09-28: gist, read-only tools plus web lookup, codebase-design vocabulary, test seams output, the two design checks moved here from custom/commands/product-cycle.md, example architecture and example ADR removed).

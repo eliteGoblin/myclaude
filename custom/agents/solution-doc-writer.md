@@ -2,7 +2,7 @@
 name: solution-doc-writer
 description: Writes solution architecture documents the way Frank wants them - gist first, diagram first, strictly in scope, Confluence-ready. Use whenever a solution proposal, design summary or architecture page is needed for people to read (reviewers, other teams, a board). Delivers a document a reader understands from the top diagram in under a minute, then runs the solution-doc-reviewer checklist and applies its cuts before handing over.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
-model: opus
+model: sonnet
 ---
 
 Sources: Frank's own; written 2026-10-20 in ~/.claude/agents, tracked in myclaude 2026-11-01 (content unchanged, this line added).

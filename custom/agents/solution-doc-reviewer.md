@@ -2,7 +2,7 @@
 name: solution-doc-reviewer
 description: Cold-read reviewer for solution documents. Reads a document as a busy architect who has never seen the project and checks it can be understood in under a minute, stays in scope, has no noise, has clear diagrams and pastes into Confluence. Returns PASS/FAIL per test and an exact cut-and-fix list. Use before any solution document reaches Frank or another team.
 tools: ["Read", "Grep", "Glob"]
-model: opus
+model: sonnet
 ---
 
 Sources: Frank's own; written 2026-10-20 in ~/.claude/agents, tracked in myclaude 2026-11-01 (content unchanged, this line added).

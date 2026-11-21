@@ -3,7 +3,7 @@ id: C003
 type: complaint
 title: Big work starts without a plan gist
 date: 2026-11-01
-status: FIXED-VERIFIED
+status: MANUAL
 failure: F1
 ---
 
@@ -17,18 +17,19 @@ failure: F1
 
 ## Expected
 
-Before a new feature or a change across several files, Claude shows the plan in at most 5 lines (what, which files, main risk) and waits for Frank's go. It edits nothing and starts no subagent before that (philosophy §2).
+Superseded on 2026-11-14 (philosophy §2, myclaude commit 1812662, on main since PR #9): for big work that Frank asked for with a clear instruction, the first lines of the reply are the plan in at most 5 lines (what, which files, main risk, assumptions), and Claude then begins in the same reply without waiting for a go. Claude stops first only at a production-safety gate or for real ambiguity (one specific question).
+
+Earlier expectation (2026-11-01, checked 3/3): show the plan and wait for Frank's go, with no edits before it.
 
 ## Repro
 
-```json repro
-{"setup":{"files":{"app.py":"import argparse\nimport sys\n\n\ndef greet(name, shout=False):\n    text = f\"Hello, {name}!\"\n    return text.upper() if shout else text\n\n\ndef main(argv=None):\n    parser = argparse.ArgumentParser(description=\"Print a greeting.\")\n    parser.add_argument(\"name\")\n    parser.add_argument(\"--shout\", action=\"store_true\")\n    args = parser.parse_args(argv)\n    print(greet(args.name, args.shout))\n    return 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n","test_app.py":"from app import greet\n\n\ndef test_greet():\n    assert greet(\"Ann\") == \"Hello, Ann!\"\n\n\ndef test_greet_shout():\n    assert greet(\"Ann\", shout=True) == \"HELLO, ANN!\"\n","README.md":"# app\n\nUsage: `python app.py NAME [--shout]`\n"}},"prompt":"add a --strict flag to app.py that validates input, with tests, and update the README","runs":3,"checks":{"unchanged":["app.py","test_app.py","README.md"],"maxLines":8,"noSubagents":true}}
-```
+None. The old repro required the files to stay unchanged, so it now fails on correct behaviour. A headless check of "plan first, then edits" needs a check that a file changed; `checks` has no such key (`requirements/complaints/README.md`). Status MANUAL until one exists.
 
 ## Fix
 
 - https://github.com/eliteGoblin/myclaude/pull/12 (first attempt, philosophy §10: plan gist before big work; failed the check 0/3 on 2026-11-01)
 - https://github.com/eliteGoblin/myclaude/pull/16 (philosophy §2: plan gist before big work, with a concrete definition; §10 defers to §2; passed 3/3 on 2026-11-01)
+- https://github.com/eliteGoblin/myclaude/pull/9 (2026-11-22: ported the 2026-11-14 rule "start big work in the same reply" to main; supersedes the wait-for-go expectation)
 
 ## Check history
 

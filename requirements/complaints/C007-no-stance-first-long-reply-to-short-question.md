@@ -21,7 +21,7 @@ The question that caused it was one word: "concenr?" (do you have a concern?).
 
 A reply to a short question, or to Frank's decision, starts with exactly one stance label: "Agree.", "Concern:", or "Suggestion:". A one-word or one-line question gets at most about 2 short lines. No "what I changed" list unless Frank asks.
 
-This is a repeat of C001 (verbosity) and C006 (long answers in a design discussion). The rules existed (philosophy §1 and §2), so this is a retrieval failure: the fix makes the existing rule more prominent and does not add a new rule.
+This is a repeat of C001 (verbosity) and C006 (long answers in a design discussion). The rules existed (philosophy §1 and §2), so this is a retrieval failure: the fix sharpens the existing first bullet of philosophy §1 (stance label, line limit) and adds no new section.
 
 ## Repro
 
@@ -30,5 +30,7 @@ This is a repeat of C001 (verbosity) and C006 (long answers in a design discussi
 ```
 
 ## Fix
+
+- https://github.com/eliteGoblin/myclaude/pull/6 (philosophy §1 "Stance first" bullet)
 
 ## Check history

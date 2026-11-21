@@ -33,6 +33,6 @@ Run `node ~/devel/myclaude/myclaude.js complaints check --record` and report the
 4. Show Frank the plan in at most 5 lines and wait for his go (philosophy §2).
 5. Apply the fix on a branch: direct edit for rule or skill text; a `general-purpose` agent that follows the `tdd` skill for code.
 6. Run `node myclaude.js sync` from the checkout that holds the fix (the check reads `~/.claude`), then `complaints check <id> --record`.
-7. The `ba-curator` signs off. It sets FIXED-VERIFIED (DONE-VERIFIED for a request) only when every run passed, and adds the PR link under `## Fix`. Open the PR per `pr-workflow`.
+7. The `ba-curator` signs off. A fix is not done until the rule is installed (`sync` shows no CONFLICT for that file). It sets FIXED-VERIFIED (DONE-VERIFIED for a request) only when every run passed, and adds the PR link under `## Fix`. Open the PR per `pr-workflow`.
 
 Add a skill, agent, or rule only when an item needs it. Build a request only when Frank is about to use it, and extend an existing agent or skill before adding a new one.

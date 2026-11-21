@@ -29,7 +29,7 @@
     {
       "src": "custom",
       "path": "agents/architect.md",
-      "hash": "f32a24b9fa4e",
+      "hash": "8f9ee6846ebe",
       "forkedFrom": {
         "src": "ecc",
         "path": "agents/architect.md",
@@ -39,7 +39,7 @@
     {
       "src": "custom",
       "path": "agents/ba-curator.md",
-      "hash": "463de0fab0c1"
+      "hash": "d34dc77da63f"
     },
     {
       "src": "custom",
@@ -89,12 +89,12 @@
     {
       "src": "custom",
       "path": "agents/solution-doc-reviewer.md",
-      "hash": "74ac6738a110"
+      "hash": "122f2b73da4e"
     },
     {
       "src": "custom",
       "path": "agents/solution-doc-writer.md",
-      "hash": "4516c14eb5cb"
+      "hash": "217e6e2f609c"
     },
     {
       "src": "custom",
@@ -109,7 +109,7 @@
     {
       "src": "custom",
       "path": "commands/product-cycle.md",
-      "hash": "da0a141a6d29"
+      "hash": "793d46b9cfc7"
     },
     {
       "src": "custom",
@@ -154,7 +154,7 @@
     {
       "src": "custom",
       "path": "rules/frank/philosophy.md",
-      "hash": "4d062e88c4e7"
+      "hash": "5d107682d8f4"
     },
     {
       "src": "custom",
@@ -417,7 +417,7 @@
     {
       "src": "custom",
       "path": "skills/tdd/",
-      "hash": "7087e0cdeb85",
+      "hash": "9252e7f2906f",
       "forkedFrom": {
         "src": "mattpocock",
         "path": "skills/engineering/tdd/",
@@ -566,5 +566,5 @@
     "statusLine.command",
     "statusLine.type"
   ],
-  "lastSync": "2026-11-21T21:43:06.692Z"
+  "lastSync": "2026-11-21T23:48:26.338Z"
 }

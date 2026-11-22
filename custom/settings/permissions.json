@@ -8,7 +8,8 @@
       "Edit(~/.ssh/**)",
       "Edit(~/.aws/**)",
       "Edit(~/.kube/**)",
-      "Edit(~/.config/gh/**)"
+      "Edit(~/.config/gh/**)",
+      "Edit(~/.claude/environments.local.json)"
     ]
   }
 }

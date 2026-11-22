@@ -442,6 +442,37 @@ function unwrap(words, env) {
   }
 }
 
+// Absolute, ~ and .. paths can reach outside the project. Plain relative paths stay under cwd.
+function reachedPath(word, cwd, home) {
+  const t = word.text;
+  if (word.dynamic && !path.isAbsolute(t)) return undefined;
+  if (word.dynamic) return null;
+  if (t === '~' || t.startsWith('~/')) return path.join(home, t.slice(1));
+  if (t.startsWith('~')) return null;
+  if (path.isAbsolute(t)) return path.resolve(t);
+  if (t.split('/').includes('..')) return cwd ? path.resolve(cwd, t) : null;
+  return undefined;
+}
+
+function deletePathArgs(tool, args) {
+  if (tool === 'rm') {
+    const end = args.findIndex((w) => w.text === '--');
+    return end >= 0 ? [...args.slice(0, end).filter((w) => !w.text.startsWith('-')), ...args.slice(end + 1)] : args.filter((w) => !w.text.startsWith('-'));
+  }
+  let i = 0;
+  while (i < args.length && /^-([HLP]|O\d*|D)$/.test(args[i].text)) i += args[i].text === '-D' ? 2 : 1;
+  const out = [];
+  for (; i < args.length && !/^(-|\(|!)/.test(args[i].text); i += 1) out.push(args[i]);
+  return out;
+}
+
+function recordReached(words, cwd, state) {
+  for (const w of words) {
+    const reached = reachedPath(w, cwd, state.home);
+    if (reached !== undefined) state.visited.push(reached);
+  }
+}
+
 function classify(script, state, depth = 0) {
   if (depth > 6) throw new Error('nesting too deep');
   const { items, subs } = parse(script);
@@ -533,6 +564,7 @@ function classify(script, state, depth = 0) {
       const c = args.findIndex((w) => w.text === '-C');
       if (c >= 0 && args[c + 1]) { effectiveCwd = args[c + 1].dynamic || !cwd ? null : path.resolve(cwd, args[c + 1].text); state.visited.push(effectiveCwd); }
       const f = gitFinding(args, effectiveCwd);
+      if (f) recordReached(flagValues(args, ['--work-tree', '--git-dir']), effectiveCwd, state);
       if (f) findings.push({ ...f, cwd: effectiveCwd, tool, args, env, text });
       continue;
     }
@@ -551,7 +583,11 @@ function classify(script, state, depth = 0) {
     const dataRule = RULES.dataCommands.find(([t, ...sub]) => t === tool && sub.every((s) => texts.includes(s)));
     if (dataRule) { findings.push({ cls: 'data', cwd, text, why: dataRule.join(' ') }); continue; }
     const why = infraFinding(tool, args);
-    if (why) { findings.push({ cls: 'infra', why, cwd: effectiveCwd, tool, args, env, text }); continue; }
+    if (why) {
+      if (tool === 'rm' || tool === 'find') recordReached(deletePathArgs(tool, args), effectiveCwd, state);
+      findings.push({ cls: 'infra', why, cwd: effectiveCwd, tool, args, env, text });
+      continue;
+    }
     const prodOnly = prodOnlyFinding(tool, args);
     if (prodOnly) { findings.push({ cls: 'prodOnly', why: prodOnly, cwd: effectiveCwd, tool, args, env, text }); continue; }
     if (!TEXT_ONLY.has(tool) && texts.some((t) => RULES.clients[path.basename(t)]) && DESTRUCTIVE.test(texts.join(' '))) findings.push({ cls: 'data', cwd, text, why: `destructive statement passed through ${tool}` });

@@ -10,7 +10,7 @@ Each `*.json` file here is a partial `settings.json` object. `node myclaude.js s
 | `plugins.json` | `enabledPlugins` | `pyright-lsp` from the official marketplace. |
 | `output-style.json` | `outputStyle` | `Concise`: lead with the result, skip preamble; error reports and destructive-action confirmations stay complete. Takes effect after `/clear`. |
 | `statusline.json` | `statusLine` | Status line command `scripts/statusline-fsun.js`: one short line (model, ctx %, 5h %, week % with reset time) and the plan usage cache `~/.myclaude/usage-cache.json` that `myclaude usage` reads. |
-| `permissions.json` | `permissions.deny` | Hard block on credential directories. |
+| `permissions.json` | `permissions.deny` | Hard block on credential directories, and on the Edit tool for `~/.claude/environments.local.json`, so the list changes only by shell or by hand. |
 
 ## Environment guard
 
@@ -24,6 +24,6 @@ Each `*.json` file here is a partial `settings.json` object. `node myclaude.js s
 
 Outside a sandbox: `psql`, `mysql`, `redis-cli` and `bq query` ask on every call unless clearly aimed at a throwaway local target, and any command that contains destructive SQL or redis words asks, including one aimed at `localhost`. In every environment, a force push or delete of `main`, `master` or `release/*` asks. This is the only prompt in a sandbox. Outside a sandbox, a data or infrastructure command that names `prod`, `production` or `live` asks.
 
-Only the machine-local, uncommitted `~/.claude/environments.local.json` (`{"/abs/path": "sandbox"}`) can declare `sandbox` or `nonprod`. A repo's `.claude/environment` can only tighten, by declaring `prod`; `.terraform/environment` can also only tighten. The environment is the strictest among the hook's `cwd` and every directory the command enters.
+Only the machine-local, uncommitted `~/.claude/environments.local.json` (`{"/abs/path": "sandbox"}`) can declare `sandbox` or `nonprod`. A repo's `.claude/environment` can only tighten, by declaring `prod`; `.terraform/environment` can also only tighten. The environment is the strictest among the hook's `cwd`, every directory the command enters, and each absolute, `~` or `..` path given to a gated `rm` or `find`, or to git's `--work-tree` or `--git-dir`.
 
 Limits: a script file run by name is not inspected; in a sandbox, `localhost` can be a tunnel to a remote database.

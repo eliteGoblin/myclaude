@@ -1,0 +1,30 @@
+{
+  "destructive": "\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\b|DELETE\\s+FROM|ALTER\\s+TABLE\\b[^;]*\\bDROP\\b|FLUSH(ALL|DB)\\b|dropDatabase\\b|deleteMany\\b)|\\.drop\\s*\\(",
+  "clients": {
+    "psql": { "sql": ["-c", "--command"], "file": ["-f", "--file"], "host": ["-h", "--host"] },
+    "mysql": { "sql": ["-e", "--execute"], "host": ["-h", "--host"] },
+    "mariadb": { "sql": ["-e", "--execute"], "host": ["-h", "--host"] },
+    "sqlite3": { "positional": true },
+    "redis-cli": { "positional": true, "host": ["-h"], "value": ["-h", "-p", "-a", "-n", "-u", "--user", "--pass"] },
+    "mongosh": { "sql": ["--eval"], "file": ["-f", "--file"], "host": ["--host"] },
+    "mongo": { "sql": ["--eval"], "file": ["-f", "--file"], "host": ["--host"] },
+    "clickhouse-client": { "sql": ["-q", "--query"], "file": ["--queries-file"], "host": ["-h", "--host"] },
+    "sqlcmd": { "sql": ["-q", "-Q"], "file": ["-i"], "host": ["-S"] },
+    "cockroach": { "sql": ["-e", "--execute"], "file": ["-f", "--file"], "host": ["--host"] }
+  },
+  "dataCommands": [
+    ["aws", "s3", "rm"], ["aws", "s3", "rb"], ["aws", "s3api", "delete-object"], ["aws", "s3api", "delete-objects"], ["aws", "s3api", "delete-bucket"],
+    ["gsutil", "rm"], ["gsutil", "rb"], ["gcloud", "storage", "rm"], ["bq", "rm"],
+    ["az", "storage", "blob", "delete"], ["az", "storage", "blob", "delete-batch"], ["az", "storage", "container", "delete"],
+    ["azcopy", "remove"], ["rclone", "delete"], ["rclone", "purge"]
+  ],
+  "infraCommands": {
+    "terraform": ["apply", "destroy"], "tofu": ["apply", "destroy"], "pulumi": ["up", "destroy"], "cdk": ["deploy", "destroy"],
+    "kubectl": ["delete", "drain", "scale", "use-context"], "helm": ["uninstall", "delete"],
+    "gcloud": ["delete", "iam", "secrets", "add-iam-policy-binding", "remove-iam-policy-binding"],
+    "aws": ["iam", "secretsmanager", "purge-queue", "delete-*"], "az": ["delete"],
+    "npm": ["publish"], "twine": ["upload"]
+  },
+  "targetFlags": ["--context", "--kube-context", "--profile", "--project", "--subscription", "--stack", "--workspace"],
+  "targetEnv": ["TF_WORKSPACE", "AWS_PROFILE", "KUBE_CONTEXT", "CLOUDSDK_CORE_PROJECT", "GOOGLE_CLOUD_PROJECT", "PULUMI_STACK"]
+}

@@ -1,6 +1,6 @@
 # Production Safety
 
-<!-- Sources: myclaude@f77bb6d custom/rules/frank/production-safety.md; claude-bible.md rule 8 (Terraform state surgery, replaces, destructive-plan merge, history rewrite, "earlier authorization does not extend"). The permissions fragment custom/settings/permissions.json and pretooluse-guards.json enforce the command-prefix part of this rule; this prose governs what a prefix pattern cannot see: SQL text, scripts, MCP calls, and the environment judgement. -->
+<!-- Sources: myclaude@f77bb6d custom/rules/frank/production-safety.md; claude-bible.md rule 8 (Terraform state surgery, replaces, destructive-plan merge, history rewrite, "earlier authorization does not extend"). The hook custom/scripts/hooks/env-guard-fsun.js enforces the command part of this rule; this prose governs what it cannot see: scripts, MCP calls, and the environment judgement. -->
 
 ## Default assumption
 
@@ -10,6 +10,19 @@ If the environment is not explicitly stated, assume it is production.
 - Only treat a target as non-prod when I have explicitly said "dev", "local", "staging", "test", "sandbox", or pointed at an obviously local resource (`localhost`, `127.0.0.1`, a docker-compose service, a throwaway tmp path).
 - Names like `app-db`, `cluster-1`, `main`, `default` are not signals of non-prod. They are unlabelled → assume prod.
 - If I gave one signal earlier in the session and the current target is different or ambiguous, confirm again. Do not extrapolate "we were in dev five steps ago, so this must also be dev".
+
+## Project declaration
+
+A project declares its environment in `.claude/environment` (`sandbox`, `nonprod`, `prod`) or in the local list `~/.claude/environments.local.json`. No declaration means unlabelled, which is treated as prod.
+
+| Environment | Data destruction | Infrastructure commands |
+|---|---|---|
+| `sandbox` in the local list | No prompt | No prompt |
+| `sandbox` by repo file only | Ask | No prompt |
+| `nonprod` | Ask | No prompt |
+| `prod` or unlabelled | Ask | Ask |
+
+In every environment, a command that names `prod`, `production` or `live` asks, and a force push to `main`, `master` or `release/*` asks. A declared `sandbox` or `nonprod` project is the explicit non-prod signal for the gates below.
 
 ## Signals to read before touching anything
 

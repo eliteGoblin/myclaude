@@ -117,6 +117,46 @@ const CASES = [
   [`git reset --hard HEAD~1`, 'unlabelled', true],
   [`rm -r build`, 'sandbox', false],
   [`rm -r build`, 'unlabelled', true],
+  // Review regressions.
+  [`psql -h db.example.com -Atc "DELETE FROM t"`, 'unlabelled', true],
+  [`psql -h db.example.com -XAtqc "$SQL"`, 'unlabelled', true],
+  [`mysql -h db.example.com -Ne "DROP TABLE t"`, 'unlabelled', true],
+  [`psql -h db.example.com -c "SELECT '/*'; DROP TABLE a; SELECT '*/'"`, 'unlabelled', true],
+  [`mysql -h db.example.com -e "/*!50000 DROP TABLE a*/"`, 'unlabelled', true],
+  [`psql "postgresql://localhost/db?host=db.example.com" -c "DROP TABLE a"`, 'unlabelled', true],
+  [`psql "host=localhost host = db.example.com" -c "DROP TABLE a"`, 'unlabelled', true],
+  [`psql "host=localhost hostaddr=10.1.2.3" -c "DROP TABLE a"`, 'unlabelled', true],
+  [`PGHOSTADDR=10.1.2.3 psql -h localhost -c "DROP TABLE a"`, 'unlabelled', true],
+  [`psql -h db.example.com -c "\\i drop.sql"`, 'unlabelled', true],
+  [`sqlite3 -cmd "DROP TABLE t" /srv/data.db`, 'unlabelled', true],
+  [`sqlite3 /srv/data.db ".read x.sql"`, 'unlabelled', true],
+  [`clickhouse-client -h db.example.com -q "ALTER TABLE t DELETE WHERE 1"`, 'unlabelled', true],
+  [`mongosh --host db.example.com --eval "db.u.remove({})"`, 'unlabelled', true],
+  [`redis-cli -h cache.example.com del k`, 'unlabelled', true],
+  [`stdbuf -o0 psql -h db.example.com -c "DROP TABLE a"`, 'unlabelled', true],
+  [`parallel psql -h db.example.com -c "DROP TABLE a"`, 'unlabelled', true],
+  [`aws s3 sync . s3://b --delete`, 'nonprod', true],
+  [`aws s3api put-bucket-lifecycle-configuration --bucket b`, 'nonprod', true],
+  [`ssh live-db.example.com psql -c "DELETE FROM t"`, 'listed', true],
+  [`kubectl exec -n prod pod -- psql -c "DELETE FROM t"`, 'listed', true],
+  [`kubectl apply -f x.yaml --context prod`, 'sandbox', true],
+  [`helm upgrade r c --kube-context prod`, 'nonprod', true],
+  [`kubectl rollout restart deploy/x --context prod`, 'unlabelled', true],
+  [`kubectl apply -f x.yaml --context dev`, 'unlabelled', false],
+  [`kubectl apply -f x.yaml`, 'sandbox', false],
+  [`terraform state rm x`, 'unlabelled', true],
+  [`terraform state list`, 'unlabelled', false],
+  [`terraform import a b`, 'unlabelled', true],
+  [`aws ec2 terminate-instances --instance-ids i-1`, 'unlabelled', true],
+  [`pnpm publish`, 'unlabelled', true],
+  [`X=terraform; $X destroy`, 'unlabelled', true],
+  [`$(echo tool) -r /data`, 'unlabelled', true],
+  [`"$PY" script.py`, 'unlabelled', false],
+  [`env -C ../unlabelled terraform destroy`, 'sandbox', true],
+  [`env -C ../unlabelled true; terraform apply`, 'sandbox', false],
+  [`terraform workspace select production && terraform apply`, 'nonprod', true],
+  [`terraform workspace select live2 && terraform apply`, path.join(home, 'work', 'unlabelled', 'wsdev'), true],
+  [`export AWS_PROFILE=production; aws iam list-users`, 'sandbox', true],
   // Force push.
   [`git push --force origin feature/x`, 'sandbox', false],
   [`git push --force origin feature/x`, 'unlabelled', true],
@@ -153,10 +193,11 @@ test('environment: a declaration in the home directory does not apply to all pro
   try { assert.equal(declaredEnv(dirs.unlabelled, home), 'unlabelled'); } finally { fs.unlinkSync(path.join(home, '.claude', 'environment')); }
 });
 
-test('fail safe: parse error asks outside a sandbox and not inside one', () => {
+test('fail safe: parse error asks unless the local list declares a sandbox', () => {
   assert.equal(asks(`echo "unterminated`, 'unlabelled'), true);
   assert.equal(asks(`echo "unterminated`, 'prod'), true);
-  assert.equal(asks(`echo "unterminated`, 'sandbox'), false);
+  assert.equal(asks(`echo "unterminated`, 'sandbox'), true);
+  assert.equal(asks(`echo "unterminated`, 'listed'), false);
 });
 
 test('fail safe: malformed input asks', () => {

@@ -1,10 +1,10 @@
 {
-  "destructive": "\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\b|DELETE\\s+FROM|ALTER\\s+TABLE\\b[^;]*\\bDROP\\b|FLUSH(ALL|DB)\\b|dropDatabase\\b|deleteMany\\b)|\\.drop\\s*\\(",
+  "destructive": "\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\b|DELETE\\s+FROM|ALTER\\s+TABLE\\b[^;]{0,300}\\b(DROP|DELETE)\\b|FLUSH(ALL|DB)\\b|dropDatabase\\b|deleteMany\\b)|\\.(drop|remove)\\s*\\(",
   "clients": {
     "psql": { "sql": ["-c", "--command"], "file": ["-f", "--file"], "host": ["-h", "--host"] },
     "mysql": { "sql": ["-e", "--execute"], "host": ["-h", "--host"] },
     "mariadb": { "sql": ["-e", "--execute"], "host": ["-h", "--host"] },
-    "sqlite3": { "positional": true },
+    "sqlite3": { "positional": true, "sql": ["-cmd"], "file": ["-init"], "value": ["-cmd", "-init", "-separator", "-newline", "-nullvalue"] },
     "redis-cli": { "positional": true, "host": ["-h"], "value": ["-h", "-p", "-a", "-n", "-u", "--user", "--pass"] },
     "mongosh": { "sql": ["--eval"], "file": ["-f", "--file"], "host": ["--host"] },
     "mongo": { "sql": ["--eval"], "file": ["-f", "--file"], "host": ["--host"] },
@@ -13,18 +13,22 @@
     "cockroach": { "sql": ["-e", "--execute"], "file": ["-f", "--file"], "host": ["--host"] }
   },
   "dataCommands": [
-    ["aws", "s3", "rm"], ["aws", "s3", "rb"], ["aws", "s3api", "delete-object"], ["aws", "s3api", "delete-objects"], ["aws", "s3api", "delete-bucket"],
-    ["gsutil", "rm"], ["gsutil", "rb"], ["gcloud", "storage", "rm"], ["bq", "rm"],
+    ["aws", "s3", "rm"], ["aws", "s3", "rb"], ["aws", "s3", "sync", "--delete"], ["aws", "s3api", "put-bucket-lifecycle-configuration"], ["aws", "s3api", "delete-object"], ["aws", "s3api", "delete-objects"], ["aws", "s3api", "delete-bucket"],
+    ["gsutil", "rm"], ["gsutil", "rb"], ["gsutil", "rsync", "-d"], ["gcloud", "storage", "rm"], ["bq", "rm"],
     ["az", "storage", "blob", "delete"], ["az", "storage", "blob", "delete-batch"], ["az", "storage", "container", "delete"],
     ["azcopy", "remove"], ["rclone", "delete"], ["rclone", "purge"]
   ],
   "infraCommands": {
-    "terraform": ["apply", "destroy"], "tofu": ["apply", "destroy"], "pulumi": ["up", "destroy"], "cdk": ["deploy", "destroy"],
+    "terraform": ["apply", "destroy", "import", "force-unlock", "taint", "untaint"], "tofu": ["apply", "destroy", "import", "force-unlock", "taint", "untaint"], "pulumi": ["up", "destroy"], "cdk": ["deploy", "destroy"],
     "kubectl": ["delete", "drain", "scale", "use-context"], "helm": ["uninstall", "delete"],
     "gcloud": ["delete", "iam", "secrets", "add-iam-policy-binding", "remove-iam-policy-binding"],
-    "aws": ["iam", "secretsmanager", "purge-queue", "delete-*"], "az": ["delete"],
-    "npm": ["publish"], "twine": ["upload"]
+    "aws": ["iam", "secretsmanager", "purge-queue", "delete-*", "terminate-*"], "az": ["delete"],
+    "npm": ["publish"], "pnpm": ["publish"], "yarn": ["publish"], "twine": ["upload"]
   },
-  "targetFlags": ["--context", "--kube-context", "--profile", "--project", "--subscription", "--stack", "--workspace"],
-  "targetEnv": ["TF_WORKSPACE", "AWS_PROFILE", "KUBE_CONTEXT", "CLOUDSDK_CORE_PROJECT", "GOOGLE_CLOUD_PROJECT", "PULUMI_STACK"]
+  "prodOnlyCommands": {
+    "kubectl": ["apply", "patch", "rollout", "replace", "create", "edit", "set", "annotate", "label", "cordon", "taint"],
+    "helm": ["upgrade", "install", "rollback"]
+  },
+  "targetFlags": ["--kubeconfig", "--cluster", "--server", "--context", "--kube-context", "--profile", "--project", "--subscription", "--stack", "--workspace"],
+  "targetEnv": ["KUBECONFIG", "TF_WORKSPACE", "AWS_PROFILE", "KUBE_CONTEXT", "CLOUDSDK_CORE_PROJECT", "GOOGLE_CLOUD_PROJECT", "PULUMI_STACK"]
 }

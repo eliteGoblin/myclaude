@@ -19,9 +19,13 @@ const NONPROD_WORD = /(^|[^a-z0-9])(non-?prod|nonproduction|dev|development|test
 const WRAPPER_VALUE_FLAGS = {
   sudo: ['-u', '-g', '-h', '-p', '-C', '-D', '-R', '-T'], doas: ['-u'], env: ['-u', '-C'], timeout: ['-k', '-s'], nice: ['-n'],
   xargs: ['-I', '-n', '-P', '-L', '-d', '-E', '-s'], command: [], exec: ['-a'], nohup: [], time: [], builtin: [],
+  stdbuf: ['-i', '-o', '-e'], setsid: [], ionice: ['-c', '-n', '-p'], caffeinate: ['-t', '-w'], watch: ['-n', '-d'], chronic: [], unbuffer: [],
 };
 const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash', 'ksh']);
 const REMOTE_RUNNERS = new Set(['ssh', 'docker', 'podman', 'kubectl']);
+const TEXT_ONLY = new Set(['echo', 'printf', 'grep', 'egrep', 'fgrep', 'rg', 'cat', 'sed', 'awk', 'head', 'tail']);
+const MAX_SQL_BYTES = 256 * 1024;
+const INDIRECT_SQL = /(^|[;\n])\s*(\\i|\\ir|\\include|\\!|\.read|\.shell|\.system|source)\s/i;
 const KEYWORDS = new Set(['then', 'do', 'else', 'elif', 'if', 'while', 'until', '{', '}', '!', 'fi', 'done']);
 
 function namesProd(text) {
@@ -114,7 +118,7 @@ function parse(script) {
     } else if (c === '"') {
       startWord(); word.quoted = true; i += 1;
       while (i < script.length && script[i] !== '"') {
-        if (script[i] === '\\') { word.text += script[i + 1] || ''; i += 2; } else if (script[i] === '$' && script[i + 1] === '(') i = readSub(i) + 1;
+        if (script[i] === '\\') { if (!'$`"\\\n'.includes(script[i + 1] || ' ')) word.text += '\\'; if (script[i + 1] !== '\n') word.text += script[i + 1] || ''; i += 2; } else if (script[i] === '$' && script[i + 1] === '(') i = readSub(i) + 1;
         else if (script[i] === '`') i = readBacktick(i) + 1;
         else { if (script[i] === '$') word.dynamic = true; word.text += script[i]; i += 1; }
       }
@@ -181,7 +185,7 @@ function declaredEnv(cwd, home = os.homedir()) {
   const dir = real(cwd);
   const realHome = real(home);
   let fileValue = null;
-  for (let d = dir; d !== path.dirname(d) && d !== realHome; d = path.dirname(d)) {
+  for (let d = dir; d !== path.dirname(d) && d !== realHome && d !== '/tmp' && d !== '/private/tmp'; d = path.dirname(d)) {
     let raw;
     try { raw = fs.readFileSync(path.join(d, '.claude', 'environment'), 'utf8'); } catch { continue; }
     const v = raw.trim().toLowerCase();
@@ -224,7 +228,8 @@ function flagValues(words, flags) {
     for (const f of flags) {
       if (w.text === f && words[i + 1]) out.push(words[i + 1]);
       else if (f.startsWith('--') && w.text.startsWith(`${f}=`)) out.push({ ...w, text: w.text.slice(f.length + 1) });
-      else if (!f.startsWith('--') && w.text.length > 2 && w.text.startsWith(f)) out.push({ ...w, text: w.text.slice(2) });
+      else if (f.length === 2 && /^-[A-Za-z]{2,}$/.test(w.text) && w.text.endsWith(f[1]) && words[i + 1]) out.push(words[i + 1]);
+      else if (f.length === 2 && w.text.length > 2 && w.text.startsWith(f)) out.push({ ...w, text: w.text.slice(2) });
     }
   });
   return out;
@@ -242,7 +247,12 @@ function isTempPath(file, cwd) {
 function targetIsLocal(tool, rule, args, env, cwd, remote) {
   if (remote) return false;
   if (tool === 'sqlite3') {
-    const db = args.find((w) => !w.text.startsWith('-'));
+    const valueFlags = new Set(rule.value || []);
+    let db = null;
+    for (let i = 0; i < args.length && !db; i += 1) {
+      if (valueFlags.has(args[i].text)) i += 1;
+      else if (!args[i].text.startsWith('-')) db = args[i];
+    }
     if (!db) return true;
     if (db.dynamic) return false;
     return db.text === ':memory:' || isTempPath(db.text, cwd);
@@ -253,13 +263,21 @@ function targetIsLocal(tool, rule, args, env, cwd, remote) {
   for (const w of args) {
     if (/^[a-z][a-z0-9+.-]*:\/\//i.test(w.text)) {
       if (w.dynamic) return false;
-      try { hosts.push(new URL(w.text).hostname); } catch { return false; }
+      try {
+        const url = new URL(w.text);
+        if (/host|service/i.test(url.search)) return false;
+        hosts.push(url.hostname);
+      } catch { return false; }
+    } else if (/\b(hostaddr|service)\s*=/i.test(w.text) || /^--(defaults-file|defaults-extra-file|login-path)\b/.test(w.text)) return false;
+    else if (/\bhost\s*=/i.test(w.text)) {
+      if (w.dynamic) return false;
+      for (const m of w.text.matchAll(/\bhost\s*=\s*'?([^\s']+)/gi)) hosts.push(m[1]);
     }
-    const m = w.text.match(/(?:^|\s)host=([^\s]+)/);
-    if (m) { if (w.dynamic) return false; hosts.push(m[1]); }
   }
+  for (const k of ['PGHOSTADDR', 'PGSERVICE']) if (env[k] !== undefined || process.env[k]) return false;
   if (tool === 'psql' && env.PGHOST !== undefined) hosts.push(env.PGHOST);
   else if (tool === 'psql' && process.env.PGHOST) hosts.push(process.env.PGHOST);
+  if (tool === 'mysql' || tool === 'mariadb') { const h = env.MYSQL_HOST ?? process.env.MYSQL_HOST; if (h) hosts.push(h); }
   return hosts.length > 0 && hosts.every((h) => LOCAL_HOSTS.has(h.toLowerCase()));
 }
 
@@ -267,7 +285,7 @@ function readSqlFile(word, cwd) {
   if (word.dynamic) return null;
   try {
     const f = path.isAbsolute(word.text) ? word.text : path.join(cwd || '.', word.text);
-    if (fs.statSync(f).size > 1024 * 1024) return null;
+    if (fs.statSync(f).size > MAX_SQL_BYTES) return null;
     return fs.readFileSync(f, 'utf8');
   } catch { return null; }
 }
@@ -301,8 +319,12 @@ function sqlPayload(tool, rule, args, cmd, cwd) {
       cmd.pipedFrom.stdinFiles.forEach(addFile);
     } else opaque = true;
   }
-  const text = parts.join('\n').replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*--.*$/gm, ' ');
-  return { text, opaque };
+  parts.push(...args.map((w) => w.text));
+  const raw = parts.join('\n');
+  if (raw.length > MAX_SQL_BYTES) return { text: '', opaque: true };
+  if (INDIRECT_SQL.test(raw)) opaque = true;
+  const stripped = raw.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/--[^\n]*/g, ' ');
+  return { text: `${raw}\n${stripped}`, opaque };
 }
 
 function matchWord(word, pattern) { return pattern.endsWith('*') ? word.startsWith(pattern.slice(0, -1)) : word === pattern; }
@@ -349,10 +371,17 @@ function infraFinding(tool, args) {
   const texts = args.map((w) => w.text);
   if (tool === 'rm' && texts.some((t) => /^-[a-zA-Z]*[rR]/.test(t) || t === '--recursive')) return 'recursive rm';
   if (tool === 'find' && (texts.includes('-delete') || texts.some((t, i) => ['-exec', '-execdir'].includes(t) && path.basename(texts[i + 1] || '') === 'rm'))) return 'find delete';
+  if ((tool === 'terraform' || tool === 'tofu') && texts.includes('state') && texts.some((t) => ['rm', 'mv', 'push', 'replace-provider'].includes(t))) return `${tool} state change`;
   if (tool === 'gh' && texts[0] === 'release' && texts[1] === 'create') return 'gh release create';
   const words = RULES.infraCommands[tool];
   if (words && texts.some((t) => words.some((p) => matchWord(t, p)))) return `${tool} ${texts.find((t) => words.some((p) => matchWord(t, p)))}`;
   return null;
+}
+
+function prodOnlyFinding(tool, args) {
+  const words = RULES.prodOnlyCommands[tool];
+  const hit = words && args.find((w) => words.includes(w.text));
+  return hit ? `${tool} ${hit.text}` : null;
 }
 
 function targetLabel(tool, args, env, cwd, home) {
@@ -375,6 +404,10 @@ function unwrap(words, env) {
     if (!rest.length) return rest;
     const name = path.basename(rest[0].text);
     if (!(name in WRAPPER_VALUE_FLAGS)) return rest;
+    if (name === 'env' || name === 'sudo') {
+      const c = rest.findIndex((w) => ['-C', '-D', '--chdir'].includes(w.text) || w.text.startsWith('--chdir='));
+      if (c > 0) env.__chdir = rest[c].text.startsWith('--chdir=') ? { ...rest[c], text: rest[c].text.slice(8) } : (rest[c + 1] || { text: '', dynamic: true });
+    }
     if (name === 'env' && rest.some((w) => w.text === '-S' || w.text.startsWith('--split-string'))) throw new Error('env -S is not parsed');
     const valueFlags = WRAPPER_VALUE_FLAGS[name];
     let i = 1;
@@ -396,17 +429,44 @@ function classify(script, state, depth = 0) {
   for (const s of subs) findings.push(...classify(s, { ...state, env: { ...state.env } }, depth + 1));
   const stack = [];
   let cwd = state.cwd;
+  let restoreCwd;
+  const sticky = {};
   for (const item of items) {
+    if (restoreCwd !== undefined) { cwd = restoreCwd; restoreCwd = undefined; }
     if (item.type === 'open') { stack.push(cwd); continue; }
     if (item.type === 'close') { if (stack.length) cwd = stack.pop(); continue; }
     const { cmd } = item;
-    const env = { ...state.env };
+    const env = { ...state.env, ...sticky };
     const argv = unwrap(cmd.words, env);
     if (!argv.length) continue;
+    if (env.__chdir) {
+      restoreCwd = cwd === null ? undefined : cwd;
+      cwd = env.__chdir.dynamic || !cwd ? null : path.resolve(cwd, env.__chdir.text);
+      if (restoreCwd === undefined) restoreCwd = null;
+      delete env.__chdir;
+    }
     const tool = path.basename(argv[0].text);
     const args = argv.slice(1);
     const inlineTargets = RULES.targetEnv.filter((k) => env[k] !== undefined).map((k) => `${k}=${env[k]}`);
-    const text = [...inlineTargets, ...argv.map((w) => w.text)].join(' ');
+    const text = [state.outer || '', ...inlineTargets, ...argv.map((w) => w.text)].join(' ').trim();
+    if (tool === 'export') {
+      for (const w of args) {
+        const eq = w.text.indexOf('=');
+        if (eq > 0 && RULES.targetEnv.includes(w.text.slice(0, eq))) sticky[w.text.slice(0, eq)] = w.dynamic ? '$dynamic' : w.text.slice(eq + 1);
+      }
+      continue;
+    }
+    if ((tool === 'terraform' || tool === 'tofu') && args.some((w) => w.text === 'workspace')) {
+      const at = args.findIndex((w) => w.text === 'select' || w.text === 'new');
+      if (at >= 0 && args[at + 1]) sticky.TF_WORKSPACE = args[at + 1].dynamic ? '$dynamic' : args[at + 1].text;
+    }
+    if (tool.includes('$')) {
+      const texts = args.map((w) => w.text);
+      const gated = Object.values(RULES.infraCommands).flat();
+      if (DESTRUCTIVE.test(texts.join(' '))) findings.push({ cls: 'data', cwd, text, why: 'destructive statement in a command whose name cannot be read' });
+      else if (texts.some((t) => /^-[a-zA-Z]*[rR][a-zA-Z]*$/.test(t) || gated.some((p) => matchWord(t, p)))) findings.push({ cls: 'infra', cwd, text, why: 'gated word in a command whose name cannot be read' });
+      continue;
+    }
     if (tool === 'cd' || tool === 'pushd') {
       const target = args.find((w) => !w.text.startsWith('-'));
       let nextCwd = null;
@@ -433,7 +493,7 @@ function classify(script, state, depth = 0) {
     if (REMOTE_RUNNERS.has(tool) && (tool === 'ssh' || args.some((w) => w.text === 'exec' || w.text === 'run'))) {
       const clientAt = args.findIndex((w) => RULES.clients[path.basename(w.text)] || SHELLS.has(path.basename(w.text)));
       const joined = clientAt >= 0 ? args.slice(clientAt).map((w) => (/\s/.test(w.text) ? `'${w.text.replace(/'/g, `'\\''`)}'` : w.text)).join(' ') : args.filter((w) => /\s/.test(w.text)).map((w) => w.text).join('; ');
-      if (joined) findings.push(...classify(joined, { ...state, cwd, env, remote: true }, depth + 1));
+      if (joined) findings.push(...classify(joined, { ...state, cwd, env, remote: true, outer: text }, depth + 1));
       if (tool !== 'kubectl') continue;
     }
     let effectiveCwd = cwd;
@@ -450,7 +510,7 @@ function classify(script, state, depth = 0) {
     if (rule || (tool === 'bq' && args.some((w) => w.text === 'query'))) {
       const r = rule || {};
       const payload = sqlPayload(tool, r, args, cmd, cwd);
-      const destructive = DESTRUCTIVE.test(payload.text);
+      const destructive = DESTRUCTIVE.test(payload.text) || (tool === 'redis-cli' && args.some((w) => /^(DEL|UNLINK)$/i.test(w.text)));
       if ((destructive || payload.opaque) && !targetIsLocal(tool, r, args, env, cwd, state.remote)) {
         findings.push({ cls: 'data', cwd, text, why: destructive ? `destructive statement sent to ${tool}` : `${tool} input that cannot be read` });
       }
@@ -460,7 +520,10 @@ function classify(script, state, depth = 0) {
     const dataRule = RULES.dataCommands.find(([t, ...sub]) => t === tool && sub.every((s) => texts.includes(s)));
     if (dataRule) { findings.push({ cls: 'data', cwd, text, why: dataRule.join(' ') }); continue; }
     const why = infraFinding(tool, args);
-    if (why) findings.push({ cls: 'infra', why, cwd: effectiveCwd, tool, args, env, text });
+    if (why) { findings.push({ cls: 'infra', why, cwd: effectiveCwd, tool, args, env, text }); continue; }
+    const prodOnly = prodOnlyFinding(tool, args);
+    if (prodOnly) { findings.push({ cls: 'prodOnly', why: prodOnly, cwd: effectiveCwd, tool, args, env, text }); continue; }
+    if (!TEXT_ONLY.has(tool) && texts.some((t) => RULES.clients[path.basename(t)]) && DESTRUCTIVE.test(texts.join(' '))) findings.push({ cls: 'data', cwd, text, why: `destructive statement passed through ${tool}` });
   }
   return findings;
 }
@@ -475,7 +538,7 @@ function decide(input, home = os.homedir()) {
   try {
     findings = classify(command, { cwd: cwd && path.isAbsolute(cwd) ? real(cwd) : null, env: {}, home, remote: false });
   } catch (err) {
-    if (declaredEnv(cwd, home) === 'sandbox') return { ask: false };
+    if (dataPromptsOff(cwd, home)) return { ask: false };
     return { ask: true, reason: `could not parse the command (${err.message})` };
   }
   for (const f of findings) {
@@ -485,11 +548,15 @@ function decide(input, home = os.homedir()) {
     if (!dataPromptsOff(f.cwd, home)) return { ask: true, reason: `data destruction: ${f.why}` };
   }
   for (const f of findings) {
-    if (f.cls !== 'infra') continue;
+    if (f.cls !== 'infra' && f.cls !== 'prodOnly') continue;
     const declared = declaredEnv(f.cwd, home);
     if (declared === 'prod') return { ask: true, reason: `production project: ${f.why}` };
     if (f.text && namesProd(f.text)) return { ask: true, reason: `command names production: ${f.why}` };
     if (declared === 'sandbox' || declared === 'nonprod') continue;
+    if (f.cls === 'prodOnly') {
+      if (targetLabel(f.tool, f.args, f.env, f.cwd, home) === 'prod') return { ask: true, reason: `production target: ${f.why}` };
+      continue;
+    }
     const label = f.tool ? targetLabel(f.tool, f.args, f.env, f.cwd, home) : 'none';
     if (label !== 'nonprod') return { ask: true, reason: `unlabelled or production target: ${f.why}. Declare the project in .claude/environment if it is not production.` };
   }
@@ -498,14 +565,14 @@ function decide(input, home = os.homedir()) {
 
 function main() {
   let raw = '';
+  const emitAsk = (reason) => process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'ask', permissionDecisionReason: `production-safety: ${reason}` } })}\n`);
+  setTimeout(() => { emitAsk('guard timed out'); process.exit(0); }, 4000).unref();
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (d) => { raw += d; });
   process.stdin.on('end', () => {
     let result;
     try { result = decide(JSON.parse(raw)); } catch (err) { result = { ask: true, reason: `guard error: ${err.message}` }; }
-    if (result.ask) {
-      process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'ask', permissionDecisionReason: `production-safety: ${result.reason}` } })}\n`);
-    }
+    if (result.ask) emitAsk(result.reason);
     process.exit(0);
   });
 }

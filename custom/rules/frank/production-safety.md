@@ -21,7 +21,7 @@ Only the local list `~/.claude/environments.local.json` can declare `sandbox` or
 | `nonprod` (local list) | Ask | No prompt |
 | `prod` or unlabelled | Ask | Ask |
 
-In every environment, a data or infrastructure command that names `prod`, `production` or `live` asks, and a force push to `main`, `master` or `release/*` asks. A project in the local list as `sandbox` or `nonprod` is the explicit non-prod signal for the gates below.
+In every environment, a force push or delete of `main`, `master` or `release/*` asks. This is the only prompt in a sandbox. Outside a sandbox, a data or infrastructure command that names `prod`, `production` or `live` asks. A command that enters a directory outside the sandbox is judged by that directory. A project in the local list as `sandbox` or `nonprod` is the explicit non-prod signal for the gates below.
 
 ## Signals to read before touching anything
 

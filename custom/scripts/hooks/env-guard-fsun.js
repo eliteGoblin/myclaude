@@ -578,17 +578,17 @@ function decide(input, home = os.homedir()) {
   for (const f of findings) {
     if (f.cls === 'protected') return { ask: true, reason: f.why };
   }
-  if (environment !== 'sandbox' && WHOLE_COMMAND.test(command)) return { ask: true, reason: 'destructive SQL or redis words in the command' };
+  // A sandbox in the local list gets no other prompt, also for names that contain prod.
+  if (environment === 'sandbox') return { ask: false };
+  if (WHOLE_COMMAND.test(command)) return { ask: true, reason: 'destructive SQL or redis words in the command' };
   for (const f of findings) {
-    if (f.cls !== 'data') continue;
-    if (namesProd(f.text)) return { ask: true, reason: `data destruction on a production target: ${f.why}` };
-    if (environment !== 'sandbox') return { ask: true, reason: `data: ${f.why}` };
+    if (f.cls === 'data') return { ask: true, reason: `data: ${f.why}` };
   }
   for (const f of findings) {
     if (f.cls !== 'infra' && f.cls !== 'prodOnly') continue;
     if (environment === 'prod') return { ask: true, reason: `production project: ${f.why}` };
     if (f.text && namesProd(f.text)) return { ask: true, reason: `command names production: ${f.why}` };
-    if (environment === 'sandbox' || environment === 'nonprod') continue;
+    if (environment === 'nonprod') continue;
     const label = f.tool ? targetLabel(f.tool, f.args, f.env, f.cwd, home) : 'none';
     if (f.cls === 'prodOnly') {
       if (label === 'prod') return { ask: true, reason: `production target: ${f.why}` };

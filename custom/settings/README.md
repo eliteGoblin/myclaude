@@ -22,7 +22,7 @@ Each `*.json` file here is a partial `settings.json` object. `node myclaude.js s
 | `nonprod` (local list) | Ask | No prompt |
 | `prod` or unlabelled | Ask | Ask, unless the command or real kube or cloud state labels the target non-prod (unlabelled only) |
 
-Outside a sandbox: `psql`, `mysql`, `redis-cli` and `bq query` ask on every call unless clearly aimed at a throwaway local target, and any command that contains destructive SQL or redis words asks, including one aimed at `localhost`. In every environment, a force push or delete of `main`, `master` or `release/*` asks, and a data or infrastructure command that names `prod`, `production` or `live` asks.
+Outside a sandbox: `psql`, `mysql`, `redis-cli` and `bq query` ask on every call unless clearly aimed at a throwaway local target, and any command that contains destructive SQL or redis words asks, including one aimed at `localhost`. In every environment, a force push or delete of `main`, `master` or `release/*` asks. This is the only prompt in a sandbox. Outside a sandbox, a data or infrastructure command that names `prod`, `production` or `live` asks.
 
 Only the machine-local, uncommitted `~/.claude/environments.local.json` (`{"/abs/path": "sandbox"}`) can declare `sandbox` or `nonprod`. A repo's `.claude/environment` can only tighten, by declaring `prod`; `.terraform/environment` can also only tighten. The environment is the strictest among the hook's `cwd` and every directory the command enters.
 

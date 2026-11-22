@@ -2,19 +2,33 @@
 'use strict';
 
 // PreToolUse Bash guard.
-// Data destruction asks, except in a project listed as sandbox in ~/.claude/environments.local.json.
-// Infrastructure commands ask for production and unlabelled targets.
-// A project declares itself in .claude/environment or in the local list. Rules: env-guard-rules.json.
+// Only ~/.claude/environments.local.json can declare sandbox or nonprod. A repo's own files can only
+// tighten (.claude/environment = prod). Outside a sandbox, database clients and destructive SQL words ask.
+// Infrastructure commands ask for production and unlabelled targets. Rules: env-guard-rules.json.
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const RULES = require('./env-guard-rules.json');
 
-const DESTRUCTIVE = new RegExp(RULES.destructive, 'i');
+let RULES = null;
+let DESTRUCTIVE = null;
+let WHOLE_COMMAND = null;
+let loadError = null;
+try {
+  RULES = require('./env-guard-rules.json');
+  DESTRUCTIVE = new RegExp(RULES.destructive, 'i');
+  WHOLE_COMMAND = new RegExp(RULES.wholeCommandScan, 'i');
+  for (const key of ['clients', 'alwaysAskClients', 'dataCommands', 'infraCommands', 'prodOnlyCommands', 'targetFlags', 'targetEnv']) {
+    if (!RULES[key]) throw new Error(`rules file has no ${key}`);
+  }
+} catch (err) {
+  loadError = err;
+}
+
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
 const VALID_ENVS = new Set(['sandbox', 'nonprod', 'prod']);
+const ENV_RANK = { sandbox: 0, nonprod: 1, unlabelled: 2, prod: 3 };
 const NONPROD_WORD = /(^|[^a-z0-9])(non-?prod|nonproduction|dev|development|test|staging|stage|sandbox|local)($|[^a-z0-9])/i;
 const WRAPPER_VALUE_FLAGS = {
   sudo: ['-u', '-g', '-h', '-p', '-C', '-D', '-R', '-T'], doas: ['-u'], env: ['-u', '-C'], timeout: ['-k', '-s'], nice: ['-n'],
@@ -180,37 +194,35 @@ function listedEnv(cwd, home) {
   return matches.length ? matches[0][1] : null;
 }
 
+// A repo file can only tighten to prod. Sandbox and nonprod come from the local list only.
 function declaredEnv(cwd, home = os.homedir()) {
   if (!cwd || !path.isAbsolute(cwd)) return 'unlabelled';
   const dir = real(cwd);
   const realHome = real(home);
-  let fileValue = null;
   for (let d = dir; d !== path.dirname(d) && d !== realHome && d !== '/tmp' && d !== '/private/tmp'; d = path.dirname(d)) {
-    let raw;
-    try { raw = fs.readFileSync(path.join(d, '.claude', 'environment'), 'utf8'); } catch { continue; }
-    const v = raw.trim().toLowerCase();
-    fileValue = VALID_ENVS.has(v) ? v : 'unlabelled';
-    break;
+    try {
+      if (fs.readFileSync(path.join(d, '.claude', 'environment'), 'utf8').trim().toLowerCase() === 'prod') return 'prod';
+    } catch { /* no declaration at this level */ }
   }
-  const listValue = listedEnv(cwd, home);
-  if (fileValue === 'prod' || listValue === 'prod') return 'prod';
-  return fileValue || listValue || 'unlabelled';
+  return listedEnv(cwd, home) || 'unlabelled';
 }
 
-// Only the machine-local list can switch off data prompts: a cloned repo controls its own
-// .claude/environment file, so that file alone must not disable them.
-function dataPromptsOff(cwd, home) {
-  return declaredEnv(cwd, home) === 'sandbox' && listedEnv(cwd, home) === 'sandbox';
+function strictestEnv(cwd, visited, home) {
+  let worst = declaredEnv(cwd, home);
+  for (const dir of visited) {
+    const value = dir ? declaredEnv(dir, home) : 'unlabelled';
+    if (ENV_RANK[value] > ENV_RANK[worst]) worst = value;
+  }
+  return worst;
 }
 
 function quiet(cmd, args, cwd) {
   try { return execFileSync(cmd, args, { cwd: cwd || undefined, encoding: 'utf8', timeout: 1000, stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return ''; }
 }
 
-function ambientTargets(tool, cwd, home) {
+function realStateTargets(tool, cwd, home) {
   const out = [];
   const read = (f) => { try { return fs.readFileSync(f, 'utf8').trim(); } catch { return ''; } };
-  if ((tool === 'terraform' || tool === 'tofu') && cwd) out.push(read(path.join(cwd, '.terraform', 'environment')));
   if (tool === 'kubectl' || tool === 'helm') out.push(quiet('kubectl', ['config', 'current-context'], cwd));
   if (tool === 'gcloud') {
     const active = read(path.join(home, '.config', 'gcloud', 'active_config')) || 'default';
@@ -384,11 +396,19 @@ function prodOnlyFinding(tool, args) {
   return hit ? `${tool} ${hit.text}` : null;
 }
 
+// A nonprod label counts only from the command itself or real state outside the repo.
+// The process environment and .terraform/environment can only tighten.
 function targetLabel(tool, args, env, cwd, home) {
-  const values = flagValues(args, RULES.targetFlags).map((w) => w.text);
-  for (const k of RULES.targetEnv) { const v = env[k] ?? process.env[k]; if (v) values.push(v); }
-  if (!values.length) values.push(...ambientTargets(tool, cwd, home));
-  if (values.some(namesProd)) return 'prod';
+  const explicit = flagValues(args, RULES.targetFlags).map((w) => w.text);
+  for (const k of RULES.targetEnv) if (env[k] !== undefined) explicit.push(env[k]);
+  const tighten = RULES.targetEnv.map((k) => process.env[k]).filter(Boolean);
+  if ((tool === 'terraform' || tool === 'tofu') && cwd) {
+    try { tighten.push(fs.readFileSync(path.join(cwd, '.terraform', 'environment'), 'utf8').trim()); } catch { /* no workspace file */ }
+  }
+  const external = explicit.length ? [] : realStateTargets(tool, cwd, home);
+  const trusted = process.env.KUBECONFIG ? [] : external;
+  const values = [...explicit, ...trusted];
+  if ([...values, ...external, ...tighten].some(namesProd)) return 'prod';
   return values.length && values.every((v) => NONPROD_WORD.test(v)) ? 'nonprod' : 'none';
 }
 
@@ -431,6 +451,7 @@ function classify(script, state, depth = 0) {
   let cwd = state.cwd;
   let restoreCwd;
   const sticky = {};
+  const dirStack = [];
   for (const item of items) {
     if (restoreCwd !== undefined) { cwd = restoreCwd; restoreCwd = undefined; }
     if (item.type === 'open') { stack.push(cwd); continue; }
@@ -442,6 +463,7 @@ function classify(script, state, depth = 0) {
     if (env.__chdir) {
       restoreCwd = cwd === null ? undefined : cwd;
       cwd = env.__chdir.dynamic || !cwd ? null : path.resolve(cwd, env.__chdir.text);
+      state.visited.push(cwd);
       if (restoreCwd === undefined) restoreCwd = null;
       delete env.__chdir;
     }
@@ -467,6 +489,12 @@ function classify(script, state, depth = 0) {
       else if (texts.some((t) => /^-[a-zA-Z]*[rR][a-zA-Z]*$/.test(t) || gated.some((p) => matchWord(t, p)))) findings.push({ cls: 'infra', cwd, text, why: 'gated word in a command whose name cannot be read' });
       continue;
     }
+    if (tool === 'popd') {
+      const back = dirStack.length ? dirStack.pop() : null;
+      state.visited.push(back);
+      cwd = back;
+      continue;
+    }
     if (tool === 'cd' || tool === 'pushd') {
       const target = args.find((w) => !w.text.startsWith('-'));
       let nextCwd = null;
@@ -474,6 +502,8 @@ function classify(script, state, depth = 0) {
         const candidate = path.resolve(cwd, target.text.replace(/^~(?=\/|$)/, state.home));
         if (fs.existsSync(candidate)) nextCwd = real(candidate);
       }
+      state.visited.push(nextCwd);
+      if (tool === 'pushd') dirStack.push(cwd);
       if (cmd.op === '&&' || cmd.op === ';' || cmd.op === '\n') cwd = nextCwd;
       else if (cmd.op === '||') cwd = null;
       continue;
@@ -498,10 +528,10 @@ function classify(script, state, depth = 0) {
     }
     let effectiveCwd = cwd;
     const chdir = args.find((w) => w.text.startsWith('-chdir='));
-    if (chdir && cwd) effectiveCwd = chdir.dynamic ? null : path.resolve(cwd, chdir.text.slice(7));
+    if (chdir) { effectiveCwd = chdir.dynamic || !cwd ? null : path.resolve(cwd, chdir.text.slice(7)); state.visited.push(effectiveCwd); }
     if (tool === 'git') {
       const c = args.findIndex((w) => w.text === '-C');
-      if (c >= 0 && args[c + 1] && cwd) effectiveCwd = args[c + 1].dynamic ? null : path.resolve(cwd, args[c + 1].text);
+      if (c >= 0 && args[c + 1]) { effectiveCwd = args[c + 1].dynamic || !cwd ? null : path.resolve(cwd, args[c + 1].text); state.visited.push(effectiveCwd); }
       const f = gitFinding(args, effectiveCwd);
       if (f) findings.push({ ...f, cwd: effectiveCwd, tool, args, env, text });
       continue;
@@ -511,8 +541,9 @@ function classify(script, state, depth = 0) {
       const r = rule || {};
       const payload = sqlPayload(tool, r, args, cmd, cwd);
       const destructive = DESTRUCTIVE.test(payload.text) || (tool === 'redis-cli' && args.some((w) => /^(DEL|UNLINK)$/i.test(w.text)));
-      if ((destructive || payload.opaque) && !targetIsLocal(tool, r, args, env, cwd, state.remote)) {
-        findings.push({ cls: 'data', cwd, text, why: destructive ? `destructive statement sent to ${tool}` : `${tool} input that cannot be read` });
+      if ((destructive || payload.opaque || RULES.alwaysAskClients.includes(tool)) && !targetIsLocal(tool, r, args, env, cwd, state.remote)) {
+        const why = destructive ? `destructive statement sent to ${tool}` : (payload.opaque ? `${tool} input that cannot be read` : `${tool} call to a target that is not clearly local`);
+        findings.push({ cls: 'data', cwd, text, why });
       }
       continue;
     }
@@ -529,36 +560,41 @@ function classify(script, state, depth = 0) {
 }
 
 function decide(input, home = os.homedir()) {
+  if (loadError) return { ask: true, reason: `guard rules could not be loaded (${loadError.message})` };
   if (!input || typeof input !== 'object') return { ask: true, reason: 'malformed hook input' };
   if (input.tool_name && input.tool_name !== 'Bash') return { ask: false };
   const command = input.tool_input && input.tool_input.command;
   const cwd = typeof input.cwd === 'string' ? input.cwd : null;
   if (typeof command !== 'string') return { ask: true, reason: 'malformed hook input' };
+  const visited = [];
   let findings;
   try {
-    findings = classify(command, { cwd: cwd && path.isAbsolute(cwd) ? real(cwd) : null, env: {}, home, remote: false });
+    findings = classify(command, { cwd: cwd && path.isAbsolute(cwd) ? real(cwd) : null, env: {}, home, remote: false, visited });
   } catch (err) {
-    if (dataPromptsOff(cwd, home)) return { ask: false };
+    if (declaredEnv(cwd, home) === 'sandbox' && !/\b(cd|pushd|popd)\b/.test(command)) return { ask: false };
     return { ask: true, reason: `could not parse the command (${err.message})` };
   }
+  const environment = strictestEnv(cwd, visited, home);
   for (const f of findings) {
     if (f.cls === 'protected') return { ask: true, reason: f.why };
+  }
+  if (environment !== 'sandbox' && WHOLE_COMMAND.test(command)) return { ask: true, reason: 'destructive SQL or redis words in the command' };
+  for (const f of findings) {
     if (f.cls !== 'data') continue;
     if (namesProd(f.text)) return { ask: true, reason: `data destruction on a production target: ${f.why}` };
-    if (!dataPromptsOff(f.cwd, home)) return { ask: true, reason: `data destruction: ${f.why}` };
+    if (environment !== 'sandbox') return { ask: true, reason: `data: ${f.why}` };
   }
   for (const f of findings) {
     if (f.cls !== 'infra' && f.cls !== 'prodOnly') continue;
-    const declared = declaredEnv(f.cwd, home);
-    if (declared === 'prod') return { ask: true, reason: `production project: ${f.why}` };
+    if (environment === 'prod') return { ask: true, reason: `production project: ${f.why}` };
     if (f.text && namesProd(f.text)) return { ask: true, reason: `command names production: ${f.why}` };
-    if (declared === 'sandbox' || declared === 'nonprod') continue;
+    if (environment === 'sandbox' || environment === 'nonprod') continue;
+    const label = f.tool ? targetLabel(f.tool, f.args, f.env, f.cwd, home) : 'none';
     if (f.cls === 'prodOnly') {
-      if (targetLabel(f.tool, f.args, f.env, f.cwd, home) === 'prod') return { ask: true, reason: `production target: ${f.why}` };
+      if (label === 'prod') return { ask: true, reason: `production target: ${f.why}` };
       continue;
     }
-    const label = f.tool ? targetLabel(f.tool, f.args, f.env, f.cwd, home) : 'none';
-    if (label !== 'nonprod') return { ask: true, reason: `unlabelled or production target: ${f.why}. Declare the project in .claude/environment if it is not production.` };
+    if (label !== 'nonprod') return { ask: true, reason: `unlabelled or production target: ${f.why}. Add the project to ~/.claude/environments.local.json if it is not production.` };
   }
   return { ask: false };
 }

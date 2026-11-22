@@ -13,16 +13,15 @@ If the environment is not explicitly stated, assume it is production.
 
 ## Project declaration
 
-A project declares its environment in `.claude/environment` (`sandbox`, `nonprod`, `prod`) or in the local list `~/.claude/environments.local.json`. No declaration means unlabelled, which is treated as prod.
+Only the local list `~/.claude/environments.local.json` can declare `sandbox` or `nonprod`. A repo's `.claude/environment` can only tighten, by declaring `prod`. No declaration means unlabelled, which is treated as prod.
 
-| Environment | Data destruction | Infrastructure commands |
+| Environment | Data and database clients | Infrastructure commands |
 |---|---|---|
-| `sandbox` in the local list | No prompt | No prompt |
-| `sandbox` by repo file only | Ask | No prompt |
-| `nonprod` | Ask | No prompt |
+| `sandbox` (local list) | No prompt | No prompt |
+| `nonprod` (local list) | Ask | No prompt |
 | `prod` or unlabelled | Ask | Ask |
 
-In every environment, a command that names `prod`, `production` or `live` asks, and a force push to `main`, `master` or `release/*` asks. A declared `sandbox` or `nonprod` project is the explicit non-prod signal for the gates below.
+In every environment, a data or infrastructure command that names `prod`, `production` or `live` asks, and a force push to `main`, `master` or `release/*` asks. A project in the local list as `sandbox` or `nonprod` is the explicit non-prod signal for the gates below.
 
 ## Signals to read before touching anything
 

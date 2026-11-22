@@ -1,5 +1,7 @@
 {
   "destructive": "\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\b|DELETE\\s+FROM|ALTER\\s+TABLE\\b[^;]{0,300}\\b(DROP|DELETE)\\b|FLUSH(ALL|DB)\\b|dropDatabase\\b|deleteMany\\b)|\\.(drop|remove)\\s*\\(",
+  "wholeCommandScan": "\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\s|DELETE\\s+FROM|ALTER\\s+TABLE|FLUSH(ALL|DB))\\b",
+  "alwaysAskClients": ["psql", "mysql", "redis-cli", "bq"],
   "clients": {
     "psql": { "sql": ["-c", "--command"], "file": ["-f", "--file"], "host": ["-h", "--host"] },
     "mysql": { "sql": ["-e", "--execute"], "host": ["-h", "--host"] },

@@ -273,6 +273,16 @@
     },
     {
       "src": "custom",
+      "path": "scripts/hooks/env-guard-fsun.js",
+      "hash": "92402f6d0397"
+    },
+    {
+      "src": "custom",
+      "path": "scripts/hooks/env-guard-rules.json",
+      "hash": "6a3cb9e4d885"
+    },
+    {
+      "src": "custom",
       "path": "scripts/hooks/session-alias-hint-fsun.js",
       "hash": "7ef0c8b147a9"
     },

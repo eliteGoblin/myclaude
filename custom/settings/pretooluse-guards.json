@@ -12,7 +12,7 @@
           {
             "type": "command",
             "timeout": 5,
-            "command": "CMD=$(jq -r '.tool_input.command'); if echo \"$CMD\" | grep -qiE '\\b(DROP\\s+(TABLE|DATABASE|SCHEMA)|TRUNCATE\\s|DELETE\\s+FROM|ALTER\\s+TABLE|FLUSH(ALL|DB))\\b'; then jq -cn --arg r 'production-safety: destructive SQL/redis statement \u2014 confirm env + target + rollback' '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"ask\",permissionDecisionReason:$r}}'; fi; exit 0"
+            "command": "node \"$HOME/.claude/scripts/hooks/env-guard-fsun.js\" || printf '%s\\n' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"production-safety: guard could not run\"}}'"
           }
         ]
       }

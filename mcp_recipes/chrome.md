@@ -41,7 +41,7 @@ from Claude Code in any project folder.
 | Mac + Parallels Ubuntu VM           | DONE      | `~/devel/dotfiles/util/run_chrome_mcp` + `dev_sync`                | — |
 | Mac native                          | TODO     | Reuse `util/run_chrome_mcp` without the socat hop                  | — |
 | Mac + Ubuntu VM (UTM/VBox/libvirt)  | TODO     | Generalize `dev_sync`'s `prlctl` calls                             | — |
-| Linux native                        | TODO     | Equivalent to Mac native                                           | — |
+| Linux native (incl. cloud VM)      | DONE      | `~/devel/dotfiles/util/run_chrome_mcp_linux`                       | — |
 
 > **Reference copies** under `mcp_recipes/chrome/` are example snapshots so a
 > fresh machine that has only the ECC fork (not dotfiles) still has something
@@ -85,6 +85,22 @@ straight at it.
 claude mcp add -s user chrome-devtools -- \
   npx -y chrome-devtools-mcp@latest --browserUrl=http://127.0.0.1:9222
 ```
+
+### Linux native, including a cloud VM (DONE)
+
+```bash
+# One-time (assumes dotfiles is cloned at ~/devel/dotfiles and google-chrome is installed)
+ln -sfn ~/devel/dotfiles/util/run_chrome_mcp_linux ~/.local/bin/run_chrome_mcp_linux
+claude mcp add -s user chrome-devtools -- ~/.local/bin/run_chrome_mcp_linux mcp
+
+# Daily — nothing. Just run claude.
+```
+
+The helper reuses Chrome if it already answers on `127.0.0.1:9222`. If not, it
+starts Chrome on the user's desktop display when one exists (for example an
+xrdp session), otherwise headless with the same profile. To log in to a site:
+open the desktop, run `run_chrome_mcp_linux restart` so the window is visible,
+log in once; the login stays in `~/.chrome-mcp-profile`.
 
 ### Mac + Parallels Ubuntu VM (DONE)
 
